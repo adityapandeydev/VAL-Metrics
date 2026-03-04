@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-isolation
+target
+.env
+*.log
+*.exe
+*.msi
+.DS_Store
+gen/
+.system_generated/
