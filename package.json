@@ -1,0 +1,14 @@
+{
+  "name": "val-metrics-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VALORANT High-Performance Stats & Desktop Overlay Application",
+  "scripts": {
+    "install:frontend": "npm install --prefix frontend",
+    "dev:ui": "npm run dev --prefix frontend",
+    "dev:desktop": "npm run dev --prefix desktop",
+    "build:ui": "npm run build --prefix frontend",
+    "build:desktop": "npm run build --prefix desktop",
+    "dev:backend": "go run ./backend/cmd/server/main.go"
+  }
+}
