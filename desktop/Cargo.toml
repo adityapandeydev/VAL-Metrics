@@ -1,0 +1,17 @@
+[package]
+name = "val-metrics-desktop"
+version = "1.0.0"
+description = "High-performance VALORANT win32 overlay wrapper"
+authors = ["VAL-Metrics Systems Architecture Team"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = [] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
