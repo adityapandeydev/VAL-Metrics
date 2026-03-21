@@ -1,0 +1,82 @@
+{
+  "puuid": "4b56445b-670f-46ab-977d-dfc4a90f2f46",
+  "riotId": "Vanguard",
+  "currentRank": "Immortal 1 (78 RR)",
+  "peakRank": "Radiant #342 (Ep 8 Act 3)",
+  "overallKdRatio": 1.42,
+  "overallWinRate": 63.8,
+  "totalMatches": 412,
+  "agentMasteries": [
+    {
+      "agentName": "Jett",
+      "agentIconUrl": "https://media.valorant-api.com/agents/add6443a-41bd-e414-f6ad-e68d520de472/displayicon.png",
+      "matchesPlayed": 180,
+      "winRate": 66.5,
+      "avgCombatScore": 284.2,
+      "kdRatio": 1.58
+    },
+    {
+      "agentName": "Omen",
+      "agentIconUrl": "https://media.valorant-api.com/agents/8e253930-4c05-31dd-1b6c-968525494517/displayicon.png",
+      "matchesPlayed": 94,
+      "winRate": 61.2,
+      "avgCombatScore": 221,
+      "kdRatio": 1.22
+    },
+    {
+      "agentName": "Chamber",
+      "agentIconUrl": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4fec-84a9e28c69d7/displayicon.png",
+      "matchesPlayed": 76,
+      "winRate": 59.8,
+      "avgCombatScore": 245.8,
+      "kdRatio": 1.35
+    }
+  ],
+  "weaponAccuracy": [
+    {
+      "weaponName": "Vandal",
+      "totalKills": 3420,
+      "headshotPercent": 32.4,
+      "bodyshotPercent": 60.1,
+      "legshotPercent": 7.5
+    },
+    {
+      "weaponName": "Phantom",
+      "totalKills": 1210,
+      "headshotPercent": 27.8,
+      "bodyshotPercent": 65.2,
+      "legshotPercent": 7
+    },
+    {
+      "weaponName": "Operator",
+      "totalKills": 890,
+      "headshotPercent": 8.1,
+      "bodyshotPercent": 89.4,
+      "legshotPercent": 2.5
+    }
+  ],
+  "mapMatrix": [
+    {
+      "mapName": "Ascent",
+      "matchesPlayed": 92,
+      "winRate": 71.2,
+      "attackWinRate": 58.4,
+      "defendWinRate": 64.1
+    },
+    {
+      "mapName": "Lotus",
+      "matchesPlayed": 68,
+      "winRate": 64.7,
+      "attackWinRate": 62,
+      "defendWinRate": 51.2
+    },
+    {
+      "mapName": "Haven",
+      "matchesPlayed": 85,
+      "winRate": 61.2,
+      "attackWinRate": 59.8,
+      "defendWinRate": 52.4
+    }
+  ],
+  "lastUpdated": "2026-08-03T11:25:15.5777883+05:30"
+}
