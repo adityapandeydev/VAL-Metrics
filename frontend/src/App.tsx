@@ -1,14 +1,22 @@
-import { Component, createSignal, onMount, onCleanup } from 'solid-js';
+import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
 import { checkBackendHealth, auditLCUConnection, isBackendOnline, lcuStatus, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
-  const [activeView, setActiveView] = createSignal<'overlay' | 'dashboard'>('dashboard');
+  const [activeView, setActiveView] = createSignal<'dashboard' | 'overlay'>('dashboard');
   const [liveTelemetry, setLiveTelemetry] = createSignal<OverlayTelemetryPayload | undefined>(undefined);
 
-  // Periodic heartbeat polling to inspect Go Backend & Local VALORANT PC lockfile status
+  // Automatically adjust body class when entering or leaving desktop overlay mode
+  createEffect(() => {
+    if (activeView() === 'overlay') {
+      document.body.classList.add('transparent-overlay-mode');
+    } else {
+      document.body.classList.remove('transparent-overlay-mode');
+    }
+  });
+
   onMount(async () => {
     await checkBackendHealth();
     await auditLCUConnection();
@@ -17,7 +25,6 @@ export const App: Component = () => {
       const online = await checkBackendHealth();
       if (online) {
         const lcu = await auditLCUConnection();
-        // If LCU lockfile confirms player just entered an active VALORANT match, hydrate live HUD
         if (lcu.connected || activeView() === 'overlay') {
           const stats = await fetchLiveOverlayTelemetry("Vanguard#KILL");
           if (stats) setLiveTelemetry(stats);
@@ -29,51 +36,90 @@ export const App: Component = () => {
   });
 
   return (
-    <div class="min-h-screen">
-      {/* Top Floating System Indicator Bar */}
-      <div class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-val-navy/90 border-b border-x border-val-emerald/30 rounded-b-xl px-4 py-1.5 flex items-center gap-4 shadow-lg backdrop-blur text-[11px] font-mono">
-        <div class="flex items-center gap-1.5">
-          <span class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#00FF87]' : 'bg-rose-500'}`} />
-          <span class="text-slate-300">SERVER: <strong class={isBackendOnline() ? 'text-white' : 'text-rose-400'}>{isBackendOnline() ? 'ONLINE (:8080)' : 'DISCONNECTED'}</strong></span>
-        </div>
+    <div class="min-h-screen flex flex-col">
+      {/* Top Professional Navigation & Diagnostic Console */}
+      {activeView() === 'dashboard' ? (
+        <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/90 backdrop-blur-md border-b border-val-border px-6 py-3 shadow-xl">
+          <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Brand Logo */}
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-gradient-to-br from-val-red to-rose-700 flex items-center justify-center font-tactical font-extrabold text-white text-xl shadow-glow-red">
+                V
+              </div>
+              <div>
+                <span class="font-extrabold text-xl tracking-wider text-white">VAL<span class="text-val-red">-</span>METRICS</span>
+                <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-val-card text-val-muted border border-white/5">
+                  Tracker Pro v2.0
+                </span>
+              </div>
+            </div>
 
-        <div class="h-3 w-px bg-slate-700" />
+            {/* System Status Indicators & Mode Selector */}
+            <div class="flex flex-wrap items-center justify-center gap-3 text-xs">
+              {/* Backend Indicator Pill */}
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-val-card border border-white/5 shadow-inner">
+                <div class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#10B981]' : 'bg-rose-500 animate-pulse'}`} />
+                <span class="text-val-muted font-medium">SERVER:</span>
+                <span class={isBackendOnline() ? 'text-white font-bold' : 'text-rose-400 font-bold'}>
+                  {isBackendOnline() ? 'CONNECTED (:8080)' : 'OFFLINE'}
+                </span>
+              </div>
 
-        <div class="flex items-center gap-1.5">
-          <span class={`w-2 h-2 rounded-full ${lcuStatus().connected ? 'bg-teal-400 shadow-[0_0_8px_#2dd4bf]' : 'bg-amber-400'}`} />
-          <span class="text-slate-300">VALORANT LCU: <strong class={lcuStatus().connected ? 'text-teal-400' : 'text-amber-400'}>{lcuStatus().connected ? `LINKED (PID ${lcuStatus().pid})` : 'STANDBY'}</strong></span>
-        </div>
+              {/* VALORANT LCU Indicator Pill */}
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-val-card border border-white/5 shadow-inner">
+                <div class={`w-2 h-2 rounded-full ${lcuStatus().connected ? 'bg-val-cyan shadow-[0_0_8px_#00E5FF]' : 'bg-amber-400/80'}`} />
+                <span class="text-val-muted font-medium">GAME CLIENT:</span>
+                <span class={lcuStatus().connected ? 'text-val-cyan font-bold' : 'text-amber-400/90 font-semibold'}>
+                  {lcuStatus().connected ? `LINKED (PID ${lcuStatus().pid})` : 'LISTENING (STANDBY)'}
+                </span>
+              </div>
 
-        <div class="h-3 w-px bg-slate-700" />
-
-        <div class="flex gap-1 bg-black/60 p-0.5 rounded border border-slate-800">
+              {/* Mode Switcher */}
+              <div class="flex bg-[#07090D] p-1 rounded-xl border border-val-border ml-2">
+                <button
+                  onClick={() => setActiveView('dashboard')}
+                  class={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center gap-1.5 ${
+                    activeView() === 'dashboard'
+                      ? 'bg-val-red text-white shadow-glow-red font-bold'
+                      : 'text-val-muted hover:text-white'
+                  }`}
+                >
+                  <span>📊</span> ANALYTICS HUB
+                </button>
+                <button
+                  onClick={() => setActiveView('overlay')}
+                  class={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center gap-1.5 ${
+                    activeView() === 'overlay'
+                      ? 'bg-val-cyan text-val-obsidian font-extrabold shadow-glow-cyan'
+                      : 'text-val-muted hover:text-white'
+                  }`}
+                >
+                  <span>🎯</span> IN-GAME HUD
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+      ) : (
+        /* Minimal Floating Control Pill for Overlay Mode (Keeps HUD totally unobstructed) */
+        <div class="fixed top-3 right-4 z-[9999] flex items-center gap-2">
           <button
             onClick={() => setActiveView('dashboard')}
-            class={`px-3 py-1 rounded text-[10px] font-bold transition-all ${
-              activeView() === 'dashboard' ? 'bg-val-emerald text-val-navy shadow-[0_0_8px_#00FF87]' : 'text-slate-400 hover:text-white'
-            }`}
+            class="px-4 py-2 rounded-xl bg-val-obsidian/90 border border-val-red/50 text-white font-bold text-xs shadow-glass hover:bg-val-red transition-all flex items-center gap-2 group"
           >
-            📊 FULL DASHBOARD
-          </button>
-          <button
-            onClick={() => setActiveView('overlay')}
-            class={`px-3 py-1 rounded text-[10px] font-bold transition-all ${
-              activeView() === 'overlay' ? 'bg-val-emerald text-val-navy shadow-[0_0_8px_#00FF87]' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            🎯 IN-GAME HUD (SUB-KB)
+            <span>◀ RETURN TO DASHBOARD</span>
           </button>
         </div>
-      </div>
+      )}
 
-      {/* Main View Port */}
-      <div class="pt-12">
+      {/* Main Container */}
+      <main class="flex-1 w-full">
         {activeView() === 'dashboard' ? (
           <AnalyticsDashboard />
         ) : (
           <LiveMatchOverlay initialData={liveTelemetry()} />
         )}
-      </div>
+      </main>
     </div>
   );
 };

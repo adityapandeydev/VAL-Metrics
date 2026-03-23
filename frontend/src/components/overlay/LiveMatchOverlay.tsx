@@ -1,220 +1,200 @@
-import { createSignal, createEffect, onMount, onCleanup, Show, Component } from "solid-js";
-import { invoke } from "@tauri-apps/api/core";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { OverlayTelemetryPayload } from "../../types/valorant";
+import { Component, createSignal, Show, onMount } from 'solid-js';
+import { OverlayTelemetryPayload } from '../../types/valorant';
+import { fetchLiveOverlayTelemetry } from '../../services/telemetry';
 
-export const LiveMatchOverlay: Component = () => {
-  // --- Zero VDOM Reactive Signals ---
-  const [telemetry, setTelemetry] = createSignal<OverlayTelemetryPayload | null>(null);
-  const [isClickThrough, setIsClickThrough] = createSignal<boolean>(true);
-  const [connectionStatus, setConnectionStatus] = createSignal<"CONNECTED" | "SYNCING" | "OFFLINE">("SYNCING");
-  let unlistenTelemetry: UnlistenFn | undefined;
-  let unlistenStatus: UnlistenFn | undefined;
+interface Props {
+  initialData?: OverlayTelemetryPayload;
+}
+
+export const LiveMatchOverlay: Component<Props> = (props) => {
+  const [data, setData] = createSignal<OverlayTelemetryPayload | undefined>(props.initialData);
+  const [isClickThrough, setIsClickThrough] = createSignal(false);
+  const [isSimulated, setIsSimulated] = createSignal(false);
 
   onMount(async () => {
-    try {
-      // 1. Listen for real-time sub-kilobyte telemetry updates from Go Backend / Tauri IPC
-      unlistenTelemetry = await listen<OverlayTelemetryPayload>("valorant-telemetry-tick", (event) => {
-        setTelemetry(event.payload);
-        setConnectionStatus("CONNECTED");
-      });
-
-      // 2. Listen for hardware global hotkey (Alt+X) click-through mode flips from Rust
-      unlistenStatus = await listen<boolean>("click-through-status-changed", (event) => {
-        setIsClickThrough(event.payload);
-      });
-    } catch (e) {
-      console.info("Running in Web Preview Mode (non-Tauri environment):", e);
+    if (!data()) {
+      const live = await fetchLiveOverlayTelemetry("Vanguard#KILL");
+      if (live) setData(live);
     }
-
-    // Seed mock initial state for immediate browser & desktop development testing
-    setTelemetry({
-      timestamp: Date.now(),
-      matchState: {
-        matchId: "VAL-AP-992184",
-        mapName: "Ascent",
-        mode: "Competitive",
-        serverRegion: "AP - Mumbai",
-        playerTeam: "BLUE",
-        teamScore: 9,
-        enemyScore: 7,
-        roundNumber: 17,
-        phase: "COMBAT"
-      },
-      playerStats: {
-        puuid: "4b56445b-670f-46ab-977d-dfc4a90f2f46",
-        riotId: "Vanguard#KILL",
-        agentName: "Jett",
-        agentIconUrl: "https://media.valorant-api.com/agents/add6443a-41bd-e414-f6ad-e68d520de472/displayicon.png",
-        kills: 18,
-        deaths: 11,
-        assists: 4,
-        kdRatio: 1.64,
-        combatScore: 285,
-        economyCredits: 4200,
-        currentTierName: "Immortal 1",
-        currentTierIconUrl: "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/24/largeicon.png",
-        rankingRating: 78,
-        rrChangeLastMatch: 22,
-        mapWinRate: 68.4,
-        historicalMatchesOnMap: 41
-      }
-    });
   });
 
-  onCleanup(() => {
-    if (unlistenTelemetry) unlistenTelemetry();
-    if (unlistenStatus) unlistenStatus();
-  });
-
-  // Toggle mode via user click when in interactive state
-  const handleToggleMode = async () => {
+  // Invoke native Tauri Win32 IPC command to toggle transparency mouse pass-through
+  const toggleClickThrough = async () => {
     try {
-      const nextState = !isClickThrough();
-      await invoke("toggle_click_through", { enable: nextState });
-      setIsClickThrough(nextState);
-    } catch (err) {
-      console.warn("Tauri native invoke not found (Web preview fallback):", err);
+      const { invoke } = await import('@tauri-apps/api/core');
+      const newState = !isClickThrough();
+      await invoke('toggle_click_through', { enable: newState });
+      setIsClickThrough(newState);
+    } catch {
       setIsClickThrough(!isClickThrough());
+      setIsSimulated(true);
     }
   };
 
+  const setPhase = (newPhase: "BUY_PHASE" | "COMBAT" | "POST_ROUND") => {
+    const current = data();
+    if (!current) return;
+    setData({
+      ...current,
+      matchState: { ...current.matchState, phase: newPhase }
+    });
+  };
+
   return (
-    <div 
-      class="select-none font-mono text-white antialiased transition-all duration-200"
-      style={{
-        width: "380px",
-        "background-color": isClickThrough() ? "rgba(11, 15, 23, 0.78)" : "rgba(15, 20, 30, 0.94)",
-        "backdrop-filter": "blur(12px)",
-        border: isClickThrough() ? "1px solid rgba(0, 255, 135, 0.25)" : "1px solid rgba(0, 229, 255, 0.85)",
-        "border-radius": "10px",
-        "box-shadow": isClickThrough() ? "0 4px 24px rgba(0, 0, 0, 0.6)" : "0 0 25px rgba(0, 229, 255, 0.25)",
-        overflow: "hidden"
-      }}
-    >
-      {/* --- Overlay Header & Mode Banner --- */}
-      <div 
-        class="flex items-center justify-between px-3 py-1.5 text-xs font-semibold tracking-wider"
-        style={{
-          background: isClickThrough() 
-            ? "linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(0,0,0,0) 100%)" 
-            : "linear-gradient(90deg, rgba(0, 229, 255, 0.35) 0%, rgba(0, 100, 255, 0.2) 100%)",
-          "border-bottom": "1px solid rgba(255,255,255,0.08)"
-        }}
-      >
-        <div class="flex items-center space-x-2">
-          <span 
-            class="inline-block h-2 w-2 rounded-full animate-pulse" 
-            style={{ "background-color": isClickThrough() ? "#00FF87" : "#00E5FF" }} 
-          />
-          <span class="uppercase tracking-widest text-[10px] text-zinc-300">
-            {isClickThrough() ? "GHOST OVERLAY [ALT+X TO UNLOCK]" : "INTERACTIVE HUD [UNLOCKED]"}
-          </span>
-        </div>
-        <Show when={!isClickThrough()}>
-          <button 
-            onClick={handleToggleMode}
-            class="cursor-pointer rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] text-cyan-300 hover:bg-cyan-500/40 transition"
-          >
-            LOCK
-          </button>
-        </Show>
+    <Show when={data()} fallback={
+      <div class="w-full min-h-[400px] flex items-center justify-center p-8 text-val-muted font-tactical text-xl">
+        <span>CONNECTING TO SUB-KILOBYTE GO TELEMETRY STREAM...</span>
       </div>
-
-      {/* --- Live Telemetry Content --- */}
-      <Show when={telemetry()} fallback={<div class="p-4 text-center text-xs text-zinc-400">Waiting for Go telemetry stream...</div>}>
-        {(data) => (
-          <div class="p-3 space-y-3">
-            {/* Match Info & Score Bar */}
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2.5">
-                <div class="relative h-10 w-10 overflow-hidden rounded border border-zinc-700 bg-zinc-800/80">
-                  <img src={data().playerStats.agentIconUrl} alt="Agent" class="h-full w-full object-cover scale-110" />
-                </div>
-                <div>
-                  <div class="flex items-center space-x-1.5">
-                    <span class="font-bold text-sm text-zinc-100">{data().playerStats.agentName}</span>
-                    <span class="text-[11px] text-zinc-400">({data().playerStats.riotId})</span>
-                  </div>
-                  <div class="text-[10px] text-emerald-400 font-medium">
-                    {data().matchState.mapName} • {data().matchState.mode} • R{data().matchState.roundNumber}
-                  </div>
-                </div>
-              </div>
-
-              {/* Live Match Scoreboard Tag */}
-              <div class="flex flex-col items-end">
-                <div class="flex items-center space-x-1.5 rounded bg-zinc-900/90 px-2 py-1 border border-zinc-700/60">
-                  <span class="text-cyan-400 font-extrabold text-sm">{data().matchState.teamScore}</span>
-                  <span class="text-zinc-500 text-xs">:</span>
-                  <span class="text-rose-500 font-extrabold text-sm">{data().matchState.enemyScore}</span>
-                </div>
-                <span class="text-[9px] text-zinc-400 uppercase mt-0.5">{data().matchState.phase.replace("_", " ")}</span>
+    }>
+      {(live) => (
+        <div class="w-full h-[90vh] flex flex-col justify-between p-6 select-none font-sans overflow-hidden pointer-events-none">
+          
+          {/* TOP TOURNAMENT HUD SCORE BAR */}
+          <header class="w-full max-w-4xl mx-auto flex items-center justify-between bg-[#0B0E14]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl pointer-events-auto">
+            {/* Map & Region Info */}
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-7 rounded-sm bg-val-red shadow-glow-red" />
+              <div>
+                <h2 class="text-xl font-extrabold tracking-wider text-white font-tactical uppercase">
+                  {live().matchState.mapName}
+                </h2>
+                <p class="text-[10px] text-val-muted uppercase tracking-widest font-bold">
+                  {live().matchState.mode} • {live().matchState.serverRegion}
+                </p>
               </div>
             </div>
 
-            {/* Tactical Metrics Grid (K/D, Map Win Rate, Combat Score) */}
-            <div class="grid grid-cols-3 gap-2 py-1">
-              {/* K/D Metric */}
-              <div class="rounded-lg bg-zinc-900/60 p-2 border border-zinc-800/80 flex flex-col items-center justify-center">
-                <span class="text-[9px] text-zinc-400 uppercase font-semibold">Realtime K/D</span>
-                <span class={`text-lg font-black my-0.5 ${
-                  data().playerStats.kdRatio >= 1.2 ? "text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" : 
-                  data().playerStats.kdRatio >= 1.0 ? "text-amber-400" : "text-rose-400"
+            {/* Live Tournament Score Board */}
+            <div class="flex items-center gap-4 bg-black/60 px-6 py-2 rounded-xl border border-white/5 shadow-inner">
+              <div class="text-right">
+                <span class="text-[10px] text-val-cyan font-bold block">YOUR TEAM (BLUE)</span>
+                <span class="text-3xl font-black font-tactical text-val-cyan leading-none">{live().matchState.teamScore}</span>
+              </div>
+              <div class="text-xl font-black text-slate-600 font-tactical">:</div>
+              <div>
+                <span class="text-[10px] text-rose-500 font-bold block">ENEMY (RED)</span>
+                <span class="text-3xl font-black font-tactical text-rose-500 leading-none">{live().matchState.enemyScore}</span>
+              </div>
+            </div>
+
+            {/* Round & Game Phase Badge */}
+            <div class="flex flex-col items-end">
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-val-muted">Round {live().matchState.roundNumber}</span>
+                <span class={`text-[11px] font-extrabold px-3 py-1 rounded-md uppercase tracking-wider shadow-md ${
+                  live().matchState.phase === 'COMBAT' 
+                    ? 'bg-val-red text-white shadow-glow-red' 
+                    : live().matchState.phase === 'BUY_PHASE' 
+                      ? 'bg-val-cyan text-val-obsidian font-black shadow-glow-cyan' 
+                      : 'bg-val-gold text-val-obsidian font-black'
                 }`}>
-                  {data().playerStats.kdRatio.toFixed(2)}
-                </span>
-                <span class="text-[10px] text-zinc-400 font-sans">
-                  {data().playerStats.kills}K / {data().playerStats.deaths}D / {data().playerStats.assists}A
-                </span>
-              </div>
-
-              {/* Map Win Rate Metric */}
-              <div class="rounded-lg bg-zinc-900/60 p-2 border border-zinc-800/80 flex flex-col items-center justify-center">
-                <span class="text-[9px] text-zinc-400 uppercase font-semibold">Map Win Rate</span>
-                <span class="text-lg font-black text-cyan-400 my-0.5 drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]">
-                  {data().playerStats.mapWinRate}%
-                </span>
-                <span class="text-[10px] text-zinc-400 font-sans">
-                  Across {data().playerStats.historicalMatchesOnMap} Acts
-                </span>
-              </div>
-
-              {/* Avg Combat Score / Econ Metric */}
-              <div class="rounded-lg bg-zinc-900/60 p-2 border border-zinc-800/80 flex flex-col items-center justify-center">
-                <span class="text-[9px] text-zinc-400 uppercase font-semibold">Combat Score</span>
-                <span class="text-lg font-black text-purple-400 my-0.5 drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">
-                  {data().playerStats.combatScore}
-                </span>
-                <span class="text-[10px] text-emerald-400 font-mono font-bold">
-                  ◈ {data().playerStats.economyCredits}
+                  {live().matchState.phase.replace('_', ' ')}
                 </span>
               </div>
             </div>
+          </header>
 
-            {/* Act Rank Progression Bar */}
-            <div class="rounded bg-zinc-900/80 p-2 border border-zinc-800/90">
-              <div class="flex items-center justify-between text-[11px] mb-1">
-                <div class="flex items-center space-x-1.5">
-                  <span class="text-zinc-200 font-bold">{data().playerStats.currentTierName}</span>
-                  <span class="text-xs font-black text-emerald-400">
-                    ({data().playerStats.rrChangeLastMatch >= 0 ? `+${data().playerStats.rrChangeLastMatch}` : data().playerStats.rrChangeLastMatch} last)
+
+          {/* BOTTOM PLAYER TACTICAL TELEMETRY TRAY */}
+          <footer class="w-full max-w-5xl mx-auto flex items-end justify-between gap-6 pointer-events-auto">
+            
+            {/* Agent Portrait & Active Combat Score Pill */}
+            <div class="flex items-center gap-5 bg-[#0B0E14]/95 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-2xl relative overflow-hidden flex-1">
+              <div class="absolute -right-6 -top-6 w-36 h-36 bg-val-cyan/10 rounded-full blur-2xl pointer-events-none" />
+              
+              <img 
+                src={live().playerStats.agentIconUrl} 
+                alt={live().playerStats.agentName} 
+                class="w-20 h-20 rounded-xl border border-white/10 object-cover shadow-md bg-gradient-to-t from-black to-slate-900" 
+              />
+              
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl font-black font-tactical text-white uppercase tracking-wide">{live().playerStats.agentName}</span>
+                  <span class="text-xs px-2.5 py-0.5 rounded bg-white/10 text-val-cyan font-tactical font-bold border border-white/5">
+                    {live().playerStats.currentTierName}
                   </span>
                 </div>
-                <span class="font-mono font-extrabold text-xs text-zinc-300">
-                  <span class="text-cyan-400">{data().playerStats.rankingRating}</span> / 100 RR
-                </span>
+
+                <div class="flex items-center gap-6 pt-2 text-xs">
+                  <div>
+                    <span class="text-[10px] text-val-muted uppercase font-semibold">Live K/D/A</span>
+                    <p class="text-2xl font-tactical font-extrabold text-white mt-0.5">
+                      {live().playerStats.kills} <span class="text-slate-500 font-normal">/</span> <span class="text-rose-400">{live().playerStats.deaths}</span> <span class="text-slate-500 font-normal">/</span> {live().playerStats.assists}
+                    </p>
+                  </div>
+
+                  <div class="h-8 w-px bg-white/10" />
+
+                  <div>
+                    <span class="text-[10px] text-val-muted uppercase font-semibold">Avg Combat Score</span>
+                    <p class="text-2xl font-tactical font-extrabold text-val-cyan mt-0.5">{live().playerStats.combatScore} <span class="text-[10px] font-normal text-val-muted">ACS</span></p>
+                  </div>
+
+                  <div class="h-8 w-px bg-white/10" />
+
+                  <div>
+                    <span class="text-[10px] text-val-muted uppercase font-semibold">Economy Reserve</span>
+                    <p class="text-2xl font-tactical font-extrabold text-val-gold mt-0.5">${live().playerStats.economyCredits.toLocaleString()}</p>
+                  </div>
+                </div>
               </div>
-              <div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
-                <div 
-                  class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-500 shadow-[0_0_10px_#00FF87]" 
-                  style={{ width: `${data().playerStats.rankingRating}%` }} 
-                />
+
+              {/* Rank Progression Rating Badge */}
+              <div class="ml-auto text-right bg-black/60 p-4 rounded-xl border border-white/5">
+                <span class="text-[10px] font-semibold uppercase text-val-muted block">Projected Act RR</span>
+                <span class="text-3xl font-tactical font-extrabold text-val-emerald mt-1 inline-block">
+                  +{live().playerStats.rrChangeLastMatch} RR
+                </span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Map Win Rate: {live().playerStats.mapWinRate}%</span>
               </div>
             </div>
-          </div>
-        )}
-      </Show>
-    </div>
+
+            {/* Developer & Native Win32 Overlay Controls */}
+            <div class="flex flex-col gap-3 bg-[#0B0E14]/90 p-4 rounded-2xl border border-white/10 shadow-2xl text-right shrink-0">
+              <span class="text-[11px] font-bold text-val-muted uppercase tracking-wider border-b border-white/10 pb-2">
+                ⚡ Overlay Dev Controls
+              </span>
+              
+              {/* Phase Switchers */}
+              <div class="flex justify-end gap-1.5">
+                <button 
+                  onClick={() => setPhase("BUY_PHASE")}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${live().matchState.phase === 'BUY_PHASE' ? 'bg-val-cyan text-val-obsidian font-black' : 'bg-val-card text-slate-400 hover:text-white'}`}
+                >
+                  BUY
+                </button>
+                <button 
+                  onClick={() => setPhase("COMBAT")}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${live().matchState.phase === 'COMBAT' ? 'bg-val-red text-white shadow-glow-red' : 'bg-val-card text-slate-400 hover:text-white'}`}
+                >
+                  COMBAT
+                </button>
+                <button 
+                  onClick={() => setPhase("POST_ROUND")}
+                  class={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${live().matchState.phase === 'POST_ROUND' ? 'bg-val-gold text-val-obsidian font-black' : 'bg-val-card text-slate-400 hover:text-white'}`}
+                >
+                  END
+                </button>
+              </div>
+
+              {/* Tauri Native Win32 Click-Through Lock Toggle */}
+              <button
+                onClick={toggleClickThrough}
+                class={`px-4 py-2 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 shadow-lg ${
+                  isClickThrough()
+                    ? 'bg-val-emerald text-val-obsidian shadow-[0_0_15px_rgba(16,185,129,0.35)] font-black'
+                    : 'bg-val-red text-white hover:bg-val-redHover shadow-glow-red'
+                }`}
+              >
+                <span>{isClickThrough() ? '🔓 GHOST MODE (CLICK-THRU)' : '🔒 LOCK HUD WINDOW'}</span>
+                <Show when={isSimulated()}><span class="text-[10px] opacity-75">(WEB SIM)</span></Show>
+              </button>
+            </div>
+
+          </footer>
+        </div>
+      )}
+    </Show>
   );
 };

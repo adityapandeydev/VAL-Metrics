@@ -3,7 +3,64 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-transparent m-0 p-0 overflow-hidden font-mono antialiased text-white;
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
+
+  /* Standard Web Dashboard Dark Mode Canvas */
+  body {
+    background-color: #0B0E14;
+    color: #F8FAFC;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* When desktop transparent HUD mode is engaged, strip solid dark background */
+  body.transparent-overlay-mode {
+    background-color: transparent !important;
+  }
+}
+
+/* Elegant sleek scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0E14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #232D42;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF4655;
+}
+
+/* Glassmorphic card surfaces and subtle grid texturing */
+.glass-panel {
+  background: rgba(22, 29, 44, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(30, 39, 58, 0.85);
+  border-color: rgba(255, 70, 85, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.75);
+}
+
+/* Custom progress bar transitions */
+.progress-animate {
+  transition: width 0.8s ease-in-out;
 }
