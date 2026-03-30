@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js';
 import { OverlayTelemetryPayload } from '../types/valorant';
+import { AdvancedPlayerMetrics } from '../types/analytics';
 
-// Backend configuration
 const BACKEND_URL = 'http://localhost:8080/api/v1';
 
 export interface LCUStatus {
@@ -11,52 +11,9 @@ export interface LCUStatus {
   reason?: string;
 }
 
-export interface AgentMastery {
-  agentName: string;
-  agentIconUrl: string;
-  matchesPlayed: number;
-  winRate: number;
-  avgCombatScore: number;
-  kdRatio: number;
-}
-
-export interface WeaponMarksmanship {
-  weaponName: string;
-  totalKills: number;
-  headshotPercent: number;
-  bodyshotPercent: number;
-  legshotPercent: number;
-}
-
-export interface MapPerformance {
-  mapName: string;
-  matchesPlayed: number;
-  winRate: number;
-  attackWinRate: number;
-  defendWinRate: number;
-}
-
-export interface PlayerHistoricalSummary {
-  puuid: string;
-  riotId: string;
-  currentRank: string;
-  peakRank: string;
-  overallKdRatio: number;
-  overallWinRate: number;
-  totalMatches: number;
-  agentMasteries: AgentMastery[];
-  weaponAccuracy: WeaponMarksmanship[];
-  mapMatrix: MapPerformance[];
-  lastUpdated: string;
-}
-
-// Reactive status signals for global UI binding
 export const [isBackendOnline, setIsBackendOnline] = createSignal<boolean>(false);
 export const [lcuStatus, setLcuStatus] = createSignal<LCUStatus>({ connected: false });
 
-/**
- * Pings the Go Backend server health endpoint to verify connectivity
- */
 export async function checkBackendHealth(): Promise<boolean> {
   try {
     const res = await fetch(`${BACKEND_URL}/status`);
@@ -70,9 +27,6 @@ export async function checkBackendHealth(): Promise<boolean> {
   return false;
 }
 
-/**
- * Audits whether the local VALORANT PC client is running and linked via LCU loopback
- */
 export async function auditLCUConnection(): Promise<LCUStatus> {
   try {
     const res = await fetch(`${BACKEND_URL}/lcu/status`);
@@ -89,10 +43,7 @@ export async function auditLCUConnection(): Promise<LCUStatus> {
   return fallback;
 }
 
-/**
- * Retrieves ultra-lightweight (< 450 bytes) live match telemetry for the in-game HUD
- */
-export async function fetchLiveOverlayTelemetry(riotId: string = "Vanguard#KILL"): Promise<OverlayTelemetryPayload | null> {
+export async function fetchLiveOverlayTelemetry(riotId: string = "throwkarumga#6969"): Promise<OverlayTelemetryPayload | null> {
   try {
     const res = await fetch(`${BACKEND_URL}/players/live/${encodeURIComponent(riotId)}`);
     if (res.ok) {
@@ -105,16 +56,16 @@ export async function fetchLiveOverlayTelemetry(riotId: string = "Vanguard#KILL"
 }
 
 /**
- * Retrieves comprehensive Tracker.gg style historical profile statistics from SQLite Vault
+ * Retrieves comprehensive VAL-Index analytical profile metrics from our high-precision Go backend
  */
-export async function fetchHistoricalAnalytics(riotId: string = "Vanguard#KILL"): Promise<PlayerHistoricalSummary | null> {
+export async function fetchHistoricalAnalytics(riotId: string = "throwkarumga#6969"): Promise<AdvancedPlayerMetrics | null> {
   try {
     const res = await fetch(`${BACKEND_URL}/players/analytics/${encodeURIComponent(riotId)}`);
     if (res.ok) {
       return await res.json();
     }
   } catch (e) {
-    console.error("Failed to load comprehensive historical analytics:", e);
+    console.error("Failed to load comprehensive advanced metrics:", e);
   }
   return null;
 }
