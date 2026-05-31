@@ -1,0 +1,1 @@
+export const VandalData = { name: "Vandal", cost: 2900, headDmg: 160, bodyDmg: 40, legDmg: 34, magazine: 25 };
