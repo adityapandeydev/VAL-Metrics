@@ -1,0 +1,1 @@
+export const PhantomData = { name: "Phantom", cost: 2900, headDmg: 156, bodyDmg: 39, legDmg: 33, magazine: 30 };
