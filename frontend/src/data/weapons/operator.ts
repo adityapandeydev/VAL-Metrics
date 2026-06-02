@@ -1,0 +1,1 @@
+export const OperatorData = { name: "Operator", cost: 4700, headDmg: 255, bodyDmg: 150, legDmg: 120, zoom: "2.5x/5x" };
