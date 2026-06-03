@@ -1,0 +1,1 @@
+export const GhostData = { name: "Ghost", cost: 500, headDmg: 105, bodyDmg: 30, legDmg: 25, magazine: 15 };
