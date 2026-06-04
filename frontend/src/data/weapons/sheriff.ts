@@ -1,0 +1,1 @@
+export const SheriffData = { name: "Sheriff", cost: 800, headDmg: 159, bodyDmg: 55, legDmg: 46, magazine: 6 };
