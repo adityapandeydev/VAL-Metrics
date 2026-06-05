@@ -1,0 +1,1 @@
+export const OutlawData = { name: "Outlaw", cost: 2400, headDmg: 238, bodyDmg: 140, legDmg: 119, barrelCount: 2 };
