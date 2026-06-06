@@ -1,0 +1,1 @@
+export const MarshalData = { name: "Marshal", cost: 950, headDmg: 202, bodyDmg: 101, legDmg: 85, moveSpeed: "90%" };
