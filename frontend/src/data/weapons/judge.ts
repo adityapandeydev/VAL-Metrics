@@ -1,0 +1,1 @@
+export const JudgeData = { name: "Judge", cost: 1850, pellets: 12, dmgPerPellet: 17, fireMode: "Automatic" };
