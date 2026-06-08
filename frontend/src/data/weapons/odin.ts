@@ -1,0 +1,1 @@
+export const OdinData = { name: "Odin", cost: 3200, magazine: 100, fireRate: "15.6 rounds/sec", penetration: "High" };
