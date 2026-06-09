@@ -1,0 +1,1 @@
+export const SpectreData = { name: "Spectre", cost: 1600, headDmg: 78, bodyDmg: 26, legDmg: 22, fireRate: "13.3 r/s" };
