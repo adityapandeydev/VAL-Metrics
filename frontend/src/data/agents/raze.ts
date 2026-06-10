@@ -1,0 +1,1 @@
+export const RazeData = { name: "Raze", role: "Duelist", origin: "Brazil", ultimate: "Showstopper", cost: 8 };
