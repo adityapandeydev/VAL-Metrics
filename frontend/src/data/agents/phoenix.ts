@@ -1,0 +1,1 @@
+export const PhoenixData = { name: "Phoenix", role: "Duelist", origin: "United Kingdom", ultimate: "Run It Back" };
