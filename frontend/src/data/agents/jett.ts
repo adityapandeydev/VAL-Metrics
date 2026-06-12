@@ -1,0 +1,1 @@
+export const JettData = { name: "Jett", role: "Duelist", origin: "South Korea", ultimate: "Blade Storm" };
