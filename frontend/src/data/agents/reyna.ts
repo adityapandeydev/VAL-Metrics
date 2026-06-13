@@ -1,0 +1,1 @@
+export const ReynaData = { name: "Reyna", role: "Duelist", origin: "Mexico", ultimate: "Empress" };
