@@ -1,0 +1,1 @@
+export const IsoData = { name: "Iso", role: "Duelist", origin: "China", ultimate: "Kill Contract" };
