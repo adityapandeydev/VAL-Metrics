@@ -1,0 +1,1 @@
+export const OmenData = { name: "Omen", role: "Controller", origin: "Unknown", ultimate: "From the Shadows" };
