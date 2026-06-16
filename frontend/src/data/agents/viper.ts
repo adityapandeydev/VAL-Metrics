@@ -1,0 +1,1 @@
+export const ViperData = { name: "Viper", role: "Controller", origin: "USA", ultimate: "Viper's Pit" };
