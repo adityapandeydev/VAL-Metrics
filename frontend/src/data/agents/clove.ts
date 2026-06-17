@@ -1,0 +1,1 @@
+export const CloveData = { name: "Clove", role: "Controller", origin: "Scotland", ultimate: "Not Dead Yet" };
