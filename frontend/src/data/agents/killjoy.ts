@@ -1,0 +1,1 @@
+export const KilljoyData = { name: "Killjoy", role: "Sentinel", origin: "Germany", ultimate: "Lockdown" };
