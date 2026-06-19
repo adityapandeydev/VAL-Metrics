@@ -1,0 +1,1 @@
+export const CypherData = { name: "Cypher", role: "Sentinel", origin: "Morocco", ultimate: "Neural Theft" };
