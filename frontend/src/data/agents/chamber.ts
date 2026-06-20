@@ -1,0 +1,1 @@
+export const ChamberData = { name: "Chamber", role: "Sentinel", origin: "France", ultimate: "Tour De Force" };
