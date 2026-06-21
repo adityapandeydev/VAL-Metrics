@@ -1,0 +1,1 @@
+export const DeadlockData = { name: "Deadlock", role: "Sentinel", origin: "Norway", ultimate: "Annihilation" };
