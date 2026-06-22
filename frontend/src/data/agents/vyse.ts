@@ -1,0 +1,1 @@
+export const VyseData = { name: "Vyse", role: "Sentinel", origin: "Earth", ultimate: "Steel Garden" };
