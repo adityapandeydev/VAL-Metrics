@@ -1,0 +1,1 @@
+export const SovaData = { name: "Sova", role: "Initiator", origin: "Russia", ultimate: "Hunter's Fury" };
