@@ -1,0 +1,1 @@
+export const FadeData = { name: "Fade", role: "Initiator", origin: "Turkey", ultimate: "Nightfall" };
