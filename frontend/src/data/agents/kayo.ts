@@ -1,0 +1,1 @@
+export const KAYOData = { name: "KAY/O", role: "Initiator", origin: "Alternate Future", ultimate: "NULL/cmd" };
