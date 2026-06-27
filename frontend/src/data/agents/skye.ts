@@ -1,0 +1,1 @@
+export const SkyeData = { name: "Skye", role: "Initiator", origin: "Australia", ultimate: "Seekers" };
