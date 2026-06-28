@@ -1,0 +1,1 @@
+export const GekkoData = { name: "Gekko", role: "Initiator", origin: "USA", ultimate: "Thrash" };
