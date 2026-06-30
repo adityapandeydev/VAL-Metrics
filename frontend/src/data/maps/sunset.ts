@@ -1,0 +1,1 @@
+export const SunsetMap = { name: "Sunset", location: "Los Angeles", sites: ["A", "B"], gimmicks: "Mechanical Doors" };
