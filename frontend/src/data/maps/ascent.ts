@@ -1,0 +1,1 @@
+export const AscentMap = { name: "Ascent", location: "Italy", sites: ["A", "B"], gimmicks: "Armored Bomb Site Doors" };
