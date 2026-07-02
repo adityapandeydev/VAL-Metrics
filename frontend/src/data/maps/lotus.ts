@@ -1,0 +1,1 @@
+export const LotusMap = { name: "Lotus", location: "India", sites: ["A", "B", "C"], gimmicks: "Rotating Stone Doors & Breakable Wall" };
