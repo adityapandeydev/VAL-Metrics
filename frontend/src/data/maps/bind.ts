@@ -1,0 +1,1 @@
+export const BindMap = { name: "Bind", location: "Morocco", sites: ["A", "B"], gimmicks: "One-Way Teleporters" };
