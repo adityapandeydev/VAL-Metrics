@@ -1,0 +1,1 @@
+export const HavenMap = { name: "Haven", location: "Bhutan", sites: ["A", "B", "C"], gimmicks: "Three Dedicated Bomb Sites" };
