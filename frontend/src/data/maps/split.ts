@@ -1,0 +1,1 @@
+export const SplitMap = { name: "Split", location: "Japan", sites: ["A", "B"], gimmicks: "Vertical Ropes / Zip Lines" };
