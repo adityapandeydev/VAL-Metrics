@@ -1,0 +1,1 @@
+export const IceboxMap = { name: "Icebox", location: "Arctic Circle", sites: ["A", "B"], gimmicks: "Horizontal Ziplines & Vertical Shipping Containers" };
