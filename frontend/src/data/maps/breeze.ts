@@ -1,0 +1,1 @@
+export const BreezeMap = { name: "Breeze", location: "Atlantic Ocean", sites: ["A", "B"], gimmicks: "Unidirectional Chute & Mechanical Doors" };
