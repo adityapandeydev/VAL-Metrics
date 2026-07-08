@@ -1,0 +1,1 @@
+export const PearlMap = { name: "Pearl", location: "Lisbon (Underwater)", sites: ["A", "B"], gimmicks: "Traditional Three-Lane Design" };
