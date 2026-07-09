@@ -1,0 +1,1 @@
+export const FractureMap = { name: "Fracture", location: "New Mexico", sites: ["A", "B"], gimmicks: "H-Shape Layout with Central Interactive Zipline" };
