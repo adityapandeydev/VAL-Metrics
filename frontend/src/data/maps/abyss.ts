@@ -1,0 +1,1 @@
+export const AbyssMap = { name: "Abyss", location: "Scandinavia (Underground)", sites: ["A", "B"], gimmicks: "Unfettered Edge Drops & Jump Pads" };
