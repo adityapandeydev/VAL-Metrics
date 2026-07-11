@@ -1,0 +1,1 @@
+@keyframes radarScan { 0% { opacity: 0.2; } 50% { opacity: 0.8; } 100% { opacity: 0.2; } }\n.animate-radar { animation: radarScan 2s infinite ease-in-out; }
