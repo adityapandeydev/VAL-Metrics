@@ -1,0 +1,1 @@
+export const EN = { commandHub: "Tactical Analytics Command Hub", standing: "Current Standing", sovereignty: "Sovereign Tier" };
