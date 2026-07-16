@@ -1,0 +1,1 @@
+export const KR = { commandHub: "전술 분석 커멘드 허브", standing: "현재 랭크", sovereignty: "소버린 티어" };
