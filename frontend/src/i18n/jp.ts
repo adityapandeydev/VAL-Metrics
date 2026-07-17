@@ -1,0 +1,1 @@
+export const JP = { commandHub: "戦術分析コマンドハブ", standing: "現在のランク", sovereignty: "ソブリンティア" };
