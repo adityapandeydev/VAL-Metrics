@@ -1,0 +1,1 @@
+export const BR = { commandHub: "Central de Comando Analítico", standing: "Ranque Atual", sovereignty: "Nível Soberano" };
