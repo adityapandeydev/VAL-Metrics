@@ -1,0 +1,1 @@
+export const ES = { commandHub: "Centro de Comando Analítico", standing: "Rango Actual", sovereignty: "Nivel Soberano" };
