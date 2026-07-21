@@ -1,0 +1,1 @@
+export const FR = { commandHub: "Centre de Commandement Tactique", standing: "Rang Actuel", sovereignty: "Rang Souverain" };
