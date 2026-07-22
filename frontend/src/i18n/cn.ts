@@ -1,0 +1,1 @@
+export const CN = { commandHub: "战术分析指挥中心", standing: "当前段位", sovereignty: "至尊王者" };
