@@ -1,0 +1,1 @@
+export const TR = { commandHub: "Taktiksel Analiz Komuta Merkezi", standing: "Mevcut Kademe", sovereignty: "Hükümran Kademesi" };
