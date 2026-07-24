@@ -1,0 +1,1 @@
+export const RU = { commandHub: "Центр Тактической Аналитики", standing: "Текущий Ранг", sovereignty: "Уровень Властитель" };
