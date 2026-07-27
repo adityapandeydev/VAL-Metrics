@@ -1,0 +1,1 @@
+import { Component } from 'solid-js'; export const VanguardSecurityShield: Component = () => <div class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500 px-2 py-0.5 rounded">VANGUARD COMPLIANT</div>;
