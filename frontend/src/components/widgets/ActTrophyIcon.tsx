@@ -1,0 +1,1 @@
+import { Component } from 'solid-js'; export const ActTrophyIcon: Component = () => <span class="text-val-gold text-base">🛡️ ACT III WINNER</span>;
