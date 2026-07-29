@@ -1,0 +1,1 @@
+import { Component } from 'solid-js'; export const HeadshotCrosshairSim: Component = () => <div class="w-6 h-6 border-2 border-val-red rounded-full flex items-center justify-center"><span class="w-1 h-1 bg-val-cyan rounded-full"/></div>;
