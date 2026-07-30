@@ -1,0 +1,1 @@
+import { Component } from 'solid-js'; export const AudioTelemetryVisualizer: Component = () => <div class="flex gap-1 h-4 items-end"><span class="w-1 h-3 bg-val-cyan animate-pulse"/><span class="w-1 h-4 bg-val-red animate-pulse"/></div>;
