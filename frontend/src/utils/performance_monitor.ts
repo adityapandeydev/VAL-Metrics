@@ -1,0 +1,1 @@
+export function checkFPS() { return 60.0; }
