@@ -1,0 +1,1 @@
+# Vanguard Anti-Cheat Zero-Intrusiveness Certification\nVAL-Metrics operates exclusively via sanctioned Riot REST loopback endpoints with zero RAM alteration.
