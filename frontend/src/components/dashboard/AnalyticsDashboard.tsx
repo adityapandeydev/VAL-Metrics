@@ -127,6 +127,15 @@ export const AnalyticsDashboard: Component = () => {
                     <span class={`w-2 h-2 rounded-full ${syncing() ? 'bg-amber-400 animate-ping' : 'bg-val-cyan shadow-[0_0_8px_#00E5FF]'}`} />
                     {syncMessage()}
                   </span>
+                  {stats()?.dataSource === "DEV_KEY_RESTRICTED_SIMULATION" ? (
+                    <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-amber-500/20 text-amber-300 font-tactical border border-amber-500/50 flex items-center gap-1">
+                      <span>🛠️</span> DEV KEY TIER • SIMULATED COMPETITIVE STATS
+                    </span>
+                  ) : stats()?.dataSource === "LIVE_RIOT_CLOUD" ? (
+                    <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-val-emerald/20 text-val-emerald font-tactical border border-val-emerald/50 flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                      <span>⚡</span> LIVE RIOT CLOUD TELEMETRY VERIFIED
+                    </span>
+                  ) : null}
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">

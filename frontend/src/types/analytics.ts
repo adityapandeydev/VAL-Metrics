@@ -58,6 +58,7 @@ export interface MatchEncounterSummary {
 export interface AdvancedPlayerMetrics {
   riotId: string;
   puuid: string;
+  dataSource?: string;
   selectedAct: string;
   selectedQueue: string;
   playtimeHours: number;
