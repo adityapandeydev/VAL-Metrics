@@ -1,5 +1,5 @@
-import { Component, createSignal, onMount } from 'solid-js';
-import { fetchHistoricalAnalytics, triggerPlayerSync, isBackendOnline, isLiveRiotApiActive } from '../../services/telemetry';
+import { Component, createSignal, onMount, createEffect } from 'solid-js';
+import { fetchHistoricalAnalytics, triggerPlayerSync, authSession } from '../../services/telemetry';
 import { AdvancedPlayerMetrics } from '../../types/analytics';
 
 // Import our newly engineered, uniquely styled analytical components
@@ -33,6 +33,15 @@ export const AnalyticsDashboard: Component = () => {
     }
     setLoading(false);
   };
+
+  // Automatically switch dashboard to the user's connected account when they log in with Riot!
+  createEffect(() => {
+    if (authSession().authenticated && authSession().riotId) {
+      const loggedId = authSession().riotId!;
+      setSearchId(loggedId);
+      loadProfile(loggedId, selectedQueue(), selectedAct());
+    }
+  });
 
   const handleManualSync = async () => {
     setSyncing(true);
@@ -110,7 +119,7 @@ export const AnalyticsDashboard: Component = () => {
                 <button
                   onClick={handleManualSync}
                   disabled={syncing() || loading()}
-                  class="px-3 py-1.5 rounded-xl bg-[#1D273E] border border-val-cyan/30 text-val-cyan font-tactical font-bold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5"
+                  class="px-3.5 py-2 rounded-xl bg-[#1D273E] border border-val-cyan/40 text-val-cyan font-tactical font-extrabold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                   title="Manually harvest latest Riot Cloud match archives into database"
                 >
                   <span class={syncing() ? "animate-spin inline-block" : ""}>🔄</span>
@@ -132,14 +141,14 @@ export const AnalyticsDashboard: Component = () => {
               type="text"
               value={searchId()}
               onInput={(e) => setSearchId(e.currentTarget.value)}
-              placeholder="Universal Search Riot ID (e.g. TenZ#0505)..."
-              class="bg-black/50 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-val-cyan text-white font-semibold placeholder-slate-500 w-full sm:w-80"
+              placeholder="Search Any Riot ID (e.g. TenZ#0505)..."
+              class="bg-black/60 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-val-cyan text-white font-semibold placeholder-slate-500 w-full sm:w-72"
             />
 
             <button
               type="submit"
               disabled={loading()}
-              class="bg-gradient-to-r from-val-cyan via-teal-400 to-val-emerald text-val-obsidian font-black px-6 py-2.5 rounded-xl text-xs uppercase font-tactical tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-glow-cyan disabled:opacity-50 whitespace-nowrap"
+              class="bg-gradient-to-r from-val-cyan via-teal-400 to-val-emerald text-val-obsidian font-black px-6 py-2.5 rounded-xl text-xs uppercase font-tactical tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-glow-cyan disabled:opacity-50 whitespace-nowrap cursor-pointer"
             >
               {loading() ? "QUERYING DB..." : "⚡ UNIVERSAL SEARCH"}
             </button>
