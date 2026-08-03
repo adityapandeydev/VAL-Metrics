@@ -130,6 +130,11 @@ func (c *Client) doRequest(ctx context.Context, url string) ([]byte, error) {
 		return c.doRequest(ctx, url)
 	}
 
+	if resp.StatusCode == http.StatusForbidden {
+		log.Printf("[RIOT-API] HTTP 403 Forbidden encountered (Dev Key scope restricted or expired). Seamlessly deferring to local database historical archives.")
+		return nil, fmt.Errorf("http 403 forbidden: dev key scope restricted")
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("riot api status %d for %s: %s", resp.StatusCode, url, string(body))
