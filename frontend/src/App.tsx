@@ -25,15 +25,14 @@ export const App: Component = () => {
     await checkAuthStatus();
 
     const interval = setInterval(async () => {
-      const online = await checkBackendHealth();
-      if (online) {
-        const lcu = await auditLCUConnection();
-        if ((lcu.connected || activeView() === 'overlay') && authSession().riotId) {
-          const stats = await fetchLiveOverlayTelemetry(authSession().riotId!);
-          if (stats) setLiveTelemetry(stats);
-        }
+      // Only poll live HUD metrics when active in overlay mode or check basic health calmly every 30 seconds
+      if (activeView() === 'overlay' && authSession().riotId) {
+        const stats = await fetchLiveOverlayTelemetry(authSession().riotId!);
+        if (stats) setLiveTelemetry(stats);
+      } else {
+        await checkBackendHealth();
       }
-    }, 4000);
+    }, 30000);
 
     onCleanup(() => clearInterval(interval));
   });
