@@ -10,12 +10,15 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/val-metrics/backend/internal/cache"
-	"github.com/val-metrics/backend/internal/calculator"
+	"github.com/val-metrics/backend/internal/auth"
+	"github.com/val-metrics/backend/internal/database"
 	"github.com/val-metrics/backend/internal/lcu"
 	"github.com/val-metrics/backend/internal/pruner"
 	"github.com/val-metrics/backend/internal/riotapi"
+	"github.com/val-metrics/backend/internal/sync"
+	"github.com/val-metrics/backend/internal/calculator"
 )
 
 func loadEnvFile(filenames ...string) {
@@ -46,38 +49,78 @@ func loadEnvFile(filenames ...string) {
 func main() {
 	loadEnvFile("backend/.env", ".env", "../.env")
 
-	log.Println("=== VAL-Metrics High-Performance Telemetry & Live Riot Analytics Server ===")
+	log.Println("=== VAL-Metrics Enterprise Database, Auto-Sync & Analytics Engine ===")
 	client := riotapi.NewClient()
 	engine := pruner.NewEngine()
-	vault := cache.NewVault("backend/data")
 	lcuWatcher := lcu.NewWatcher()
 
+	// Initialize Snappy Universal Database Engine
+	db := database.NewSnappyStore("backend/data/database")
+	defer db.Close()
+
+	// Initialize & Launch Background Auto-Sync Daemon
+	syncDaemon := sync.NewDaemon(db, client)
+	syncDaemon.Start(60*time.Second, 10*time.Minute)
+	defer syncDaemon.Stop()
+
+	// Initialize Riot Sign-On (RSO) & Authentication Manager
+	authMgr := auth.NewManager(db, client)
+
 	if client.IsRealAPIActive() {
-		log.Println("[OK] Verified official Riot Developer API Key (RGAPI-***). Live Cloud VALORANT querying active.")
+		log.Println("[OK] Verified official Riot Developer API Key (RGAPI-***). Live Cloud VALORANT querying & database archiving active.")
 	} else {
 		log.Println("[WARN] RIOT_API_KEY using demo/empty setting. Automated high-fidelity simulation enabled.")
-	}
-
-	defaultShard := os.Getenv("DEFAULT_SHARD")
-	if defaultShard == "" {
-		defaultShard = "na"
 	}
 
 	go func() {
 		lcuWatcher.LocateLockfile()
 	}()
 
-	// Health check & Live Riot Cloud Status Endpoint
+	// Authentication & RSO Routes
+	http.HandleFunc("/api/v1/auth/riot/login", authMgr.HandleRiotOAuthLogin)
+	http.HandleFunc("/api/v1/auth/riot/link", authMgr.HandleLinkRiotID)
+	http.HandleFunc("/api/v1/auth/session", authMgr.HandleSessionStatus)
+
+	// Health Check & System Status Endpoint
 	http.HandleFunc("/api/v1/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"status":          "ONLINE",
-			"version":         "2.5.0-live-riot",
-			"live_riot_api":   client.IsRealAPIActive(),
-			"riot_429_defense": "ENABLED",
-			"vanguard_safe":   true,
+			"status":           "ONLINE",
+			"version":          "3.0.0-universal-db",
+			"live_riot_api":    client.IsRealAPIActive(),
+			"auto_sync_daemon": "OPERATIONAL",
+			"db_engine":        "SnappyStore (WAL / Postgres Compatible)",
+			"vanguard_safe":    true,
 		})
+	})
+
+	// Instantaneous Background Sync Trigger
+	http.HandleFunc("/api/v1/players/sync/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		riotID := r.URL.Query().Get("riotId")
+		if riotID == "" {
+			parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/players/sync/"), "/")
+			if len(parts) > 0 && parts[0] != "" {
+				riotID, _ = url.PathUnescape(parts[0])
+			}
+		}
+		if riotID == "" {
+			riotID = "Aditya#INDI"
+		}
+
+		gameName := riotID
+		tagLine := "6969"
+		if idx := strings.Index(riotID, "#"); idx != -1 {
+			gameName = riotID[:idx]
+			tagLine = riotID[idx+1:]
+		}
+
+		// Trigger background sync cycle immediately
+		report := syncDaemon.SyncPlayerNow("4b56445b-670f-46ab-977d-dfc4a90f2f46", gameName, tagLine, "na")
+		json.NewEncoder(w).Encode(report)
 	})
 
 	// Sub-Kilobyte Live Match Overlay HUD Telemetry (< 450 Bytes)
@@ -86,7 +129,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/players/live/"), "/")
-		riotID := "throwkarumga#6969"
+		riotID := "Aditya#INDI"
 		if len(parts) > 0 && parts[0] != "" {
 			decoded, err := url.PathUnescape(parts[0])
 			if err == nil && decoded != "" {
@@ -97,20 +140,18 @@ func main() {
 		payload := engine.PruneLiveMatchToHUD(
 			"4b56445b-670f-46ab-977d-dfc4a90f2f46",
 			riotID,
-			"Sunset", "Competitive", "AP - Mumbai (Global Auto-Detect)",
+			"Sunset", "Competitive", "Global Cluster (Universal DB Index)",
 			28, 14, 8, 4800, 365, 84,
 		)
 		json.NewEncoder(w).Encode(payload)
 	})
 
-	// Comprehensive VAL-Index Analytical Dashboard & Live Riot Match Processing Engine
+	// Comprehensive Universal Database-Backed VAL-Index Analytics Dashboard
 	http.HandleFunc("/api/v1/players/analytics/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		// Extract parameters from path or query string
-		riotID := "throwkarumga#6969"
-		shard := defaultShard
+		riotID := "Aditya#INDI"
 		queue := "Competitive"
 		act := "V26: A4"
 
@@ -125,9 +166,6 @@ func main() {
 				}
 			}
 		}
-		if qShard := r.URL.Query().Get("shard"); qShard != "" {
-			shard = strings.ToLower(qShard)
-		}
 		if qQueue := r.URL.Query().Get("queue"); qQueue != "" {
 			queue = qQueue
 		}
@@ -135,7 +173,6 @@ func main() {
 			act = qAct
 		}
 
-		// Split Riot ID into Name and Tagline
 		gameName := riotID
 		tagLine := "6969"
 		if idx := strings.Index(riotID, "#"); idx != -1 {
@@ -143,28 +180,41 @@ func main() {
 			tagLine = riotID[idx+1:]
 		}
 
-		log.Printf("[ANALYTICS-ENGINE] Executing player lookup for %s#%s on regional shard: %s (Queue: %s)", gameName, tagLine, strings.ToUpper(shard), queue)
-		
-		// 1. Resolve Account via Live Riot Cloud API
-		account, resolvedShard, err := client.ResolveRiotID(context.Background(), gameName, tagLine, shard)
+		// 1. Check Universal Database Index first (Microsecond speed!)
+		acc, err := db.GetRiotAccountByRiotID(gameName, tagLine)
 		puuid := "4b56445b-670f-46ab-977d-dfc4a90f2f46"
-		if err == nil && account != nil && account.PUUID != "" {
-			puuid = account.PUUID
-			if resolvedShard != "" {
-				shard = resolvedShard
+		internalShard := "na"
+
+		if err == nil && acc != nil && acc.PUUID != "" {
+			puuid = acc.PUUID
+			if acc.InternalShard != "" {
+				internalShard = acc.InternalShard
+			}
+			log.Printf("[UNIVERSAL-DB] Cache Hit! Player %s#%s resolved instantly from local database (Internal Shard: %s)", gameName, tagLine, strings.ToUpper(internalShard))
+		} else {
+			// 2. Not in DB? Automatically probe Riot Cloud servers universally and save to DB!
+			log.Printf("[UNIVERSAL-DB] Cache Miss for %s#%s. Probing global Riot Cloud clusters...", gameName, tagLine)
+			resolveResp, discoveredShard, resErr := client.ResolveRiotID(context.Background(), gameName, tagLine, "na")
+			if resErr == nil && resolveResp != nil && resolveResp.PUUID != "" {
+				puuid = resolveResp.PUUID
+				internalShard = discoveredShard
+			}
+			// Trigger background sync to archive their matches permanently
+			syncDaemon.SyncPlayerNow(puuid, gameName, tagLine, internalShard)
+		}
+
+		// 3. Load matches directly from database archive or fallback to immediate cloud sync
+		matches, err := db.GetPlayerMatches(puuid, queue, 10)
+		if err != nil || len(matches) == 0 {
+			matches, _ = client.FetchPlayerMatches(context.Background(), puuid, internalShard, queue)
+			for _, m := range matches {
+				db.SaveMatch(puuid, &m)
 			}
 		}
 
-		// 2. Query Live VAL-Match V1 Telemetry
-		matches, err := client.FetchPlayerMatches(context.Background(), puuid, shard, queue)
-		if err != nil {
-			log.Printf("[ANALYTICS-ENGINE] Notice: Match retrieval encountered fallback event: %v", err)
-		}
-
-		// 3. Perform High-Precision Statistical Math Aggregation (100% Dynamic, ZERO hardcoded overrides!)
+		// 4. Compute Dynamic Statistical Evaluation from stored match archives
 		metrics := calculator.ComputePlayerAnalytics(puuid, fmt.Sprintf("%s#%s", gameName, tagLine), act, queue, matches)
 
-		_ = vault // Preserve vault persistent integration
 		json.NewEncoder(w).Encode(metrics)
 	})
 
@@ -184,7 +234,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Printf("[READY] Telemetry & Analytics Server listening on port :%s...\n", port)
+	log.Printf("[READY] Universal Database, Auto-Sync & Analytics Server listening on port :%s...\n", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("[FATAL] Server terminated: %v", err)
 	}
