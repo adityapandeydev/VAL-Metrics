@@ -19,7 +19,8 @@ type Daemon struct {
 	db          database.Engine
 	riotClient  *riotapi.Client
 	mu          sync.Mutex
-	inProgress  map[string]bool // PUUID -> running sync status
+	inProgress  map[string]bool      // PUUID -> running sync status
+	lastSynced  map[string]time.Time // Key -> timestamp of last sync attempt
 	stopCh      chan struct{}
 }
 
@@ -28,12 +29,13 @@ func NewDaemon(db database.Engine, riotClient *riotapi.Client) *Daemon {
 		db:         db,
 		riotClient: riotClient,
 		inProgress: make(map[string]bool),
+		lastSynced: make(map[string]time.Time),
 		stopCh:     make(chan struct{}),
 	}
 }
 
 func (d *Daemon) Start(pollInterval time.Duration, maxStaleAge time.Duration) {
-	log.Printf("[AUTO-SYNC-DAEMON] Background Riot Match telemetry harvesting engine operational (Interval: %v)", pollInterval)
+	log.Printf("[AUTO-SYNC-DAEMON] Background Riot Match telemetry harvesting engine operational (Interval: %v, Cooldown: 3m)", pollInterval)
 	ticker := time.NewTicker(pollInterval)
 	go func() {
 		for {
@@ -64,16 +66,30 @@ func (d *Daemon) runCycle(maxStaleAge time.Duration) {
 
 func (d *Daemon) SyncPlayerNow(puuid, gameName, tagLine, shard string) *model.SyncStatusReport {
 	d.mu.Lock()
-	if d.inProgress[puuid] {
+	syncKey := puuid
+	if syncKey == "" || syncKey == "4b56445b-670f-46ab-977d-dfc4a90f2f46" {
+		syncKey = fmt.Sprintf("%s#%s", strings.ToLower(gameName), strings.ToLower(tagLine))
+	}
+	if last, ok := d.lastSynced[syncKey]; ok && time.Since(last) < 3*time.Minute {
+		d.mu.Unlock()
+		return &model.SyncStatusReport{
+			PUUID:       puuid,
+			RiotID:      fmt.Sprintf("%s#%s", gameName, tagLine),
+			SyncState:   "COOLDOWN",
+			LastSyncAgo: fmt.Sprintf("%ds ago (3-minute sync protection active)", int(time.Since(last).Seconds())),
+		}
+	}
+	if d.inProgress[syncKey] {
 		d.mu.Unlock()
 		return &model.SyncStatusReport{PUUID: puuid, RiotID: fmt.Sprintf("%s#%s", gameName, tagLine), SyncState: "SYNCING", LastSyncAgo: "In Progress"}
 	}
-	d.inProgress[puuid] = true
+	d.inProgress[syncKey] = true
+	d.lastSynced[syncKey] = time.Now()
 	d.mu.Unlock()
 
 	defer func() {
 		d.mu.Lock()
-		delete(d.inProgress, puuid)
+		delete(d.inProgress, syncKey)
 		d.mu.Unlock()
 	}()
 
