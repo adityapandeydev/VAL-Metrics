@@ -53,40 +53,124 @@ export async function checkBackendHealth(): Promise<boolean> {
 }
 
 export async function checkAuthStatus(): Promise<AuthSessionData> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/auth/session`);
-    if (res.ok) {
-      const data = await res.json();
-      setAuthSession(data);
-      return data;
-    }
-  } catch (e) {
-    console.warn("Auth check failed:", e);
+  const storedToken = localStorage.getItem('val_auth_token');
+  if (!storedToken) {
+    setAuthSession({ authenticated: false });
+    return { authenticated: false };
   }
-  const fallback: AuthSessionData = { 
-    authenticated: true, 
-    username: "AdityaPandey", 
-    riotId: "Aditya#INDI", 
-    isVerified: true 
-  };
-  setAuthSession(fallback);
-  return fallback;
-}
-
-export async function triggerRiotSignOn(): Promise<void> {
   try {
-    const res = await fetch(`${BACKEND_URL}/auth/riot/login`);
+    const res = await fetch(`${BACKEND_URL}/auth/session?token=${encodeURIComponent(storedToken)}`);
     if (res.ok) {
-      const data = await res.json();
-      if (data.status === "REDIRECT" && data.url) {
-        window.location.href = data.url;
-      } else {
-        await checkAuthStatus();
+      const data: AuthSessionData = await res.json();
+      if (data.authenticated) {
+        setAuthSession(data);
+        return data;
       }
     }
   } catch (e) {
-    console.error("Riot Sign-On initiation failed:", e);
+    console.warn("Session validation failed:", e);
   }
+  localStorage.removeItem('val_auth_token');
+  setAuthSession({ authenticated: false });
+  return { authenticated: false };
+}
+
+export async function registerUser(username: string, email: string, pass: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password: pass })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem('val_auth_token', data.token);
+        setAuthSession({
+          authenticated: true,
+          token: data.token,
+          username: data.username,
+          isVerified: false
+        });
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error("User registration error:", e);
+  }
+  return false;
+}
+
+export async function loginUser(username: string, pass: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password: pass })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem('val_auth_token', data.token);
+        setAuthSession({
+          authenticated: true,
+          token: data.token,
+          username: data.username,
+          riotId: data.riotId,
+          puuid: data.puuid,
+          isVerified: data.isVerified
+        });
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error("Login authentication error:", e);
+  }
+  return false;
+}
+
+export async function linkRiotAccount(riotId: string): Promise<boolean> {
+  const token = localStorage.getItem('val_auth_token') || 'demo_token';
+  try {
+    const res = await fetch(`${BACKEND_URL}/auth/riot/link`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, riotId })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === "LINKED") {
+        if (data.token) localStorage.setItem('val_auth_token', data.token);
+        setAuthSession({
+          authenticated: true,
+          token: data.token || token,
+          username: data.username || authSession().username || "Player",
+          riotId: data.riotId,
+          puuid: data.puuid,
+          isVerified: true
+        });
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error("Riot account linking failed:", e);
+  }
+  return false;
+}
+
+export async function logoutUser(): Promise<void> {
+  const token = localStorage.getItem('val_auth_token');
+  if (token) {
+    try {
+      await fetch(`${BACKEND_URL}/auth/logout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+    } catch {}
+  }
+  localStorage.removeItem('val_auth_token');
+  setAuthSession({ authenticated: false });
 }
 
 export async function triggerPlayerSync(riotId: string): Promise<SyncReport | null> {
