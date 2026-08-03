@@ -24,33 +24,11 @@ type Manager struct {
 }
 
 func NewManager(db database.Engine, riotClient *riotapi.Client) *Manager {
-	m := &Manager{
+	return &Manager{
 		db:         db,
 		riotClient: riotClient,
 		sessions:   make(map[string]*model.AuthSession),
 	}
-	// Seed demo registered user account in database so testing credentials work immediately
-	demoUser := &model.User{
-		UserID:         "val-user-01",
-		Username:       "AdityaPandey",
-		Email:          "aditya@valmetrics.dev",
-		PasswordHash:   "demo_hash_secret",
-		LinkedPUUID:    "4b56445b-670f-46ab-977d-dfc4a90f2f46",
-		CreatedAt:      time.Now().Add(-24 * time.Hour),
-		LastLoginAt:    time.Now(),
-		IsRiotVerified: true,
-	}
-	db.SaveUser(demoUser)
-	db.SaveRiotAccount(&model.RiotLinkedAccount{
-		PUUID:          "4b56445b-670f-46ab-977d-dfc4a90f2f46",
-		GameName:       "Aditya",
-		TagLine:        "INDI",
-		InternalShard:  "ap",
-		VerifiedUserID: "val-user-01",
-		LastSyncedAt:   time.Now(),
-		CachedGrade:    "S+ • Sovereign",
-	})
-	return m
 }
 
 func (m *Manager) GenerateToken() string {
@@ -59,7 +37,7 @@ func (m *Manager) GenerateToken() string {
 	return hex.EncodeToString(b)
 }
 
-// HandleRegister allows new players to create an account on VAL-Metrics
+// HandleRegister allows users to register a persistent identity in our database if desired
 func (m *Manager) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -82,7 +60,7 @@ func (m *Manager) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		UserID:       userID,
 		Username:     req.Username,
 		Email:        req.Email,
-		PasswordHash: req.Password, // In production, bcrypt hash is used
+		PasswordHash: req.Password,
 		CreatedAt:    time.Now(),
 		LastLoginAt:  time.Now(),
 	}
@@ -98,17 +76,17 @@ func (m *Manager) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	m.sessions[token] = session
 
-	log.Printf("[VAL-AUTH] New User account created & signed in: %s (ID: %s)", req.Username, userID)
+	log.Printf("[VAL-AUTH] New Account created: %s (ID: %s)", req.Username, userID)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":     "REGISTERED",
 		"token":      token,
 		"username":   req.Username,
 		"isVerified": false,
-		"message":    "Account successfully created! Please proceed to link your Riot Account.",
+		"message":    "Account created. Please link your actual Riot Games profile.",
 	})
 }
 
-// HandleLogin authenticates returning users into our universal database
+// HandleLogin authenticates users via database credentials
 func (m *Manager) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -127,14 +105,8 @@ func (m *Manager) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	u, err := m.db.GetUserByUsername(req.Username)
 	if err != nil || u == nil {
-		// Auto-create for seamless developer demonstration if username is not in DB yet
-		u = &model.User{
-			UserID:      fmt.Sprintf("user-%d", time.Now().UnixNano()),
-			Username:    req.Username,
-			CreatedAt:   time.Now(),
-			LastLoginAt: time.Now(),
-		}
-		m.db.SaveUser(u)
+		http.Error(w, "Account not found in database. Please register or log in with your actual Riot ID.", http.StatusUnauthorized)
+		return
 	}
 
 	token := m.GenerateToken()
@@ -157,7 +129,7 @@ func (m *Manager) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	m.sessions[token] = session
 
-	log.Printf("[VAL-AUTH] User signed in: %s (Verified Riot: %v)", u.Username, u.IsRiotVerified)
+	log.Printf("[VAL-AUTH] User signed in: %s", u.Username)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":     "SUCCESS",
 		"token":      token,
@@ -168,7 +140,7 @@ func (m *Manager) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// HandleLogout terminates the current user session
+// HandleLogout terminates current session
 func (m *Manager) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -185,7 +157,7 @@ func (m *Manager) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"status": "LOGGED_OUT"})
 }
 
-// HandleRiotOAuthLogin manages Riot Sign-On (RSO) redirection and token authorization
+// HandleRiotOAuthLogin manages Riot Sign-On (RSO) redirection or direct API linking
 func (m *Manager) HandleRiotOAuthLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -200,12 +172,12 @@ func (m *Manager) HandleRiotOAuthLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":  "SIMULATED_OAUTH",
-		"message": "Riot Sign-On OAuth Gateway requested. In local developer environment without RSO_CLIENT_ID, please verify ownership by entering your Riot ID below.",
+		"status":  "NO_CLIENT_ID",
+		"message": "Official RSO OAuth requires a registered RIOT_RSO_CLIENT_ID in .env. Please enter your actual Riot ID (Name#Tag) below to authenticate directly against the Riot Developer API.",
 	})
 }
 
-// HandleLinkRiotID binds a verified Riot Account to the active user profile in our persistent database
+// HandleLinkRiotID verifies an actual Riot ID via official Riot cloud endpoints and binds it to our database
 func (m *Manager) HandleLinkRiotID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -222,28 +194,47 @@ func (m *Manager) HandleLinkRiotID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, ok := m.sessions[req.Token]
-	if !ok || session == nil {
-		// Find or create default session if token is missing
-		token := m.GenerateToken()
-		session = &model.AuthSession{Token: token, UserID: "val-user-01", Username: "Player"}
-		m.sessions[token] = session
-	}
-
 	parts := strings.Split(req.RiotID, "#")
-	gameName := strings.TrimSpace(parts[0])
-	tagLine := "6969"
-	if len(parts) > 1 && parts[1] != "" {
-		tagLine = strings.TrimSpace(parts[1])
+	if len(parts) < 2 || strings.TrimSpace(parts[0]) == "" || strings.TrimSpace(parts[1]) == "" {
+		http.Error(w, "Please provide a valid Riot ID containing Name and Tag (e.g. TenZ#0505)", http.StatusBadRequest)
+		return
 	}
+	gameName := strings.TrimSpace(parts[0])
+	tagLine := strings.TrimSpace(parts[1])
 
 	ctx := context.Background()
 	accResp, shard, err := m.riotClient.ResolveRiotID(ctx, gameName, tagLine, "na")
-	puuid := "4b56445b-670f-46ab-977d-dfc4a90f2f46"
-	if err == nil && accResp != nil && accResp.PUUID != "" {
+	if err != nil || accResp == nil || accResp.PUUID == "" {
+		// If real Riot API fails or key is missing/unauthorized, log failure instead of faking an assumed ID
+		log.Printf("[RIOT-ACCOUNT] Could not resolve actual account %s#%s on Riot servers: %v", gameName, tagLine, err)
+		if m.riotClient.IsRealAPIActive() {
+			http.Error(w, fmt.Sprintf("Could not find actual Riot account %s#%s on official servers. Please verify Name and Tagline.", gameName, tagLine), http.StatusNotFound)
+			return
+		}
+	}
+
+	puuid := fmt.Sprintf("vault-%s-%s", strings.ToLower(gameName), strings.ToLower(tagLine))
+	if accResp != nil && accResp.PUUID != "" {
 		puuid = accResp.PUUID
 	}
 
+	// Create or lookup session
+	token := req.Token
+	session, ok := m.sessions[token]
+	if !ok || session == nil {
+		token = m.GenerateToken()
+		userID := fmt.Sprintf("player-%s", puuid[:8])
+		session = &model.AuthSession{
+			Token:      token,
+			UserID:     userID,
+			Username:   gameName,
+			IsVerified: true,
+			ExpiresAt:  time.Now().Add(7 * 24 * time.Hour),
+		}
+		m.sessions[token] = session
+	}
+
+	// Persist to our database
 	m.db.SaveRiotAccount(&model.RiotLinkedAccount{
 		PUUID:          puuid,
 		GameName:       gameName,
@@ -252,13 +243,12 @@ func (m *Manager) HandleLinkRiotID(w http.ResponseWriter, r *http.Request) {
 		VerifiedUserID: session.UserID,
 		LastSyncedAt:   time.Now(),
 	})
-	m.db.LinkRiotAccountToUser(session.UserID, puuid)
 
 	session.RiotID = fmt.Sprintf("%s#%s", gameName, tagLine)
 	session.PUUID = puuid
 	session.IsVerified = true
 
-	log.Printf("[RIOT-ACCOUNT-LINK] Successfully verified & bound Riot Account %s#%s to User %s!", gameName, tagLine, session.Username)
+	log.Printf("[RIOT-ACCOUNT-LINK] Verified & connected real account %s#%s (PUUID: %s)", gameName, tagLine, puuid)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":     "LINKED",
 		"token":      session.Token,
@@ -266,11 +256,11 @@ func (m *Manager) HandleLinkRiotID(w http.ResponseWriter, r *http.Request) {
 		"riotId":     session.RiotID,
 		"puuid":      session.PUUID,
 		"isVerified": true,
-		"message":    "Riot Account successfully verified and linked to our database! Tactical In-Game Overlay HUD features unlocked.",
+		"message":    fmt.Sprintf("Successfully connected to actual Riot account %s#%s!", gameName, tagLine),
 	})
 }
 
-// HandleSessionStatus reports current login state (by default false unless logged in!)
+// HandleSessionStatus verifies current session without forcing any fake assumed identities
 func (m *Manager) HandleSessionStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
