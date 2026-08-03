@@ -29,7 +29,7 @@ export const App: Component = () => {
       if (online) {
         const lcu = await auditLCUConnection();
         if (lcu.connected || activeView() === 'overlay') {
-          const stats = await fetchLiveOverlayTelemetry("Aditya#INDI");
+          const stats = await fetchLiveOverlayTelemetry(authSession().riotId || "Aditya#INDI");
           if (stats) setLiveTelemetry(stats);
         }
       }
@@ -39,7 +39,7 @@ export const App: Component = () => {
   });
 
   const handleModeSwitch = (mode: 'dashboard' | 'overlay') => {
-    if (mode === 'overlay' && (!authSession().authenticated || !authSession().isVerified)) {
+    if (mode === 'overlay' && (!authSession().authenticated)) {
       setIsAuthModalOpen(true);
       return;
     }
@@ -48,10 +48,10 @@ export const App: Component = () => {
 
   return (
     <div class="min-h-screen flex flex-col">
-      {/* Interactive Authentication Modal */}
+      {/* Interactive Riot Account Connection Modal */}
       <AuthModal isOpen={isAuthModalOpen()} onClose={() => setIsAuthModalOpen(false)} />
 
-      {/* Top Professional Navigation & User Management Console */}
+      {/* Top Professional Navigation Console */}
       {activeView() === 'dashboard' ? (
         <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-6 py-3.5 shadow-2xl">
           <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -71,36 +71,29 @@ export const App: Component = () => {
               </div>
             </div>
 
-            {/* User Authentication Buttons & Mode Selector */}
-            <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-tactical">
+            {/* Riot Account Login Button & Mode Selector */}
+            <div class="flex flex-wrap items-center justify-center gap-3 text-xs font-tactical">
               
-              {/* Login / Sign Up vs Authenticated Profile Badge */}
+              {/* Single Clear Riot Login / Authenticated Badge */}
               {authSession().authenticated ? (
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/40 shadow-glow-gold hover:brightness-110 transition-all"
-                  title="Click to view account sync details or sign out"
+                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/50 shadow-glow-gold hover:brightness-110 active:scale-95 transition-all"
+                  title="Click to manage your connected Riot Account or log out"
                 >
-                  <span class="text-val-gold font-bold">👑 {authSession().riotId || authSession().username}</span>
-                  <span class="text-[10px] bg-val-gold/20 text-val-gold px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
-                    {authSession().isVerified ? "VERIFIED RIOT OWNER" : "UNVERIFIED SPECTATOR"}
+                  <span class="text-val-gold font-bold text-sm">👑 {authSession().riotId}</span>
+                  <span class="text-[10px] bg-val-gold/20 text-val-gold px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
+                    LOGGED IN
                   </span>
                 </button>
               ) : (
-                <div class="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    class="px-4 py-1.5 rounded-full bg-[#141A29] border border-white/20 text-white font-bold hover:bg-white/10 transition-all shadow-inner uppercase tracking-wider"
-                  >
-                    🔑 SIGN IN
-                  </button>
-                  <button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-val-red to-rose-600 text-white font-black hover:brightness-110 shadow-glow-red transition-all uppercase tracking-wider"
-                  >
-                    <span>⚡ REGISTER & CONNECT RIOT ID</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  class="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-val-red via-rose-600 to-amber-500 text-white font-tactical font-black text-xs hover:brightness-110 active:scale-95 shadow-glow-red transition-all uppercase tracking-wider cursor-pointer"
+                >
+                  <span class="text-base">⚔️</span>
+                  <span>LOG IN WITH RIOT ACCOUNT</span>
+                </button>
               )}
 
               {/* Database & Server Status Pill */}
@@ -131,7 +124,7 @@ export const App: Component = () => {
                       ? 'bg-val-cyan text-val-obsidian font-extrabold shadow-glow-cyan'
                       : 'text-val-muted hover:text-white'
                   }`}
-                  title={authSession().isVerified ? "Launch tactical real-time gaming HUD overlay" : "Requires verified Riot account login"}
+                  title="Launch tactical real-time gaming HUD overlay"
                 >
                   <span>🎯</span> IN-GAME HUD
                 </button>
@@ -141,7 +134,7 @@ export const App: Component = () => {
           </div>
         </header>
       ) : (
-        /* Minimal Floating Control Pill for Overlay Mode (Keeps HUD totally unobstructed) */
+        /* Minimal Floating Control Pill for Overlay Mode */
         <div class="fixed top-3 right-4 z-[9999] flex items-center gap-2">
           <button
             onClick={() => setActiveView('dashboard')}
