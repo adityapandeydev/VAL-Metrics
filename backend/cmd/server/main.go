@@ -76,7 +76,10 @@ func main() {
 		lcuWatcher.LocateLockfile()
 	}()
 
-	// Authentication & RSO Routes
+	// Authentication & Riot Sign-On (RSO) Routes
+	http.HandleFunc("/api/v1/auth/register", authMgr.HandleRegister)
+	http.HandleFunc("/api/v1/auth/login", authMgr.HandleLogin)
+	http.HandleFunc("/api/v1/auth/logout", authMgr.HandleLogout)
 	http.HandleFunc("/api/v1/auth/riot/login", authMgr.HandleRiotOAuthLogin)
 	http.HandleFunc("/api/v1/auth/riot/link", authMgr.HandleLinkRiotID)
 	http.HandleFunc("/api/v1/auth/session", authMgr.HandleSessionStatus)
