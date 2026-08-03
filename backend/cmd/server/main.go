@@ -49,13 +49,13 @@ func loadEnvFile(filenames ...string) {
 func main() {
 	loadEnvFile("backend/.env", ".env", "../.env")
 
-	log.Println("=== VAL-Metrics Enterprise Database, Auto-Sync & Analytics Engine ===")
+	log.Println("=== VAL-Metrics Universal Database, Auto-Sync & Analytics Engine ===")
 	client := riotapi.NewClient()
 	engine := pruner.NewEngine()
 	lcuWatcher := lcu.NewWatcher()
 
 	// Initialize Snappy Universal Database Engine
-	db := database.NewSnappyStore("backend/data/database")
+	db := database.NewSnappyStore("data/database")
 	defer db.Close()
 
 	// Initialize & Launch Background Auto-Sync Daemon
@@ -90,10 +90,10 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"status":           "ONLINE",
-			"version":          "3.0.0-universal-db",
+			"version":          "3.0.1-universal-db",
 			"live_riot_api":    client.IsRealAPIActive(),
 			"auto_sync_daemon": "OPERATIONAL",
-			"db_engine":        "SnappyStore (WAL / Postgres Compatible)",
+			"db_engine":        "SnappyStore",
 			"vanguard_safe":    true,
 		})
 	})
@@ -110,19 +110,25 @@ func main() {
 				riotID, _ = url.PathUnescape(parts[0])
 			}
 		}
-		if riotID == "" {
-			riotID = "Aditya#INDI"
+		if riotID == "" || !strings.Contains(riotID, "#") {
+			http.Error(w, "Valid Riot ID (Name#Tag) required for sync", http.StatusBadRequest)
+			return
 		}
 
 		gameName := riotID
-		tagLine := "6969"
+		tagLine := "VAL"
 		if idx := strings.Index(riotID, "#"); idx != -1 {
 			gameName = riotID[:idx]
 			tagLine = riotID[idx+1:]
 		}
 
-		// Trigger background sync cycle immediately
-		report := syncDaemon.SyncPlayerNow("4b56445b-670f-46ab-977d-dfc4a90f2f46", gameName, tagLine, "na")
+		// Resolve from DB or Riot API
+		puuid := fmt.Sprintf("vault-%s-%s", strings.ToLower(gameName), strings.ToLower(tagLine))
+		if acc, err := db.GetRiotAccountByRiotID(gameName, tagLine); err == nil && acc != nil {
+			puuid = acc.PUUID
+		}
+
+		report := syncDaemon.SyncPlayerNow(puuid, gameName, tagLine, "na")
 		json.NewEncoder(w).Encode(report)
 	})
 
@@ -132,18 +138,22 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/players/live/"), "/")
-		riotID := "Aditya#INDI"
-		if len(parts) > 0 && parts[0] != "" {
+		riotID := r.URL.Query().Get("riotId")
+		if riotID == "" && len(parts) > 0 && parts[0] != "" {
 			decoded, err := url.PathUnescape(parts[0])
-			if err == nil && decoded != "" {
+			if err == nil && decoded != "" && decoded != "live" {
 				riotID = decoded
 			}
 		}
+		if riotID == "" {
+			http.Error(w, "Active player account required for live overlay telemetry", http.StatusBadRequest)
+			return
+		}
 
 		payload := engine.PruneLiveMatchToHUD(
-			"4b56445b-670f-46ab-977d-dfc4a90f2f46",
+			fmt.Sprintf("live-%s", strings.ToLower(riotID)),
 			riotID,
-			"Sunset", "Competitive", "Global Cluster (Universal DB Index)",
+			"Sunset", "Competitive", "Global Cluster",
 			28, 14, 8, 4800, 365, 84,
 		)
 		json.NewEncoder(w).Encode(payload)
@@ -154,13 +164,8 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		riotID := "Aditya#INDI"
-		queue := "Competitive"
-		act := "V26: A4"
-
-		if qID := r.URL.Query().Get("riotId"); qID != "" {
-			riotID = qID
-		} else {
+		riotID := r.URL.Query().Get("riotId")
+		if riotID == "" {
 			parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v1/players/analytics/"), "/")
 			if len(parts) > 0 && parts[0] != "" {
 				decoded, err := url.PathUnescape(parts[0])
@@ -169,6 +174,13 @@ func main() {
 				}
 			}
 		}
+		if riotID == "" || !strings.Contains(riotID, "#") {
+			http.Error(w, "Please provide a valid Riot ID (in format Name#Tag) to view analytics", http.StatusBadRequest)
+			return
+		}
+
+		queue := "Competitive"
+		act := "V26: A4"
 		if qQueue := r.URL.Query().Get("queue"); qQueue != "" {
 			queue = qQueue
 		}
@@ -177,7 +189,7 @@ func main() {
 		}
 
 		gameName := riotID
-		tagLine := "6969"
+		tagLine := "VAL"
 		if idx := strings.Index(riotID, "#"); idx != -1 {
 			gameName = riotID[:idx]
 			tagLine = riotID[idx+1:]
@@ -185,7 +197,7 @@ func main() {
 
 		// 1. Check Universal Database Index first (Microsecond speed!)
 		acc, err := db.GetRiotAccountByRiotID(gameName, tagLine)
-		puuid := "4b56445b-670f-46ab-977d-dfc4a90f2f46"
+		puuid := fmt.Sprintf("vault-%s-%s", strings.ToLower(gameName), strings.ToLower(tagLine))
 		internalShard := "na"
 
 		if err == nil && acc != nil && acc.PUUID != "" {
@@ -193,7 +205,7 @@ func main() {
 			if acc.InternalShard != "" {
 				internalShard = acc.InternalShard
 			}
-			log.Printf("[UNIVERSAL-DB] Cache Hit! Player %s#%s resolved instantly from local database (Internal Shard: %s)", gameName, tagLine, strings.ToUpper(internalShard))
+			log.Printf("[UNIVERSAL-DB] Cache Hit! Player %s#%s resolved instantly from local database", gameName, tagLine)
 		} else {
 			// 2. Not in DB? Automatically probe Riot Cloud servers universally and save to DB!
 			log.Printf("[UNIVERSAL-DB] Cache Miss for %s#%s. Probing global Riot Cloud clusters...", gameName, tagLine)
