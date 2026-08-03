@@ -1,11 +1,13 @@
 import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
-import { checkBackendHealth, auditLCUConnection, checkAuthStatus, triggerRiotSignOn, isBackendOnline, isLiveRiotApiActive, lcuStatus, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
+import { AuthModal } from './components/auth/AuthModal';
+import { checkBackendHealth, auditLCUConnection, checkAuthStatus, isBackendOnline, isLiveRiotApiActive, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
   const [activeView, setActiveView] = createSignal<'dashboard' | 'overlay'>('dashboard');
+  const [isAuthModalOpen, setIsAuthModalOpen] = createSignal<boolean>(false);
   const [liveTelemetry, setLiveTelemetry] = createSignal<OverlayTelemetryPayload | undefined>(undefined);
 
   // Automatically adjust body class when entering or leaving desktop overlay mode
@@ -38,7 +40,7 @@ export const App: Component = () => {
 
   const handleModeSwitch = (mode: 'dashboard' | 'overlay') => {
     if (mode === 'overlay' && (!authSession().authenticated || !authSession().isVerified)) {
-      alert("⚠️ Tactical In-Game HUD Overlay requires an authenticated Riot Games account link to prove ownership and prevent competitive scouting misuse. Please click 'LOG IN WITH RIOT' first!");
+      setIsAuthModalOpen(true);
       return;
     }
     setActiveView(mode);
@@ -46,7 +48,10 @@ export const App: Component = () => {
 
   return (
     <div class="min-h-screen flex flex-col">
-      {/* Top Professional Navigation & Riot Sign-On Console */}
+      {/* Interactive Authentication Modal */}
+      <AuthModal isOpen={isAuthModalOpen()} onClose={() => setIsAuthModalOpen(false)} />
+
+      {/* Top Professional Navigation & User Management Console */}
       {activeView() === 'dashboard' ? (
         <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-6 py-3.5 shadow-2xl">
           <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -66,24 +71,36 @@ export const App: Component = () => {
               </div>
             </div>
 
-            {/* User Authentication Status & Mode Selector */}
+            {/* User Authentication Buttons & Mode Selector */}
             <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-tactical">
               
-              {/* Authenticated Riot Sign-On (RSO) Badge / Button */}
-              {authSession().authenticated && authSession().isVerified ? (
-                <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/40 shadow-glow-gold">
-                  <span class="text-val-gold font-bold">👑 {authSession().riotId}</span>
-                  <span class="text-[10px] bg-val-gold/20 text-val-gold px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
-                    VERIFIED RIOT OWNER
-                  </span>
-                </div>
-              ) : (
+              {/* Login / Sign Up vs Authenticated Profile Badge */}
+              {authSession().authenticated ? (
                 <button
-                  onClick={triggerRiotSignOn}
-                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-val-red text-white font-black hover:brightness-110 shadow-glow-red transition-all text-xs tracking-wide uppercase"
+                  onClick={() => setIsAuthModalOpen(true)}
+                  class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/40 shadow-glow-gold hover:brightness-110 transition-all"
+                  title="Click to view account sync details or sign out"
                 >
-                  <span>⚡ LOG IN WITH RIOT ACCOUNT</span>
+                  <span class="text-val-gold font-bold">👑 {authSession().riotId || authSession().username}</span>
+                  <span class="text-[10px] bg-val-gold/20 text-val-gold px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                    {authSession().isVerified ? "VERIFIED RIOT OWNER" : "UNVERIFIED SPECTATOR"}
+                  </span>
                 </button>
+              ) : (
+                <div class="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsAuthModalOpen(true)}
+                    class="px-4 py-1.5 rounded-full bg-[#141A29] border border-white/20 text-white font-bold hover:bg-white/10 transition-all shadow-inner uppercase tracking-wider"
+                  >
+                    🔑 SIGN IN
+                  </button>
+                  <button
+                    onClick={() => setIsAuthModalOpen(true)}
+                    class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-val-red to-rose-600 text-white font-black hover:brightness-110 shadow-glow-red transition-all uppercase tracking-wider"
+                  >
+                    <span>⚡ REGISTER & CONNECT RIOT ID</span>
+                  </button>
+                </div>
               )}
 
               {/* Database & Server Status Pill */}
