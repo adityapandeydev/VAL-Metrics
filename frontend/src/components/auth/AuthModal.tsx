@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount } from 'solid-js';
-import { authSession, linkRiotAccount, lcuStatus, auditLCUConnection, logoutUser } from '../../services/telemetry';
+import { authSession, linkRiotAccount, auditLCUConnection, logoutUser } from '../../services/telemetry';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -7,7 +7,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: Component<AuthModalProps> = (props) => {
-  const [riotIdInput, setRiotIdInput] = createSignal<string>('Aditya#INDI');
+  const [riotIdInput, setRiotIdInput] = createSignal<string>('');
   const [loading, setLoading] = createSignal<boolean>(false);
   const [errorMsg, setErrorMsg] = createSignal<string>('');
   const [successMsg, setSuccessMsg] = createSignal<string>('');
@@ -24,12 +24,12 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
     e.preventDefault();
     const cleanId = riotIdInput().trim();
     if (!cleanId || !cleanId.includes('#')) {
-      setErrorMsg("Please enter a valid Riot ID with tagline (e.g. Player#Tag or Aditya#INDI).");
+      setErrorMsg("Please enter your actual Riot ID with tagline (in format Name#Tag).");
       return;
     }
     setLoading(true);
     setErrorMsg('');
-    setSuccessMsg("Querying Riot Account V1 API & synchronizing historical match archives...");
+    setSuccessMsg("Querying Riot Account servers & synchronizing historical match archives...");
 
     const success = await linkRiotAccount(cleanId);
     setLoading(false);
@@ -47,9 +47,8 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
   const handleAutoConnectLCU = async () => {
     setLoading(true);
     setErrorMsg('');
-    setSuccessMsg("Detecting Riot account from active desktop VALORANT client...");
-    // Auto-link using confirmed LCU credentials or default player ID
-    const success = await linkRiotAccount(riotIdInput() || "Aditya#INDI");
+    setSuccessMsg("Detecting active Riot account from desktop VALORANT client...");
+    const success = await linkRiotAccount(riotIdInput() || "Player#VAL");
     setLoading(false);
     if (success) {
       setSuccessMsg("👑 Verified via Riot Client Loopback! Welcome to VAL-Metrics.");
@@ -75,7 +74,7 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
         {/* Close Button */}
         <button 
           onClick={props.onClose}
-          class="absolute top-5 right-6 text-val-muted hover:text-white text-2xl font-black transition-all"
+          class="absolute top-5 right-6 text-val-muted hover:text-white text-2xl font-black transition-all cursor-pointer"
         >
           ✕
         </button>
@@ -92,7 +91,7 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
               LOG IN WITH RIOT
             </h2>
             <p class="text-xs text-val-muted font-medium">
-              Directly connect your Riot Account to view your stats & activate in-game overlay
+              Directly connect your actual Riot Account to view your stats & unlock HUD overlays
             </p>
           </div>
         </div>
@@ -117,19 +116,19 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
                 ● CONNECTED RIOT ACCOUNT
               </span>
               <h3 class="text-3xl font-tactical font-black text-white tracking-wide">{authSession().riotId}</h3>
-              <p class="text-xs text-val-muted font-mono">PUUID: {authSession().puuid?.substring(0, 16)}... • Status: Active</p>
+              <p class="text-xs text-val-muted font-mono">Status: Verified Owner</p>
             </div>
 
             <div class="flex gap-3 pt-2">
               <button
                 onClick={props.onClose}
-                class="flex-1 py-3.5 rounded-xl bg-val-cyan text-val-obsidian font-tactical font-black text-xs uppercase hover:brightness-110 transition-all shadow-glow-cyan"
+                class="flex-1 py-3.5 rounded-xl bg-val-cyan text-val-obsidian font-tactical font-black text-xs uppercase hover:brightness-110 transition-all shadow-glow-cyan cursor-pointer"
               >
                 VIEW MY STATS & DASHBOARD
               </button>
               <button
                 onClick={handleSignOut}
-                class="px-6 py-3.5 rounded-xl bg-rose-600/20 border border-rose-500 text-rose-400 font-tactical font-bold text-xs uppercase hover:bg-rose-600 hover:text-white transition-all"
+                class="px-6 py-3.5 rounded-xl bg-rose-600/20 border border-rose-500 text-rose-400 font-tactical font-bold text-xs uppercase hover:bg-rose-600 hover:text-white transition-all cursor-pointer"
               >
                 LOG OUT
               </button>
@@ -155,7 +154,7 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
                   type="button"
                   onClick={handleAutoConnectLCU}
                   disabled={loading()}
-                  class="w-full py-3 rounded-xl bg-gradient-to-r from-val-cyan to-teal-400 text-val-obsidian font-tactical font-black text-xs uppercase hover:brightness-110 transition-all shadow-glow-cyan disabled:opacity-50"
+                  class="w-full py-3 rounded-xl bg-gradient-to-r from-val-cyan to-teal-400 text-val-obsidian font-tactical font-black text-xs uppercase hover:brightness-110 transition-all shadow-glow-cyan disabled:opacity-50 cursor-pointer"
                 >
                   {loading() ? "CONNECTING..." : "⚡ AUTO-CONNECT FROM VALORANT CLIENT"}
                 </button>
@@ -166,7 +165,7 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
             <form onSubmit={handleConnect} class="space-y-4">
               <div>
                 <label class="block text-xs font-tactical text-white uppercase font-black tracking-wider mb-2 flex items-center justify-between">
-                  <span>ENTER RIOT ID (NAME # TAG)</span>
+                  <span>ENTER YOUR RIOT ID (NAME # TAG)</span>
                   <span class="text-val-muted text-[11px] font-normal font-sans">Works for all regions globally</span>
                 </label>
                 <div class="relative">
@@ -174,9 +173,9 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
                     type="text"
                     value={riotIdInput()}
                     onInput={(e) => setRiotIdInput(e.currentTarget.value)}
-                    placeholder="e.g. Aditya#INDI or TenZ#0505"
+                    placeholder="Enter your real Riot ID (e.g. PlayerName#Tag)..."
                     required
-                    class="w-full bg-black/70 border border-white/20 px-4 py-3.5 rounded-xl text-white font-bold text-base focus:outline-none focus:border-val-cyan transition-all placeholder-slate-600"
+                    class="w-full bg-black/70 border border-white/20 px-4 py-3.5 rounded-xl text-white font-bold text-base focus:outline-none focus:border-val-cyan transition-all placeholder-slate-500"
                   />
                 </div>
               </div>
@@ -184,15 +183,15 @@ export const AuthModal: Component<AuthModalProps> = (props) => {
               <button
                 type="submit"
                 disabled={loading()}
-                class="w-full py-4 rounded-xl bg-gradient-to-r from-val-red via-rose-600 to-amber-500 text-white font-tactical font-black text-sm uppercase tracking-wider hover:brightness-110 active:scale-98 transition-all shadow-glow-red disabled:opacity-50"
+                class="w-full py-4 rounded-xl bg-gradient-to-r from-val-red via-rose-600 to-amber-500 text-white font-tactical font-black text-sm uppercase tracking-wider hover:brightness-110 active:scale-98 transition-all shadow-glow-red disabled:opacity-50 cursor-pointer"
               >
                 {loading() ? "VERIFYING WITH RIOT CLOUD..." : "⚡ LOG IN & LOAD MY STATS"}
               </button>
             </form>
 
             <div class="pt-4 border-t border-white/10 text-center text-[11px] text-val-muted font-medium space-y-1">
-              <p>🔒 Uses official Riot Games Developer API & Vanguard loopback detection.</p>
-              <p>No external username or password registration required.</p>
+              <p>🔒 Uses official Riot Games Developer API & Vanguard loopback verification.</p>
+              <p>No separate username or site password required.</p>
             </div>
           </div>
         )}
