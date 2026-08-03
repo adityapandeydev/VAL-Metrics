@@ -130,7 +130,7 @@ export async function loginUser(username: string, pass: string): Promise<boolean
 }
 
 export async function linkRiotAccount(riotId: string): Promise<boolean> {
-  const token = localStorage.getItem('val_auth_token') || 'demo_token';
+  const token = localStorage.getItem('val_auth_token') || 'direct_riot_session';
   try {
     const res = await fetch(`${BACKEND_URL}/auth/riot/link`, {
       method: "POST",
@@ -144,8 +144,8 @@ export async function linkRiotAccount(riotId: string): Promise<boolean> {
         setAuthSession({
           authenticated: true,
           token: data.token || token,
-          username: data.username || authSession().username || "Player",
-          riotId: data.riotId,
+          username: data.username || riotId,
+          riotId: data.riotId || riotId,
           puuid: data.puuid,
           isVerified: true
         });
@@ -153,7 +153,7 @@ export async function linkRiotAccount(riotId: string): Promise<boolean> {
       }
     }
   } catch (e) {
-    console.error("Riot account linking failed:", e);
+    console.error("Riot account verification failed:", e);
   }
   return false;
 }
@@ -174,6 +174,7 @@ export async function logoutUser(): Promise<void> {
 }
 
 export async function triggerPlayerSync(riotId: string): Promise<SyncReport | null> {
+  if (!riotId) return null;
   try {
     const res = await fetch(`${BACKEND_URL}/players/sync/?riotId=${encodeURIComponent(riotId)}`);
     if (res.ok) {
@@ -201,9 +202,10 @@ export async function auditLCUConnection(): Promise<LCUStatus> {
   return fallback;
 }
 
-export async function fetchLiveOverlayTelemetry(riotId: string = "Aditya#INDI"): Promise<OverlayTelemetryPayload | null> {
+export async function fetchLiveOverlayTelemetry(riotId: string): Promise<OverlayTelemetryPayload | null> {
+  if (!riotId) return null;
   try {
-    const res = await fetch(`${BACKEND_URL}/players/live/${encodeURIComponent(riotId)}`);
+    const res = await fetch(`${BACKEND_URL}/players/live/?riotId=${encodeURIComponent(riotId)}`);
     if (res.ok) {
       return await res.json();
     }
@@ -213,14 +215,12 @@ export async function fetchLiveOverlayTelemetry(riotId: string = "Aditya#INDI"):
   return null;
 }
 
-/**
- * Retrieves universal DB-indexed analytical profile metrics without requiring UI region toggles
- */
 export async function fetchHistoricalAnalytics(
-  riotId: string = "Aditya#INDI",
+  riotId: string,
   queue: string = "Competitive",
   act: string = "V26: A4"
 ): Promise<AdvancedPlayerMetrics | null> {
+  if (!riotId || !riotId.includes('#')) return null;
   try {
     const url = `${BACKEND_URL}/players/analytics/?riotId=${encodeURIComponent(riotId)}&queue=${encodeURIComponent(queue)}&act=${encodeURIComponent(act)}`;
     const res = await fetch(url);
