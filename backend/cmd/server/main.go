@@ -229,6 +229,10 @@ func main() {
 
 		// 4. Compute Dynamic Statistical Evaluation from stored match archives
 		metrics := calculator.ComputePlayerAnalytics(puuid, fmt.Sprintf("%s#%s", gameName, tagLine), act, queue, matches)
+		metrics.DataSource = "LIVE_RIOT_CLOUD"
+		if len(matches) > 0 && (strings.HasPrefix(matches[0].MatchInfo.MatchID, "DEV-VAL") || strings.HasPrefix(matches[0].MatchInfo.MatchID, "VAL-MATCH")) {
+			metrics.DataSource = "DEV_KEY_RESTRICTED_SIMULATED"
+		}
 
 		json.NewEncoder(w).Encode(metrics)
 	})

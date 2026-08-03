@@ -12,6 +12,7 @@ import (
 type AdvancedPlayerMetrics struct {
 	RiotID             string               `json:"riotId"`
 	PUUID              string               `json:"puuid"`
+	DataSource         string               `json:"dataSource"`    // e.g. "LIVE_RIOT_CLOUD" vs "DEV_API_RESTRICTION_SIMULATED"
 	SelectedAct        string               `json:"selectedAct"`   // e.g. "V26: A4"
 	SelectedQueue      string               `json:"selectedQueue"` // e.g. "Competitive"
 	PlaytimeHours      float64              `json:"playtimeHours"`
