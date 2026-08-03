@@ -101,35 +101,15 @@ pub fn run() {
     // 1. Enforce Webview hardware acceleration safety before webview runtime initialization
     configure_webview_hardware_safety();
 
-    let click_through_state = Arc::new(AtomicBool::new(true));
+    let click_through_state = Arc::new(AtomicBool::new(false));
 
     tauri::Builder::default()
         .manage(OverlayState {
             is_click_through: click_through_state.clone(),
         })
         .invoke_handler(tauri::generate_handler![toggle_click_through])
-        .setup(|app| {
-            let window = app.get_webview_window("overlay").expect("Overlay window not configured in tauri.conf.json");
-            
-            // Initial overlay setup: Enable click-through ghost mode by default on app launch
-            #[cfg(target_os = "windows")]
-            {
-                if let Ok(hwnd) = window.hwnd() {
-                    let hwnd = hwnd.0 as HWND;
-                    unsafe {
-                        let ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
-                        SetWindowLongW(
-                            hwnd,
-                            GWL_EXSTYLE,
-                            ex_style | WS_EX_LAYERED as i32 | WS_EX_TRANSPARENT as i32 | WS_EX_NOACTIVATE as i32 | WS_EX_TOPMOST as i32,
-                        );
-                        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                    }
-                }
-            }
-
-            println!("VALORANT Tactical Overlay Tauri v2 backend initialized successfully.");
-            
+        .setup(|_app| {
+            println!("VALORANT Tactical Overlay Tauri v2 backend initialized successfully in interactive windowed mode.");
             Ok(())
         })
         .run(tauri::generate_context!())
