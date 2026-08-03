@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
-import { checkBackendHealth, auditLCUConnection, isBackendOnline, lcuStatus, fetchLiveOverlayTelemetry } from './services/telemetry';
+import { checkBackendHealth, auditLCUConnection, isBackendOnline, isLiveRiotApiActive, lcuStatus, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
@@ -39,43 +39,54 @@ export const App: Component = () => {
     <div class="min-h-screen flex flex-col">
       {/* Top Professional Navigation & Diagnostic Console */}
       {activeView() === 'dashboard' ? (
-        <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/90 backdrop-blur-md border-b border-val-border px-6 py-3 shadow-xl">
+        <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-6 py-3.5 shadow-2xl">
           <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Brand Logo */}
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded bg-gradient-to-br from-val-red to-rose-700 flex items-center justify-center font-tactical font-extrabold text-white text-xl shadow-glow-red">
-                V
+              <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-0.5 flex items-center justify-center font-tactical font-extrabold text-white text-xl shadow-glow-red">
+                <div class="w-full h-full bg-[#0B0E14] rounded-[6px] flex items-center justify-center text-val-red">
+                  V
+                </div>
               </div>
               <div>
-                <span class="font-extrabold text-xl tracking-wider text-white">VAL<span class="text-val-red">-</span>METRICS</span>
-                <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-val-card text-val-muted border border-white/5">
-                  Tracker Pro v2.0
+                <span class="font-extrabold text-xl tracking-wider text-white font-tactical">VAL<span class="text-val-red">-</span>METRICS</span>
+                <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-val-card text-val-cyan border border-val-cyan/20">
+                  Live Riot Cloud v2.5
                 </span>
               </div>
             </div>
 
             {/* System Status Indicators & Mode Selector */}
-            <div class="flex flex-wrap items-center justify-center gap-3 text-xs">
+            <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-tactical">
+              {/* Live Riot Cloud API Status Pill */}
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
+                <div class={`w-2 h-2 rounded-full ${isLiveRiotApiActive() ? 'bg-val-cyan shadow-[0_0_8px_#00E5FF]' : 'bg-amber-400'}`} />
+                <span class="text-val-muted font-medium uppercase text-[11px]">RIOT API:</span>
+                <span class={isLiveRiotApiActive() ? 'text-val-cyan font-black uppercase text-[11px]' : 'text-amber-400 font-bold uppercase text-[11px]'}>
+                  {isLiveRiotApiActive() ? '⚡ LIVE CLOUD LINKED' : '🛡️ VAULT SIMULATION'}
+                </span>
+              </div>
+
               {/* Backend Indicator Pill */}
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-val-card border border-white/5 shadow-inner">
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
                 <div class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#10B981]' : 'bg-rose-500 animate-pulse'}`} />
-                <span class="text-val-muted font-medium">SERVER:</span>
-                <span class={isBackendOnline() ? 'text-white font-bold' : 'text-rose-400 font-bold'}>
+                <span class="text-val-muted font-medium uppercase text-[11px]">SERVER:</span>
+                <span class={isBackendOnline() ? 'text-white font-black uppercase text-[11px]' : 'text-rose-400 font-bold uppercase text-[11px]'}>
                   {isBackendOnline() ? 'CONNECTED (:8080)' : 'OFFLINE'}
                 </span>
               </div>
 
               {/* VALORANT LCU Indicator Pill */}
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-val-card border border-white/5 shadow-inner">
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
                 <div class={`w-2 h-2 rounded-full ${lcuStatus().connected ? 'bg-val-cyan shadow-[0_0_8px_#00E5FF]' : 'bg-amber-400/80'}`} />
-                <span class="text-val-muted font-medium">GAME CLIENT:</span>
-                <span class={lcuStatus().connected ? 'text-val-cyan font-bold' : 'text-amber-400/90 font-semibold'}>
-                  {lcuStatus().connected ? `LINKED (PID ${lcuStatus().pid})` : 'LISTENING (STANDBY)'}
+                <span class="text-val-muted font-medium uppercase text-[11px]">CLIENT:</span>
+                <span class={lcuStatus().connected ? 'text-val-cyan font-black uppercase text-[11px]' : 'text-amber-400 font-semibold uppercase text-[11px]'}>
+                  {lcuStatus().connected ? `LINKED (${lcuStatus().pid})` : 'STANDBY'}
                 </span>
               </div>
 
               {/* Mode Switcher */}
-              <div class="flex bg-[#07090D] p-1 rounded-xl border border-val-border ml-2">
+              <div class="flex bg-[#07090D] p-1 rounded-xl border border-val-border ml-1">
                 <button
                   onClick={() => setActiveView('dashboard')}
                   class={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center gap-1.5 ${
