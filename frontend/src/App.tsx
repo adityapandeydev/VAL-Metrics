@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
-import { checkBackendHealth, auditLCUConnection, isBackendOnline, isLiveRiotApiActive, lcuStatus, fetchLiveOverlayTelemetry } from './services/telemetry';
+import { checkBackendHealth, auditLCUConnection, checkAuthStatus, triggerRiotSignOn, isBackendOnline, isLiveRiotApiActive, lcuStatus, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
@@ -20,13 +20,14 @@ export const App: Component = () => {
   onMount(async () => {
     await checkBackendHealth();
     await auditLCUConnection();
+    await checkAuthStatus();
 
     const interval = setInterval(async () => {
       const online = await checkBackendHealth();
       if (online) {
         const lcu = await auditLCUConnection();
         if (lcu.connected || activeView() === 'overlay') {
-          const stats = await fetchLiveOverlayTelemetry("Vanguard#KILL");
+          const stats = await fetchLiveOverlayTelemetry("Aditya#INDI");
           if (stats) setLiveTelemetry(stats);
         }
       }
@@ -35,13 +36,22 @@ export const App: Component = () => {
     onCleanup(() => clearInterval(interval));
   });
 
+  const handleModeSwitch = (mode: 'dashboard' | 'overlay') => {
+    if (mode === 'overlay' && (!authSession().authenticated || !authSession().isVerified)) {
+      alert("⚠️ Tactical In-Game HUD Overlay requires an authenticated Riot Games account link to prove ownership and prevent competitive scouting misuse. Please click 'LOG IN WITH RIOT' first!");
+      return;
+    }
+    setActiveView(mode);
+  };
+
   return (
     <div class="min-h-screen flex flex-col">
-      {/* Top Professional Navigation & Diagnostic Console */}
+      {/* Top Professional Navigation & Riot Sign-On Console */}
       {activeView() === 'dashboard' ? (
         <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-6 py-3.5 shadow-2xl">
-          <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Brand Logo */}
+          <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+            
+            {/* Brand Logo & Universal DB Badge */}
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-0.5 flex items-center justify-center font-tactical font-extrabold text-white text-xl shadow-glow-red">
                 <div class="w-full h-full bg-[#0B0E14] rounded-[6px] flex items-center justify-center text-val-red">
@@ -50,45 +60,45 @@ export const App: Component = () => {
               </div>
               <div>
                 <span class="font-extrabold text-xl tracking-wider text-white font-tactical">VAL<span class="text-val-red">-</span>METRICS</span>
-                <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-val-card text-val-cyan border border-val-cyan/20">
-                  Live Riot Cloud v2.5
+                <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-[#1A2338] text-val-cyan border border-val-cyan/30">
+                  Universal DB v3.0
                 </span>
               </div>
             </div>
 
-            {/* System Status Indicators & Mode Selector */}
+            {/* User Authentication Status & Mode Selector */}
             <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-tactical">
-              {/* Live Riot Cloud API Status Pill */}
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
-                <div class={`w-2 h-2 rounded-full ${isLiveRiotApiActive() ? 'bg-val-cyan shadow-[0_0_8px_#00E5FF]' : 'bg-amber-400'}`} />
-                <span class="text-val-muted font-medium uppercase text-[11px]">RIOT API:</span>
-                <span class={isLiveRiotApiActive() ? 'text-val-cyan font-black uppercase text-[11px]' : 'text-amber-400 font-bold uppercase text-[11px]'}>
-                  {isLiveRiotApiActive() ? '⚡ LIVE CLOUD LINKED' : '🛡️ VAULT SIMULATION'}
-                </span>
-              </div>
+              
+              {/* Authenticated Riot Sign-On (RSO) Badge / Button */}
+              {authSession().authenticated && authSession().isVerified ? (
+                <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/40 shadow-glow-gold">
+                  <span class="text-val-gold font-bold">👑 {authSession().riotId}</span>
+                  <span class="text-[10px] bg-val-gold/20 text-val-gold px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                    VERIFIED RIOT OWNER
+                  </span>
+                </div>
+              ) : (
+                <button
+                  onClick={triggerRiotSignOn}
+                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-val-red text-white font-black hover:brightness-110 shadow-glow-red transition-all text-xs tracking-wide uppercase"
+                >
+                  <span>⚡ LOG IN WITH RIOT ACCOUNT</span>
+                </button>
+              )}
 
-              {/* Backend Indicator Pill */}
+              {/* Database & Server Status Pill */}
               <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
                 <div class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#10B981]' : 'bg-rose-500 animate-pulse'}`} />
-                <span class="text-val-muted font-medium uppercase text-[11px]">SERVER:</span>
+                <span class="text-val-muted font-medium uppercase text-[11px]">DB ENGINE:</span>
                 <span class={isBackendOnline() ? 'text-white font-black uppercase text-[11px]' : 'text-rose-400 font-bold uppercase text-[11px]'}>
-                  {isBackendOnline() ? 'CONNECTED (:8080)' : 'OFFLINE'}
-                </span>
-              </div>
-
-              {/* VALORANT LCU Indicator Pill */}
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
-                <div class={`w-2 h-2 rounded-full ${lcuStatus().connected ? 'bg-val-cyan shadow-[0_0_8px_#00E5FF]' : 'bg-amber-400/80'}`} />
-                <span class="text-val-muted font-medium uppercase text-[11px]">CLIENT:</span>
-                <span class={lcuStatus().connected ? 'text-val-cyan font-black uppercase text-[11px]' : 'text-amber-400 font-semibold uppercase text-[11px]'}>
-                  {lcuStatus().connected ? `LINKED (${lcuStatus().pid})` : 'STANDBY'}
+                  {isBackendOnline() ? 'SNAPPYSTORE CONNECTED' : 'OFFLINE'}
                 </span>
               </div>
 
               {/* Mode Switcher */}
               <div class="flex bg-[#07090D] p-1 rounded-xl border border-val-border ml-1">
                 <button
-                  onClick={() => setActiveView('dashboard')}
+                  onClick={() => handleModeSwitch('dashboard')}
                   class={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center gap-1.5 ${
                     activeView() === 'dashboard'
                       ? 'bg-val-red text-white shadow-glow-red font-bold'
@@ -98,16 +108,18 @@ export const App: Component = () => {
                   <span>📊</span> ANALYTICS HUB
                 </button>
                 <button
-                  onClick={() => setActiveView('overlay')}
+                  onClick={() => handleModeSwitch('overlay')}
                   class={`px-4 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 flex items-center gap-1.5 ${
                     activeView() === 'overlay'
                       ? 'bg-val-cyan text-val-obsidian font-extrabold shadow-glow-cyan'
                       : 'text-val-muted hover:text-white'
                   }`}
+                  title={authSession().isVerified ? "Launch tactical real-time gaming HUD overlay" : "Requires verified Riot account login"}
                 >
                   <span>🎯</span> IN-GAME HUD
                 </button>
               </div>
+
             </div>
           </div>
         </header>
