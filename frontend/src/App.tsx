@@ -2,7 +2,7 @@ import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
 import { AuthModal } from './components/auth/AuthModal';
-import { checkBackendHealth, auditLCUConnection, checkAuthStatus, isBackendOnline, isLiveRiotApiActive, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
+import { checkBackendHealth, auditLCUConnection, checkAuthStatus, isBackendOnline, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
@@ -28,8 +28,8 @@ export const App: Component = () => {
       const online = await checkBackendHealth();
       if (online) {
         const lcu = await auditLCUConnection();
-        if (lcu.connected || activeView() === 'overlay') {
-          const stats = await fetchLiveOverlayTelemetry(authSession().riotId || "Aditya#INDI");
+        if ((lcu.connected || activeView() === 'overlay') && authSession().riotId) {
+          const stats = await fetchLiveOverlayTelemetry(authSession().riotId!);
           if (stats) setLiveTelemetry(stats);
         }
       }
@@ -75,10 +75,10 @@ export const App: Component = () => {
             <div class="flex flex-wrap items-center justify-center gap-3 text-xs font-tactical">
               
               {/* Single Clear Riot Login / Authenticated Badge */}
-              {authSession().authenticated ? (
+              {authSession().authenticated && authSession().riotId ? (
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
-                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/50 shadow-glow-gold hover:brightness-110 active:scale-95 transition-all"
+                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/50 shadow-glow-gold hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                   title="Click to manage your connected Riot Account or log out"
                 >
                   <span class="text-val-gold font-bold text-sm">👑 {authSession().riotId}</span>
@@ -124,7 +124,7 @@ export const App: Component = () => {
                       ? 'bg-val-cyan text-val-obsidian font-extrabold shadow-glow-cyan'
                       : 'text-val-muted hover:text-white'
                   }`}
-                  title="Launch tactical real-time gaming HUD overlay"
+                  title="Launch tactical real-time gaming HUD overlay (requires verified Riot account)"
                 >
                   <span>🎯</span> IN-GAME HUD
                 </button>
