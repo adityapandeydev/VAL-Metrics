@@ -1,8 +1,8 @@
-import { Component, createSignal, onMount, createEffect } from 'solid-js';
+import { Component, createSignal, onMount, createEffect, Show } from 'solid-js';
 import { fetchHistoricalAnalytics, triggerPlayerSync, authSession } from '../../services/telemetry';
 import { AdvancedPlayerMetrics } from '../../types/analytics';
 
-// Import our newly engineered, uniquely styled analytical components
+// Import our uniquely styled analytical components
 import { TacticalFilterBar } from './TacticalFilterBar';
 import { RatingCard } from './RatingCard';
 import { ValIndexScorecard } from './ValIndexScorecard';
@@ -15,7 +15,7 @@ import { TopMapsList } from './TopMapsList';
 import { MatchEncounterLog } from './MatchEncounterLog';
 
 export const AnalyticsDashboard: Component = () => {
-  const [searchId, setSearchId] = createSignal<string>("Aditya#INDI");
+  const [searchId, setSearchId] = createSignal<string>("");
   const [stats, setStats] = createSignal<AdvancedPlayerMetrics | null>(null);
   const [loading, setLoading] = createSignal<boolean>(false);
   const [syncing, setSyncing] = createSignal<boolean>(false);
@@ -24,6 +24,10 @@ export const AnalyticsDashboard: Component = () => {
   const [selectedAct, setSelectedAct] = createSignal<string>("V26: A4");
 
   const loadProfile = async (id: string, queue: string, act: string) => {
+    if (!id || !id.includes('#')) {
+      setStats(null);
+      return;
+    }
     setLoading(true);
     const data = await fetchHistoricalAnalytics(id, queue, act);
     if (data) {
@@ -44,6 +48,7 @@ export const AnalyticsDashboard: Component = () => {
   });
 
   const handleManualSync = async () => {
+    if (!searchId() || !searchId().includes('#')) return;
     setSyncing(true);
     setSyncMessage("Harvesting telemetry from Riot match servers...");
     const report = await triggerPlayerSync(searchId());
@@ -57,7 +62,11 @@ export const AnalyticsDashboard: Component = () => {
   };
 
   onMount(() => {
-    loadProfile(searchId(), selectedQueue(), selectedAct());
+    if (authSession().authenticated && authSession().riotId) {
+      const id = authSession().riotId!;
+      setSearchId(id);
+      loadProfile(id, selectedQueue(), selectedAct());
+    }
   });
 
   const getDisplayedTag = () => {
@@ -66,7 +75,7 @@ export const AnalyticsDashboard: Component = () => {
     if (idx !== -1) {
       return id.substring(idx);
     }
-    return "#INDI";
+    return "";
   };
 
   const getDisplayedName = () => {
@@ -88,46 +97,60 @@ export const AnalyticsDashboard: Component = () => {
 
         <div class="relative z-10 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
           
-          {/* Player Identity & Auto-Sync Badge */}
-          <div class="flex items-center gap-6">
-            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-1 shadow-glow-red flex items-center justify-center relative flex-shrink-0">
-              <div class="w-full h-full bg-[#0B0E14] rounded-[14px] flex items-center justify-center font-tactical font-black text-white text-3xl">
-                ⚔️
-              </div>
-              <span class="absolute -bottom-2 -right-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-val-emerald text-val-obsidian font-tactical uppercase shadow">
-                GLOBAL
+          {/* Player Identity or Welcome Prompt */}
+          <Show when={stats() || (searchId() && searchId().includes('#'))} fallback={
+            <div class="space-y-2 max-w-2xl">
+              <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-val-cyan/20 text-val-cyan font-tactical border border-val-cyan/40">
+                ⚡ UNIVERSAL DATABASE ONLINE
               </span>
+              <h1 class="text-3xl sm:text-4xl font-black text-white font-tactical tracking-tight">
+                ENTER ANY RIOT ID TO VIEW ANALYTICS
+              </h1>
+              <p class="text-xs sm:text-sm text-val-muted">
+                Search globally across all servers without regional toggles, or click <strong class="text-white">Log In With Riot Account</strong> in the top header to view your own personal stats.
+              </p>
             </div>
-
-            <div class="space-y-1.5">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-white/10 text-white font-tactical border border-white/10 flex items-center gap-1.5">
-                  <span class={`w-2 h-2 rounded-full ${syncing() ? 'bg-amber-400 animate-ping' : 'bg-val-cyan shadow-[0_0_8px_#00E5FF]'}`} />
-                  {syncMessage()}
+          }>
+            <div class="flex items-center gap-6">
+              <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-1 shadow-glow-red flex items-center justify-center relative flex-shrink-0">
+                <div class="w-full h-full bg-[#0B0E14] rounded-[14px] flex items-center justify-center font-tactical font-black text-white text-3xl">
+                  ⚔️
+                </div>
+                <span class="absolute -bottom-2 -right-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-val-emerald text-val-obsidian font-tactical uppercase shadow">
+                  GLOBAL
                 </span>
               </div>
-              
-              <div class="flex flex-wrap items-center gap-3">
-                <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white flex flex-wrap items-center gap-2 font-tactical">
-                  <span>{getDisplayedName()}</span>
-                  <span class="text-lg md:text-xl px-3 py-0.5 rounded-lg bg-black/60 text-val-cyan border border-val-cyan/40 font-tactical font-bold shadow-glow-cyan">
-                    {getDisplayedTag()}
-                  </span>
-                </h1>
 
-                {/* Instant Force Sync Button */}
-                <button
-                  onClick={handleManualSync}
-                  disabled={syncing() || loading()}
-                  class="px-3.5 py-2 rounded-xl bg-[#1D273E] border border-val-cyan/40 text-val-cyan font-tactical font-extrabold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
-                  title="Manually harvest latest Riot Cloud match archives into database"
-                >
-                  <span class={syncing() ? "animate-spin inline-block" : ""}>🔄</span>
-                  <span>{syncing() ? "SYNCING..." : "SYNC NOW"}</span>
-                </button>
+              <div class="space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-white/10 text-white font-tactical border border-white/10 flex items-center gap-1.5">
+                    <span class={`w-2 h-2 rounded-full ${syncing() ? 'bg-amber-400 animate-ping' : 'bg-val-cyan shadow-[0_0_8px_#00E5FF]'}`} />
+                    {syncMessage()}
+                  </span>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                  <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white flex flex-wrap items-center gap-2 font-tactical">
+                    <span>{getDisplayedName()}</span>
+                    <span class="text-lg md:text-xl px-3 py-0.5 rounded-lg bg-black/60 text-val-cyan border border-val-cyan/40 font-tactical font-bold shadow-glow-cyan">
+                      {getDisplayedTag()}
+                    </span>
+                  </h1>
+
+                  {/* Instant Force Sync Button */}
+                  <button
+                    onClick={handleManualSync}
+                    disabled={syncing() || loading()}
+                    class="px-3.5 py-2 rounded-xl bg-[#1D273E] border border-val-cyan/40 text-val-cyan font-tactical font-extrabold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                    title="Manually harvest latest Riot Cloud match archives into database"
+                  >
+                    <span class={syncing() ? "animate-spin inline-block" : ""}>🔄</span>
+                    <span>{syncing() ? "SYNCING..." : "SYNC NOW"}</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </Show>
 
           {/* Universal Region-less Player Search Bar */}
           <form 
@@ -142,6 +165,7 @@ export const AnalyticsDashboard: Component = () => {
               value={searchId()}
               onInput={(e) => setSearchId(e.currentTarget.value)}
               placeholder="Search Any Riot ID (e.g. TenZ#0505)..."
+              required
               class="bg-black/60 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-val-cyan text-white font-semibold placeholder-slate-500 w-full sm:w-72"
             />
 
@@ -157,68 +181,88 @@ export const AnalyticsDashboard: Component = () => {
         </div>
       </section>
 
-      {/* Cybernetic Mode & Act Tactical Filter Bar */}
-      <TacticalFilterBar
-        selectedQueue={selectedQueue()}
-        onSelectQueue={(q) => { 
-          setSelectedQueue(q); 
-          loadProfile(searchId(), q, selectedAct()); 
-        }}
-        selectedAct={selectedAct()}
-        onSelectAct={(a) => { 
-          setSelectedAct(a); 
-          loadProfile(searchId(), selectedQueue(), a); 
-        }}
-      />
-
-      {/* Master Grid: Left Column (35%) vs Right Column (65%) */}
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* LEFT COLUMN: Standing Card, Silhouette, Roles, Armory, & Maps */}
-        <div class="lg:col-span-4 space-y-6">
-          <RatingCard 
-            currentRating="Unranked"
-            level={31}
-            recordString="2W - 0L"
-            peakRating="Silver 2"
-            peakAct="V26: ACT III"
-          />
-
-          <AccuracySilhouette 
-            headshotPercent={stats()?.headshotPercent || 14.6}
-            bodyshotPercent={stats()?.bodyshotPercent || 81.9}
-            legshotPercent={stats()?.legshotPercent || 3.5}
-            totalHits={stats()?.totalHits || 171}
-          />
-
-          <RoleMasteryPanel roleStats={stats()?.roleMastery} />
-
-          <WeaponArmoryList weapons={stats()?.weaponArmory} />
-
-          <TopMapsList maps={stats()?.mapDomination} />
+      {/* Show Content Only When a Player is Loaded or Logged In! */}
+      <Show when={stats() !== null} fallback={
+        <div class="rounded-3xl border border-white/10 bg-[#0E1422]/60 p-16 text-center space-y-4 max-w-4xl mx-auto backdrop-blur-md">
+          <div class="w-16 h-16 rounded-2xl bg-val-red/10 border border-val-red/30 flex items-center justify-center mx-auto text-3xl font-tactical text-val-red shadow-glow-red">
+            📊
+          </div>
+          <h2 class="text-2xl font-tactical font-black text-white uppercase tracking-tight">
+            NO PLAYER PROFILE LOADED
+          </h2>
+          <p class="text-sm text-val-muted max-w-lg mx-auto leading-relaxed">
+            Enter any player's exact <span class="text-white font-bold">Riot ID</span> (including their <span class="text-val-cyan font-bold">#Tagline</span>) into the search bar above to fetch their VAL-Index metrics from our database and Riot Games cloud endpoints.
+          </p>
+          <div class="pt-4 flex justify-center gap-4 text-xs text-val-muted font-mono uppercase">
+            <span>● 100% REGIONLESS SEARCH</span>
+            <span>● ZERO-HARDCODING</span>
+            <span>● LIVE SUB-MS DB QUERYING</span>
+          </div>
         </div>
+      }>
+        {/* Cybernetic Mode & Act Tactical Filter Bar */}
+        <TacticalFilterBar
+          selectedQueue={selectedQueue()}
+          onSelectQueue={(q) => { 
+            setSelectedQueue(q); 
+            if (searchId()) loadProfile(searchId(), q, selectedAct()); 
+          }}
+          selectedAct={selectedAct()}
+          onSelectAct={(a) => { 
+            setSelectedAct(a); 
+            if (searchId()) loadProfile(searchId(), selectedQueue(), a); 
+          }}
+        />
 
-        {/* RIGHT COLUMN: VAL-Index Scorecard, Gunplay Grid, Top Agents, & Match Encounters */}
-        <div class="lg:col-span-8 space-y-8">
+        {/* Master Grid: Left Column (35%) vs Right Column (65%) */}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          <ValIndexScorecard
-            valIndexScore={stats()?.valIndexScore || 927}
-            valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
-            roundWinRate={stats()?.roundWinRate || 57.8}
-            kastPercent={stats()?.kastPercent || 73.3}
-            acs={stats()?.averageCombatScore || 321.7}
-            damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
-          />
+          {/* LEFT COLUMN: Standing Card, Silhouette, Roles, Armory, & Maps */}
+          <div class="lg:col-span-4 space-y-6">
+            <RatingCard 
+              currentRating="Unranked"
+              level={31}
+              recordString="2W - 0L"
+              peakRating="Silver 2"
+              peakAct="V26: ACT III"
+            />
 
-          <CombatOverviewGrid stats={stats() || undefined} />
+            <AccuracySilhouette 
+              headshotPercent={stats()?.headshotPercent || 14.6}
+              bodyshotPercent={stats()?.bodyshotPercent || 81.9}
+              legshotPercent={stats()?.legshotPercent || 3.5}
+              totalHits={stats()?.totalHits || 171}
+            />
 
-          <TopAgentsTable agents={stats()?.agentLeaderboard} />
+            <RoleMasteryPanel roleStats={stats()?.roleMastery} />
 
-          <MatchEncounterLog encounters={stats()?.recentEncounters} />
+            <WeaponArmoryList weapons={stats()?.weaponArmory} />
+
+            <TopMapsList maps={stats()?.mapDomination} />
+          </div>
+
+          {/* RIGHT COLUMN: VAL-Index Scorecard, Gunplay Grid, Top Agents, & Match Encounters */}
+          <div class="lg:col-span-8 space-y-8">
+            
+            <ValIndexScorecard
+              valIndexScore={stats()?.valIndexScore || 927}
+              valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
+              roundWinRate={stats()?.roundWinRate || 57.8}
+              kastPercent={stats()?.kastPercent || 73.3}
+              acs={stats()?.averageCombatScore || 321.7}
+              damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
+            />
+
+            <CombatOverviewGrid stats={stats() || undefined} />
+
+            <TopAgentsTable agents={stats()?.agentLeaderboard} />
+
+            <MatchEncounterLog encounters={stats()?.recentEncounters} />
+
+          </div>
 
         </div>
-
-      </div>
+      </Show>
 
     </div>
   );
