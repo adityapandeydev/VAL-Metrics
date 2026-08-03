@@ -21,7 +21,8 @@ type LCUCredentials struct {
 
 // Watcher scans Windows loopback for live VALORANT client lockfiles without memory injection
 type Watcher struct {
-	creds *LCUCredentials
+	creds         *LCUCredentials
+	lastLoggedPID string
 }
 
 func NewWatcher() *Watcher {
@@ -48,10 +49,17 @@ func (w *Watcher) LocateLockfile() (*LCUCredentials, error) {
 					Password:    parts[3],
 					Protocol:    parts[4],
 				}
-				log.Printf("[LCU-DISCOVERY] Detected live Riot Client lockfile on HTTPS port %s (PID: %s)", w.creds.Port, w.creds.ProcessID)
+				if w.lastLoggedPID != w.creds.ProcessID {
+					log.Printf("[LCU-DISCOVERY] Detected live Riot Client lockfile on HTTPS port %s (PID: %s)", w.creds.Port, w.creds.ProcessID)
+					w.lastLoggedPID = w.creds.ProcessID
+				}
 				return w.creds, nil
 			}
 		}
+	}
+	if w.lastLoggedPID != "" {
+		log.Println("[LCU-DISCOVERY] Live Riot Client closed or lockfile removed.")
+		w.lastLoggedPID = ""
 	}
 	return nil, fmt.Errorf("VALORANT loopback lockfile not detected (is the game running on this machine?)")
 }
