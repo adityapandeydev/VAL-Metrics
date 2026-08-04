@@ -390,7 +390,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
           <div class="flex flex-col justify-start w-full gap-2.5 animate-fade-in h-full">
             
             {/* ALLY TEAM (BLUE) TABLE */}
-            <div class="flex-1 bg-[#0F1626]/95 rounded-2xl border border-val-cyan/40 px-4 py-2.5 shadow-[0_0_20px_rgba(0,229,255,0.1)] flex flex-col justify-start gap-1">
+            <div class="flex-1 bg-[#0F1626]/95 rounded-2xl border border-val-cyan/40 px-4 py-2.5 shadow-[0_0_20px_rgba(0,229,255,0.1)] flex flex-col justify-start gap-1.5">
               <div class="flex items-center justify-between pb-1.5 border-b border-white/10 shrink-0">
                 <h3 class="text-xs font-black font-tactical text-val-cyan uppercase tracking-wider flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-val-cyan shadow-glow-cyan" />
@@ -415,12 +415,12 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                   <For each={allyTeam}>
                     {(player) => (
                       <tr class="hover:bg-white/5 transition-colors">
-                        <td class="py-2 font-sans font-bold text-sm text-white flex items-center gap-2.5">
+                        <td class="py-2.5 font-sans font-bold text-sm text-white flex items-center gap-2.5">
                           <img src={player.agentIcon} alt={player.agent} class="w-7 h-7 rounded-md bg-black border border-white/20 object-cover shadow-sm" />
                           <span class="truncate max-w-[200px] font-semibold">{player.name} ({player.agent})</span>
                         </td>
                         {player.isPrivate ? (
-                          <td colSpan={7} class="text-center py-2 text-val-muted font-tactical text-xs italic tracking-wider">
+                          <td colSpan={7} class="text-center py-2.5 text-val-muted font-tactical text-xs italic tracking-wider">
                             🔒 PROFILE SET TO PRIVATE
                           </td>
                         ) : (
@@ -465,7 +465,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
             </div>
 
             {/* ENEMY TEAM (RED) TABLE */}
-            <div class="flex-1 bg-[#18111A]/95 rounded-2xl border border-rose-500/40 px-4 py-2.5 shadow-[0_0_20px_rgba(244,63,94,0.1)] flex flex-col justify-start gap-1">
+            <div class="flex-1 bg-[#18111A]/95 rounded-2xl border border-rose-500/40 px-4 py-2.5 shadow-[0_0_20px_rgba(244,63,94,0.1)] flex flex-col justify-start gap-1.5">
               <div class="flex items-center justify-between pb-1.5 border-b border-white/10 shrink-0">
                 <h3 class="text-xs font-black font-tactical text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-glow-red" />
@@ -490,12 +490,12 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                   <For each={enemyTeam}>
                     {(player) => (
                       <tr class="hover:bg-white/5 transition-colors">
-                        <td class="py-2 font-sans font-bold text-sm text-white flex items-center gap-2.5">
+                        <td class="py-2.5 font-sans font-bold text-sm text-white flex items-center gap-2.5">
                           <img src={player.agentIcon} alt={player.agent} class="w-7 h-7 rounded-md bg-black border border-white/20 object-cover shadow-sm" />
                           <span class="truncate max-w-[200px] font-semibold">{player.name} ({player.agent})</span>
                         </td>
                         {player.isPrivate ? (
-                          <td colSpan={7} class="text-center py-2 text-val-muted font-tactical text-xs italic tracking-wider">
+                          <td colSpan={7} class="text-center py-2.5 text-val-muted font-tactical text-xs italic tracking-wider">
                             🔒 PROFILE SET TO PRIVATE
                           </td>
                         ) : (
