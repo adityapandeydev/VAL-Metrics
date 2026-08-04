@@ -6,6 +6,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tauri::{Manager, Emitter};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 #[cfg(target_os = "windows")]
 use windows_sys::Win32::{
@@ -13,13 +14,41 @@ use windows_sys::Win32::{
     UI::WindowsAndMessaging::{
         GetWindowLongW, SetLayeredWindowAttributes, SetWindowLongW, SetWindowPos,
         GWL_EXSTYLE, HWND_TOPMOST, LWA_ALPHA, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE,
-        WS_EX_LAYERED, WS_EX_NOACTIVATE, WS_EX_TOPMOST, WS_EX_TRANSPARENT,
+        WS_EX_LAYERED, WS_EX_NOACTIVATE, WS_EX_TRANSPARENT,
     },
 };
 
 // Global application state holding overlay properties
 pub struct OverlayState {
     pub is_click_through: Arc<AtomicBool>,
+}
+
+#[tauri::command]
+fn minimize_window(window: tauri::WebviewWindow) {
+    let _ = window.minimize();
+}
+
+#[tauri::command]
+fn maximize_window(window: tauri::WebviewWindow) {
+    if let Ok(is_maximized) = window.is_maximized() {
+        if is_maximized {
+            let _ = window.unmaximize();
+        } else {
+            let _ = window.maximize();
+        }
+    } else {
+        let _ = window.maximize();
+    }
+}
+
+#[tauri::command]
+fn close_window(window: tauri::WebviewWindow) {
+    let _ = window.close();
+}
+
+#[tauri::command]
+fn hide_window(window: tauri::WebviewWindow) {
+    let _ = window.hide();
 }
 
 /// Modifies the Win32 window extended styles to enable or disable mouse click-through capability.
@@ -104,12 +133,34 @@ pub fn run() {
     let click_through_state = Arc::new(AtomicBool::new(false));
 
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, _shortcut, event| {
+                    if event.state() == ShortcutState::Pressed {
+                        if let Some(window) = app.get_webview_window("overlay") {
+                            if let Ok(true) = window.is_visible() {
+                                let _ = window.hide();
+                            } else {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                    }
+                })
+                .build(),
+        )
         .manage(OverlayState {
             is_click_through: click_through_state.clone(),
         })
-        .invoke_handler(tauri::generate_handler![toggle_click_through])
-        .setup(|_app| {
-            println!("VALORANT Tactical Overlay Tauri v2 backend initialized successfully in interactive windowed mode.");
+        .invoke_handler(tauri::generate_handler![toggle_click_through, minimize_window, maximize_window, close_window, hide_window])
+        .setup(|app| {
+            if let Err(e) = app.global_shortcut().register(Shortcut::new(Some(Modifiers::ALT), Code::KeyV)) {
+                println!("Notice: Alt+V global shortcut could not be bound: {}", e);
+            }
+            if let Err(e) = app.global_shortcut().register(Shortcut::new(Some(Modifiers::ALT), Code::KeyT)) {
+                println!("Notice: Alt+T global shortcut could not be bound: {}", e);
+            }
+            println!("VALORANT Tactical Overlay Tauri v2 backend initialized successfully in interactive windowed mode with global shortcut support.");
             Ok(())
         })
         .run(tauri::generate_context!())
