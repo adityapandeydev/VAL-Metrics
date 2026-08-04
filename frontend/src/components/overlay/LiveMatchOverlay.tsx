@@ -188,7 +188,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
       </div>
 
       {/* ZERO-SCROLL HIGH-DENSITY MAIN CONTENT AREA */}
-      <div class="flex-1 overflow-hidden p-3.5 flex flex-col justify-between max-w-7xl mx-auto w-full">
+      <div class="flex-1 overflow-hidden p-3.5 flex flex-col justify-start max-w-7xl mx-auto w-full">
         
         {/* STAGE 1: HOME (IDLE LOBBY STATE) */}
         <Show when={activeStage() === 'home'}>
@@ -396,7 +396,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
 
         {/* STAGE 3A: LIVE 5v5 TEAM MATCH SCOREBOARD - ZERO-SCROLL TOURNAMENT HUD */}
         <Show when={activeStage() === 'live_team'}>
-          <div class="flex flex-col justify-between h-full w-full gap-2.5 animate-fade-in">
+          <div class="flex flex-col justify-start w-full gap-3 animate-fade-in">
             
             {/* ALLY TEAM (BLUE) TABLE */}
             <div class="bg-[#0F1626]/95 rounded-2xl border border-val-cyan/40 p-3 shadow-[0_0_20px_rgba(0,229,255,0.1)] shrink-0">
@@ -528,68 +528,58 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
           </div>
         </Show>
 
-        {/* STAGE 3B: LIVE FFA / DEATHMATCH SCOREBOARD (UNIFIED 2-COLUMN NO SCROLL) */}
+        {/* STAGE 3B: LIVE FFA / DEATHMATCH SCOREBOARD (UNIFIED SINGLE TABLE NO TEAMS) */}
         <Show when={activeStage() === 'live_ffa'}>
-          <div class="w-full bg-[#121624]/95 p-4 rounded-2xl border border-purple-500/40 shadow-[0_0_25px_rgba(147,51,234,0.15)] animate-fade-in flex flex-col justify-between h-full">
-            <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10 shrink-0">
-              <div>
-                <h3 class="text-sm font-black font-tactical text-purple-400 tracking-wider uppercase flex items-center gap-2">
-                  <span>🎯</span> FREE-FOR-ALL SCOREBOARD ({gameMode()}) • DENSE 2-COLUMN VIEW
-                </h3>
-              </div>
-              <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-tactical font-black text-[10px]">
-                10 PLAYERS IN LOBBY
-              </span>
+          <div class="bg-[#121624]/95 rounded-2xl border border-purple-500/40 p-3 shadow-[0_0_20px_rgba(147,51,234,0.1)] w-full animate-fade-in">
+            <div class="flex items-center justify-between mb-1.5 pb-1.5 border-b border-white/10">
+              <h3 class="text-xs font-black font-tactical text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(147,51,234,0.8)]" />
+                FREE-FOR-ALL SCOREBOARD ({gameMode()}) • UNIFIED LOBBY
+              </h3>
+              <span class="text-[11px] font-mono font-bold text-purple-300">10 PLAYERS ACTIVE IN COMBAT</span>
             </div>
 
-            {/* Split 10 players into 2 balanced columns so all fit on one screen without scrolling! */}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden">
-              <For each={[0, 1]}>
-                {(colIdx) => {
-                  const players = [...allyTeam, ...enemyTeam].slice(colIdx * 5, (colIdx + 1) * 5);
-                  return (
-                    <table class="w-full text-left font-mono text-xs">
-                      <thead>
-                        <tr class="text-val-muted uppercase text-[9px] border-b border-white/10 pb-1">
-                          <th class="py-1">Player / Agent</th>
-                          <th>Rank</th>
-                          <th>K/D</th>
-                          <th>Win%</th>
-                          <th>HS%</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-white/5">
-                        <For each={players}>
-                          {(player) => (
-                            <tr class="hover:bg-white/5 transition-colors">
-                              <td class="py-1.5 font-sans font-bold text-xs text-white flex items-center gap-2">
-                                <img src={player.agentIcon} alt={player.agent} class="w-6 h-6 rounded bg-black border border-white/20 object-cover" />
-                                <div class="truncate max-w-[130px]">
-                                  <span class="block leading-none">{player.name}</span>
-                                  <span class="text-[9px] text-val-muted uppercase font-mono">{player.agent}</span>
-                                </div>
-                              </td>
-                              {player.isPrivate ? (
-                                <td colSpan={4} class="text-center py-1.5 text-val-muted font-tactical text-[10px] italic tracking-wider bg-black/20 rounded">
-                                  🔒 PRIVATE
-                                </td>
-                              ) : (
-                                <>
-                                  <td class="font-bold text-purple-300 text-[11px]">{player.rank}</td>
-                                  <td class={`font-black ${player.kd >= 1.0 ? 'text-val-emerald' : 'text-rose-400'}`}>{player.kd}</td>
-                                  <td class="text-slate-200">{player.winRate}%</td>
-                                  <td class="font-black text-amber-400">{player.hs}%</td>
-                                </>
-                              )}
-                            </tr>
-                          )}
-                        </For>
-                      </tbody>
-                    </table>
-                  );
-                }}
-              </For>
-            </div>
+            <table class="w-full text-left font-mono text-xs">
+              <thead>
+                <tr class="text-val-muted uppercase text-[9px] border-b border-white/5 pb-1">
+                  <th class="py-1">Agent / Player Name</th>
+                  <th>Rank</th>
+                  <th>VAL-Idx</th>
+                  <th>K/D</th>
+                  <th>Win%</th>
+                  <th>ACS</th>
+                  <th>HS%</th>
+                  <th>Peak Rank</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/5">
+                <For each={[...allyTeam, ...enemyTeam]}>
+                  {(player) => (
+                    <tr class="hover:bg-white/5 transition-colors">
+                      <td class="py-1 font-sans font-bold text-xs text-white flex items-center gap-2">
+                        <img src={player.agentIcon} alt={player.agent} class="w-6 h-6 rounded bg-black border border-white/20 object-cover" />
+                        <span class="truncate max-w-[220px]">{player.name} ({player.agent})</span>
+                      </td>
+                      {player.isPrivate ? (
+                        <td colSpan={7} class="text-center py-1 text-val-muted font-tactical text-[11px] italic tracking-wider">
+                          🔒 PROFILE SET TO PRIVATE
+                        </td>
+                      ) : (
+                        <>
+                          <td class="font-bold text-purple-300 text-xs">{player.rank}</td>
+                          <td class="font-black text-val-gold">{player.valIndex}</td>
+                          <td class={`font-black ${player.kd >= 1.0 ? 'text-val-emerald' : 'text-rose-400'}`}>{player.kd}</td>
+                          <td>{player.winRate}%</td>
+                          <td class="font-bold text-purple-300">{player.valIndex > 780 ? 245 : 198}</td>
+                          <td class="text-amber-300">{player.hs}%</td>
+                          <td class="text-slate-400 font-sans text-[11px]">{player.peak}</td>
+                        </>
+                      )}
+                    </tr>
+                  )}
+                </For>
+              </tbody>
+            </table>
           </div>
         </Show>
       </div>
