@@ -1,0 +1,7 @@
+.env
+data/
+*.exe
+*.log
+.git
+.gitignore
+docs/
