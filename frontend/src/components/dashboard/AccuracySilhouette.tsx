@@ -87,8 +87,10 @@ export const AccuracySilhouette: Component<Props> = (props) => {
       {/* Average HS% Progression Graph Card */}
       <div class="bg-[#0A0D14] p-4 rounded-xl border border-white/5 space-y-2">
         <div class="flex items-center justify-between text-[11px] text-val-muted font-tactical">
-          <span class="font-extrabold uppercase tracking-wider text-white">AVG HS% VELOCITY</span>
-          <span class="text-val-red font-bold">+2.1% Above Tier Benchmark</span>
+          <span class="font-extrabold uppercase tracking-wider text-white" title="Tracking match-by-match headshot percentage stability and growth over recent encounters">
+            RECENT HS% TRAJECTORY
+          </span>
+          <span class="text-val-red font-bold">+5.0% Precision Growth</span>
         </div>
         
         {/* Tactical Curve Sim */}
@@ -99,8 +101,8 @@ export const AccuracySilhouette: Component<Props> = (props) => {
         </div>
 
         <div class="flex justify-between text-[9px] font-mono text-slate-500 px-1">
-          <span>Match 1 (12.0%)</span>
-          <span class="text-val-red font-bold">Match 2 (17.0%) 🎯</span>
+          <span>Prev Match (12.0%)</span>
+          <span class="text-val-red font-bold">Latest Match (17.0%) 🎯</span>
         </div>
       </div>
 

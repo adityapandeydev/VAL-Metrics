@@ -7,8 +7,8 @@ interface Props {
   onSelectAct: (act: string) => void;
 }
 
-const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay', 'Skirmish 2v2'];
-const OVERFLOW_QUEUES = ['Team Deathmatch', 'Escalation', 'AROS', 'Custom Games', 'Premier League', 'Snowball Fight', 'Replication'];
+const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay', 'TDM', 'Escalation', 'Skirmish 2v2'];
+const OVERFLOW_QUEUES = ['Premier', 'AROS', 'Snowball Fight', 'Replication'];
 
 const HISTORICAL_ACTS = [
   'V26: A4', 'All Acts',
@@ -28,7 +28,6 @@ const HISTORICAL_ACTS = [
 export const TacticalFilterBar: Component<Props> = (props) => {
   const [showQueueDropdown, setShowQueueDropdown] = createSignal(false);
   const [showActDropdown, setShowActDropdown] = createSignal(false);
-  const [selectedPlatform, setSelectedPlatform] = createSignal<'PC' | 'CONSOLE'>('PC');
 
   const closeDropdowns = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -42,39 +41,23 @@ export const TacticalFilterBar: Component<Props> = (props) => {
   onCleanup(() => document.removeEventListener('click', closeDropdowns));
 
   return (
-    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-4 shadow-xl relative z-40">
+    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-3 flex flex-wrap xl:flex-nowrap items-center justify-between gap-4 shadow-xl relative z-40">
       
-      {/* Platform Selector */}
-      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5">
-        <button
-          onClick={() => setSelectedPlatform('PC')}
-          class={`px-4 py-2 rounded-lg text-xs font-extrabold font-tactical uppercase tracking-wider transition-all ${
-            selectedPlatform() === 'PC'
-              ? 'bg-[#182234] text-white border border-white/10 shadow-inner'
-              : 'text-val-muted hover:text-white'
-          }`}
-        >
+      {/* Automatic Platform Indicator (PC default) */}
+      <div class="flex items-center gap-2 bg-[#182234] px-4 py-2.5 rounded-xl border border-white/10 shadow-inner flex-shrink-0">
+        <span class="w-2 h-2 rounded-full bg-val-emerald animate-pulse shadow-[0_0_8px_#10B981]" />
+        <span class="text-xs font-extrabold font-tactical uppercase tracking-wider text-white">
           PC PLATFORM
-        </button>
-        <button
-          onClick={() => setSelectedPlatform('CONSOLE')}
-          class={`px-4 py-2 rounded-lg text-xs font-extrabold font-tactical uppercase tracking-wider transition-all ${
-            selectedPlatform() === 'CONSOLE'
-              ? 'bg-[#182234] text-white border border-white/10 shadow-inner'
-              : 'text-val-muted hover:text-white'
-          }`}
-        >
-          CONSOLE
-        </button>
+        </span>
       </div>
 
       {/* Primary Mode Buttons + Overflow Mode Dropdown */}
-      <div class="flex flex-wrap items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5 flex-1 max-w-3xl justify-center relative dropdown-container">
+      <div class="flex flex-wrap items-center justify-between sm:justify-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-white/5 flex-1 relative dropdown-container">
         <For each={PRIMARY_QUEUES}>
           {(queue) => (
             <button
               onClick={() => props.onSelectQueue(queue)}
-              class={`px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider ${
+              class={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
                 props.selectedQueue === queue
                   ? 'bg-val-red text-white shadow-glow-red scale-[1.02]'
                   : 'text-val-muted hover:text-white hover:bg-white/5'
@@ -93,12 +76,12 @@ export const TacticalFilterBar: Component<Props> = (props) => {
               setShowQueueDropdown(!showQueueDropdown());
               setShowActDropdown(false);
             }}
-            class={`p-2 rounded-lg text-sm font-black transition-all font-tactical border ${
+            class={`px-3 py-2 rounded-lg text-xs font-black transition-all font-tactical border ${
               OVERFLOW_QUEUES.includes(props.selectedQueue) || showQueueDropdown()
                 ? 'bg-val-red text-white border-val-red shadow-glow-red'
                 : 'bg-white/5 text-val-muted hover:text-white border-white/10 hover:bg-white/10'
             }`}
-            title="More Game Modes (TDM, Escalation, AROS)"
+            title="More Game Modes (Premier, AROS, Snowball)"
           >
             ⋮
           </button>

@@ -253,6 +253,8 @@ export const AnalyticsDashboard: Component = () => {
           {/* RIGHT COLUMN: VAL-Index Scorecard, Gunplay Grid, Top Agents, & Match Encounters */}
           <div class="lg:col-span-8 space-y-8">
             
+            <CombatOverviewGrid stats={stats() || undefined} />
+
             <ValIndexScorecard
               valIndexScore={stats()?.valIndexScore || 927}
               valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
@@ -261,8 +263,6 @@ export const AnalyticsDashboard: Component = () => {
               acs={stats()?.averageCombatScore || 321.7}
               damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
             />
-
-            <CombatOverviewGrid stats={stats() || undefined} />
 
             <TopAgentsTable agents={stats()?.agentLeaderboard} />
 
