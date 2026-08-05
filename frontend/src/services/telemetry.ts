@@ -2,7 +2,11 @@ import { createSignal } from 'solid-js';
 import { OverlayTelemetryPayload } from '../types/valorant';
 import { AdvancedPlayerMetrics } from '../types/analytics';
 
-const BACKEND_URL = 'http://localhost:8080/api/v1';
+// Dynamically resolve backend endpoint:
+// 1. Explicit VITE_BACKEND_URL environment override (ideal for Tauri native Windows builds)
+// 2. Local Vite development mode (http://localhost:8080/api/v1)
+// 3. Production web dashboard deployment (Netlify), utilizing clean relative routing '/api/v1' via our HTTPS Cloud Proxy Bridge!
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:8080/api/v1' : '/api/v1');
 
 export interface LCUStatus {
   connected: boolean;

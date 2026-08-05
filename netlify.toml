@@ -3,6 +3,14 @@
   command = "npm run build"
   publish = "dist"
 
+# Netlify Cloud Proxy Bridge (Bypasses browser Mixed Content HTTPS block)
+# Securely translates frontend HTTPS requests directly into AWS EC2 HTTP microservice calls!
+[[redirects]]
+  from = "/api/*"
+  to = "http://3.108.40.27:8080/api/:splat"
+  status = 200
+  force = true
+
 # Single Page Application (SPA) routing fallback
 # Ensures refreshing sub-routes (like /dashboard or /overlay) doesn't produce 404 errors on Netlify
 [[redirects]]
