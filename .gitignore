@@ -10,3 +10,5 @@ target
 gen/
 .system_generated/
 In-game Overlay Images
+docs
+data
