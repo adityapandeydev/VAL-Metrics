@@ -10,8 +10,8 @@ RUN go mod download || true
 # Copy entire backend source code
 COPY . .
 
-# Build a completely static Linux binary with stripping optimizations (-s -w) and CGO disabled
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o val-server cmd/server/main.go
+# Build a completely static binary natively optimized for the server processor architecture (-s -w)
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o val-server cmd/server/main.go
 
 # Stage 2: Create an ultra-lightweight runtime container (~20MB total footprint)
 FROM alpine:3.20
