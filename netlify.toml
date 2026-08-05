@@ -1,0 +1,11 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+# Single Page Application (SPA) routing fallback
+# Ensures refreshing sub-routes (like /dashboard or /overlay) doesn't produce 404 errors on Netlify
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

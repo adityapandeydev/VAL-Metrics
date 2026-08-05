@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount, onCleanup, Show, For } from 'solid-js';
-import { authSession, auditLCUConnection } from '../../services/telemetry';
+import { authSession, auditLCUConnection, LCUStatus } from '../../services/telemetry';
 import { OverlayTelemetryPayload } from '../../types/valorant';
 
 interface Props {
@@ -26,7 +26,7 @@ interface TeammateStat {
 
 export const LiveMatchOverlay: Component<Props> = (props) => {
   const [activeStage, setActiveStage] = createSignal<OverlayStage>('live_team');
-  const [lcuStatus, setLcuStatus] = createSignal<{ connected: boolean; pid?: number }>({ connected: false });
+  const [lcuStatus, setLcuStatus] = createSignal<LCUStatus>({ connected: false });
   const [selectedMap, setSelectedMap] = createSignal("Haven");
   const [gameMode, setGameMode] = createSignal("Competitive");
 
