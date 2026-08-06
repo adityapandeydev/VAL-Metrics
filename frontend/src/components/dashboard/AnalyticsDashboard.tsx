@@ -269,11 +269,11 @@ export const AnalyticsDashboard: Component = () => {
           }}
         />
 
-        {/* Master Grid: Expanded Screen Ratio -> Left Column (xl:col-span-5) vs Right Column (xl:col-span-11) */}
-        <div class="grid grid-cols-1 xl:grid-cols-16 gap-6 xl:gap-8 items-start">
+        {/* Master Grid: Guaranteed side-by-side Left/Right columns across all laptop and desktop displays */}
+        <div class="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-16 gap-6 xl:gap-8 items-start">
           
-          {/* LEFT COLUMN: Standing Card, Silhouette, Activity Heatmap, Teammates, Roles, Armory, & Maps */}
-          <div class="xl:col-span-5 space-y-6">
+          {/* LEFT COLUMN */}
+          <div class="md:col-span-4 xl:col-span-5 space-y-6">
             <RatingCard 
               currentRating="Unranked"
               level={31}
@@ -282,45 +282,58 @@ export const AnalyticsDashboard: Component = () => {
               peakAct="V26: ACT III"
             />
 
-            <AccuracySilhouette 
-              headshotPercent={stats()?.headshotPercent || 14.6}
-              bodyshotPercent={stats()?.bodyshotPercent || 81.9}
-              legshotPercent={stats()?.legshotPercent || 3.5}
-              totalHits={stats()?.totalHits || 171}
-            />
+            <Show when={activeNavTab() === 'Matches'}>
+              {/* Activity Heatmap & Teammates exclusively shown on Matches Page */}
+              <ActivityHeatmap />
+            </Show>
 
-            <ActivityHeatmap />
+            <Show when={activeNavTab() !== 'Matches'}>
+              {/* Overview Analytics Layout */}
+              <AccuracySilhouette 
+                headshotPercent={stats()?.headshotPercent || 14.6}
+                bodyshotPercent={stats()?.bodyshotPercent || 81.9}
+                legshotPercent={stats()?.legshotPercent || 3.5}
+                totalHits={stats()?.totalHits || 171}
+              />
 
-            <RoleMasteryPanel roleStats={stats()?.roleMastery} />
+              <RoleMasteryPanel roleStats={stats()?.roleMastery} />
 
-            <WeaponArmoryList weapons={stats()?.weaponArmory} />
+              <WeaponArmoryList weapons={stats()?.weaponArmory} />
 
-            <TopMapsList maps={stats()?.mapDomination} />
+              <TopMapsList maps={stats()?.mapDomination} />
+            </Show>
           </div>
 
-          {/* RIGHT COLUMN: Gunplay Grid, VAL-Index Scorecard, Last 20 Matches Table, & Top Agents */}
-          <div class="xl:col-span-11 space-y-8">
+          {/* RIGHT COLUMN */}
+          <div class="md:col-span-8 xl:col-span-11 space-y-8">
             
-            <CombatOverviewGrid stats={stats() || undefined} />
+            <Show when={activeNavTab() === 'Matches'}>
+              {/* Matches Page: Dedicated Full Match Encounter Table & Summary Stats */}
+              <MatchEncounterLog encounters={stats()?.recentEncounters} />
+            </Show>
 
-            <ValIndexScorecard
-              valIndexScore={stats()?.valIndexScore || 927}
-              valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
-              roundWinRate={stats()?.roundWinRate || 57.8}
-              kastPercent={stats()?.kastPercent || 73.3}
-              acs={stats()?.averageCombatScore || 321.7}
-              damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
-            />
+            <Show when={activeNavTab() !== 'Matches'}>
+              {/* Overview Page: Full Combat Analytics & Match History Preview */}
+              <CombatOverviewGrid stats={stats() || undefined} />
 
-            <MatchEncounterLog encounters={stats()?.recentEncounters} />
+              <ValIndexScorecard
+                valIndexScore={stats()?.valIndexScore || 927}
+                valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
+                roundWinRate={stats()?.roundWinRate || 57.8}
+                kastPercent={stats()?.kastPercent || 73.3}
+                acs={stats()?.averageCombatScore || 321.7}
+                damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
+              />
 
-            <TopAgentsTable agents={stats()?.agentLeaderboard} />
+              <MatchEncounterLog encounters={stats()?.recentEncounters} />
+
+              <TopAgentsTable agents={stats()?.agentLeaderboard} />
+            </Show>
 
           </div>
 
         </div>
       </Show>
-
     </div>
   );
 };
