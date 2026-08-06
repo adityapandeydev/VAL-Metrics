@@ -58,8 +58,8 @@ export const App: Component = () => {
       <AuthModal isOpen={isAuthModalOpen()} onClose={() => setIsAuthModalOpen(false)} />
 
       {/* Top Professional Navigation Console (Dedicated strictly to Web Analytics) */}
-      <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-6 py-3.5 shadow-2xl">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      <header class="sticky top-0 z-50 w-full bg-[#0B0E14]/95 backdrop-blur-md border-b border-val-border px-4 sm:px-8 py-3.5 shadow-2xl">
+        <div class="max-w-[1880px] w-full mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
           
           {/* Brand Logo & Universal DB Badge */}
           <div class="flex items-center gap-3">
