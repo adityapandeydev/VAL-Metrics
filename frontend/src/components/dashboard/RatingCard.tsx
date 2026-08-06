@@ -42,8 +42,8 @@ export const RatingCard: Component<Props> = (props) => {
       {/* Peak Rating Banner */}
       <div class="bg-[#0A0D14] p-3.5 rounded-xl border border-white/5 flex items-center justify-between hover:border-val-gold/30 transition-all">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 border border-val-gold/40 flex items-center justify-center text-lg shadow-inner">
-            🛡️
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 border border-val-gold/40 flex items-center justify-center text-xs font-black font-tactical text-val-gold shadow-inner">
+            PEAK
           </div>
           <div>
             <span class="text-[10px] font-semibold text-val-muted uppercase block leading-tight">Peak Career Standing</span>

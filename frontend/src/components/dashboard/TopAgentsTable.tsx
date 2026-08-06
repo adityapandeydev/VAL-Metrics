@@ -89,10 +89,10 @@ export const TopAgentsTable: Component<Props> = (props) => {
 
                   {/* Best Map Badge */}
                   <td class="py-3.5 pr-4 rounded-r-xl text-right">
-                    <div class="inline-flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 shadow-inner">
-                      <span class="text-white font-black">{agent.bestMapName}</span>
-                      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-val-cyan/20 text-val-cyan border border-val-cyan/30">
-                        {agent.bestMapWinRate}% WR 🏆
+                    <div class="inline-flex items-center justify-between w-[170px] bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 shadow-inner">
+                      <span class="text-white font-black truncate">{agent.bestMapName}</span>
+                      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-val-cyan/20 text-val-cyan border border-val-cyan/30 font-mono">
+                        {agent.bestMapWinRate}% WR
                       </span>
                     </div>
                   </td>

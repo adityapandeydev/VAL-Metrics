@@ -113,7 +113,7 @@ export const AnalyticsDashboard: Component = () => {
           <Show when={stats() || (searchId() && searchId().includes('#'))} fallback={
             <div class="space-y-2 max-w-2xl">
               <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-val-cyan/20 text-val-cyan font-tactical border border-val-cyan/40">
-                ⚡ UNIVERSAL DATABASE ONLINE
+                UNIVERSAL DATABASE ONLINE
               </span>
               <h1 class="text-3xl sm:text-4xl font-black text-white font-tactical tracking-tight">
                 ENTER ANY RIOT ID TO VIEW ANALYTICS
@@ -126,8 +126,8 @@ export const AnalyticsDashboard: Component = () => {
             <div class="flex flex-col sm:flex-row sm:items-center gap-6 w-full xl:w-auto justify-between xl:justify-start">
               <div class="flex items-center gap-6">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-1 shadow-glow-red flex items-center justify-center relative flex-shrink-0">
-                  <div class="w-full h-full bg-[#0B0E14] rounded-[22px] flex items-center justify-center font-tactical font-black text-white text-4xl">
-                    ⚔️
+                  <div class="w-full h-full bg-[#0B0E14] rounded-[22px] flex items-center justify-center font-tactical font-black text-white text-3xl tracking-widest">
+                    VAL
                   </div>
                   <span class="absolute -bottom-2 -right-2 text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-val-emerald text-val-obsidian font-tactical uppercase shadow-md">
                     GLOBAL
@@ -140,7 +140,7 @@ export const AnalyticsDashboard: Component = () => {
                       Claim Profile
                     </button>
                     <span class="text-xs font-bold text-slate-400 flex items-center gap-1 font-mono">
-                      <span>👁️</span> 2,130 Views
+                      <span>2,130 Views</span>
                     </span>
                     <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-white/10 text-white font-tactical border border-white/10 flex items-center gap-1.5">
                       <span class={`w-2 h-2 rounded-full ${syncing() ? 'bg-amber-400 animate-ping' : 'bg-val-cyan shadow-[0_0_8px_#00E5FF]'}`} />
@@ -163,17 +163,16 @@ export const AnalyticsDashboard: Component = () => {
                       class="px-3.5 py-2 rounded-xl bg-[#1D273E] border border-val-cyan/40 text-val-cyan font-tactical font-extrabold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                       title="Manually harvest latest Riot Cloud match archives into database"
                     >
-                      <span class={syncing() ? "animate-spin inline-block" : ""}>🔄</span>
                       <span>{syncing() ? "SYNCING..." : "SYNC NOW"}</span>
                     </button>
 
                     {/* Share & Favorite Action Icons */}
                     <div class="flex items-center gap-2 ml-auto xl:ml-2">
-                      <button class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all border border-white/10 shadow" title="Share Player Profile URL">
-                        🔗
+                      <button class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-tactical font-extrabold text-xs uppercase transition-all border border-white/10 shadow" title="Share Player Profile URL">
+                        Share
                       </button>
-                      <button class="w-9 h-9 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-val-obsidian text-slate-400 flex items-center justify-center transition-all border border-white/10 shadow" title="Favorite Player Profile">
-                        ⭐
+                      <button class="px-3 py-2 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-val-obsidian text-slate-300 font-tactical font-extrabold text-xs uppercase transition-all border border-white/10 shadow" title="Favorite Player Profile">
+                        Favorite
                       </button>
                     </div>
                   </div>
@@ -204,7 +203,7 @@ export const AnalyticsDashboard: Component = () => {
               disabled={loading()}
               class="bg-gradient-to-r from-val-cyan via-teal-400 to-val-emerald text-val-obsidian font-black px-6 py-2.5 rounded-xl text-xs uppercase font-tactical tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-glow-cyan disabled:opacity-50 whitespace-nowrap cursor-pointer"
             >
-              {loading() ? "QUERYING DB..." : "⚡ UNIVERSAL SEARCH"}
+              {loading() ? "QUERYING DB..." : "UNIVERSAL SEARCH"}
             </button>
           </form>
 
@@ -239,8 +238,8 @@ export const AnalyticsDashboard: Component = () => {
       {/* Show Content Only When a Player is Loaded or Logged In! */}
       <Show when={stats() !== null} fallback={
         <div class="rounded-3xl border border-white/10 bg-[#0E1422]/60 p-16 text-center space-y-4 max-w-4xl mx-auto backdrop-blur-md">
-          <div class="w-16 h-16 rounded-2xl bg-val-red/10 border border-val-red/30 flex items-center justify-center mx-auto text-3xl font-tactical text-val-red shadow-glow-red">
-            📊
+          <div class="w-16 h-16 rounded-2xl bg-val-red/10 border border-val-red/30 flex items-center justify-center mx-auto text-sm font-tactical font-black text-val-red shadow-glow-red uppercase tracking-widest">
+            VAL
           </div>
           <h2 class="text-2xl font-tactical font-black text-white uppercase tracking-tight">
             NO PLAYER PROFILE LOADED
@@ -269,11 +268,11 @@ export const AnalyticsDashboard: Component = () => {
           }}
         />
 
-        {/* Master Grid: Guaranteed side-by-side Left/Right columns across all laptop and desktop displays */}
-        <div class="grid grid-cols-1 md:grid-cols-12 xl:grid-cols-16 gap-6 xl:gap-8 items-start">
+        {/* Master Layout: Robust Flexbox design guaranteeing side-by-side positioning with compact Left Column & dominant Right Workspace */}
+        <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
           
-          {/* LEFT COLUMN */}
-          <div class="md:col-span-4 xl:col-span-5 space-y-6">
+          {/* LEFT COLUMN: Fixed compact width (~350px on laptop/desktop) */}
+          <div class="w-full lg:w-[350px] xl:w-[380px] flex-shrink-0 space-y-6">
             <RatingCard 
               currentRating="Unranked"
               level={31}
@@ -304,8 +303,8 @@ export const AnalyticsDashboard: Component = () => {
             </Show>
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div class="md:col-span-8 xl:col-span-11 space-y-8">
+          {/* RIGHT COLUMN: Dominant fluid workspace, taking all remaining monitor width */}
+          <div class="flex-1 w-full min-w-0 space-y-8">
             
             <Show when={activeNavTab() === 'Matches'}>
               {/* Matches Page: Dedicated Full Match Encounter Table & Summary Stats */}
@@ -334,6 +333,7 @@ export const AnalyticsDashboard: Component = () => {
 
         </div>
       </Show>
+
     </div>
   );
 };

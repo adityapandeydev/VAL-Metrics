@@ -14,7 +14,7 @@ export const TopMapsList: Component<Props> = (props) => {
     <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-          <span>🗺️</span> Top Tournament Maps
+          Top Tournament Maps
         </span>
         <span class="text-xs font-extrabold text-val-gold hover:underline cursor-pointer font-tactical uppercase">
           View All Maps →
@@ -27,8 +27,8 @@ export const TopMapsList: Component<Props> = (props) => {
             <div class="bg-gradient-to-r from-[#0B0E14] via-[#121824] to-[#0B0E14] p-4 rounded-xl border border-white/5 hover:border-val-gold/40 transition-all flex items-center justify-between group">
               
               <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-val-gold/15 border border-val-gold/40 flex items-center justify-center text-xl shadow-glow-gold group-hover:scale-105 transition-transform">
-                  🌇
+                <div class="w-11 h-11 rounded-xl bg-val-gold/15 border border-val-gold/40 flex items-center justify-center text-sm font-black font-tactical text-val-gold shadow-glow-gold group-hover:scale-105 transition-transform">
+                  MAP
                 </div>
                 <div>
                   <h5 class="text-xl font-black text-white font-tactical uppercase tracking-wide group-hover:text-val-gold transition-colors">

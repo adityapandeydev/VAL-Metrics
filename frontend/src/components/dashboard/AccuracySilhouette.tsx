@@ -102,7 +102,7 @@ export const AccuracySilhouette: Component<Props> = (props) => {
 
         <div class="flex justify-between text-[9px] font-mono text-slate-500 px-1">
           <span>Prev Match (12.0%)</span>
-          <span class="text-val-red font-bold">Latest Match (17.0%) 🎯</span>
+          <span class="text-val-red font-bold">Latest Match (17.0%)</span>
         </div>
       </div>
 

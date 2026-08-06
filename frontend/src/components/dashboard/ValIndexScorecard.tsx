@@ -65,7 +65,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         <div class="bg-[#0A0D16]/90 border border-white/10 rounded-xl p-5 text-center hover:border-val-emerald/40 transition-all group shadow-lg">
           <div class="flex items-center justify-center gap-1.5 mb-1">
             <span class="w-2 h-2 rounded-full bg-val-emerald" />
-            <span class="text-xs font-bold text-val-muted uppercase font-tactical">KAST Rating 🛡️</span>
+            <span class="text-xs font-bold text-val-muted uppercase font-tactical">KAST Rating</span>
           </div>
           <p class="text-3xl sm:text-4xl font-black text-val-emerald font-tactical my-2 tracking-tight group-hover:scale-105 transition-transform">
             {props.kastPercent}%
@@ -93,7 +93,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         <div class="bg-[#0A0D16]/90 border border-white/10 rounded-xl p-5 text-center hover:border-val-red/40 transition-all group shadow-lg">
           <div class="flex items-center justify-center gap-1.5 mb-1">
             <span class="w-2 h-2 rounded-full bg-val-red" />
-            <span class="text-xs font-bold text-val-muted uppercase font-tactical">DDΔ / Round ⚔️</span>
+            <span class="text-xs font-bold text-val-muted uppercase font-tactical">DDΔ / Round</span>
           </div>
           <p class="text-3xl sm:text-4xl font-black text-val-red font-tactical my-2 tracking-tight group-hover:scale-105 transition-transform">
             +{props.damageDelta}

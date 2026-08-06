@@ -30,19 +30,19 @@ export const CombatOverviewGrid: Component<Props> = (props) => {
         </div>
 
         <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-emerald/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">K/D Ratio ⚔️</span>
+          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">K/D Ratio</span>
           <p class="text-3xl font-black text-val-emerald font-tactical mt-1">{props.stats?.kdRatio || "1.63"}</p>
           <span class="text-[10px] font-extrabold text-val-emerald mt-1 inline-block">Top 1.0% Lethal</span>
         </div>
 
         <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-red/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Headshot % 🎯</span>
+          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Headshot %</span>
           <p class="text-3xl font-black text-white font-tactical mt-1">{props.stats?.headshotPercent || "14.6"}%</p>
           <span class="text-[10px] font-extrabold text-val-red mt-1 inline-block">25 Head Hits</span>
         </div>
 
         <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-gold/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Win Percentage 🏆</span>
+          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Win Percentage</span>
           <p class="text-3xl font-black text-val-gold font-tactical mt-1">{props.stats?.winRate || "100.0"}%</p>
           <span class="text-[10px] font-extrabold text-val-gold mt-1 inline-block">Top 0.1% Undefeated</span>
         </div>

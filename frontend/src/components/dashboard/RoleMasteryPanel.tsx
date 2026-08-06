@@ -18,7 +18,7 @@ export const RoleMasteryPanel: Component<Props> = (props) => {
     <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-extrabold text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-          <span>⚔️</span> Role Domination Profile
+          Role Domination Profile
         </span>
         <span class="text-[10px] text-val-muted font-mono">Primary Role</span>
       </div>
@@ -26,8 +26,8 @@ export const RoleMasteryPanel: Component<Props> = (props) => {
       <div class="bg-[#0D121C] p-4 rounded-xl border border-white/5 flex items-center justify-between hover:border-val-cyan/40 transition-all group">
         
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-val-cyan/15 border border-val-cyan/40 flex items-center justify-center text-2xl shadow-glow-cyan group-hover:scale-110 transition-transform">
-            💥
+          <div class="w-12 h-12 rounded-xl bg-val-cyan/15 border border-val-cyan/40 flex items-center justify-center text-xs font-black font-tactical text-val-cyan shadow-glow-cyan group-hover:scale-110 transition-transform uppercase">
+            ROLE
           </div>
           <div>
             <h4 class="text-xl font-black text-white font-tactical uppercase tracking-wide">{duelist.roleName}</h4>

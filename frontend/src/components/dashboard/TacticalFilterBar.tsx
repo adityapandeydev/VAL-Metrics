@@ -164,7 +164,7 @@ export const TacticalFilterBar: Component<Props> = (props) => {
           {showActDropdown() && (
             <div class="absolute right-0 mt-2 w-64 bg-[#0D1322] border border-val-cyan/40 rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-2xl">
               <div class="flex items-center justify-between px-3 py-2 text-xs font-black text-val-cyan uppercase font-tactical border-b border-white/10 mb-2">
-                <span>🏆 Historical Act Archive</span>
+                <span>Historical Act Archive</span>
                 <span class="text-[10px] text-slate-400 font-mono">E1 → V26</span>
               </div>
               
