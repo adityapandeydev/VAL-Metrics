@@ -15,7 +15,7 @@ import { WeaponArmoryList } from './WeaponArmoryList';
 import { TopMapsList } from './TopMapsList';
 import { MatchEncounterLog } from './MatchEncounterLog';
 
-const PROFILE_TABS = ['Overview', 'Matches', 'Performance', 'Agents', 'Maps', 'Weapons', 'Encounters', 'Customs', 'Crosshairs', 'Lineups'];
+const PROFILE_TABS = ['Overview', 'Matches', 'Performance', 'Agents', 'Maps', 'Weapons'];
 
 export const AnalyticsDashboard: Component = () => {
   const [searchId, setSearchId] = createSignal<string>("");
@@ -223,11 +223,6 @@ export const AnalyticsDashboard: Component = () => {
                   }`}
                 >
                   <span>{tab}</span>
-                  {tab === 'Encounters' && (
-                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-val-red/20 text-val-red border border-val-red/50 shadow-sm font-bold">
-                      NEW
-                    </span>
-                  )}
                 </button>
               )}
             </For>

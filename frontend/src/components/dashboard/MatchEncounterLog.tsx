@@ -10,7 +10,7 @@ const FILTERS = ['All Agents', 'All Maps', 'All Weapons', 'All Teammates', 'All 
 export const MatchEncounterLog: Component<Props> = (props) => {
   const [selectedFilter, setSelectedFilter] = createSignal('All Agents');
 
-  // Realistic mock dataset of matches grouped by date with standardized alignment
+  // Realistic mock dataset of matches grouped by date with spacious, uncluttered horizontal styling
   const aug4Matches = [
     {
       matchId: "AUG4-SPLIT", timeAgo: "1d ago", mapName: "Split", queueMode: "Competitive", placement: "7th",
@@ -169,67 +169,66 @@ export const MatchEncounterLog: Component<Props> = (props) => {
             </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-3">
             <For each={aug4Matches}>
               {(m) => (
-                <div class={`bg-[#0B0F19] border-l-4 ${m.didWin ? 'border-l-val-emerald' : 'border-l-rose-500'} border-t border-r border-b border-white/10 p-3.5 sm:p-4 rounded-2xl hover:bg-[#111827] transition-all flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 sm:gap-6 shadow-xl group`}>
+                <div class={`bg-[#0B0F19] border-l-4 ${m.didWin ? 'border-l-val-emerald' : 'border-l-rose-500'} border-t border-r border-b border-white/10 p-4 sm:p-5 rounded-2xl hover:bg-[#111827] transition-all flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 shadow-xl group`}>
                   
-                  {/* Agent & Map Info (Fixed Width: 220px) */}
-                  <div class="flex items-center gap-3.5 w-full sm:w-[220px] flex-shrink-0">
+                  {/* Left Section: Agent Icon paired with spacious multi-line info and horizontal badge pills */}
+                  <div class="flex items-center gap-4 flex-1 min-w-0 w-full xl:w-auto">
+                    
+                    {/* Agent Avatar */}
                     <div class="relative flex-shrink-0">
-                      <img src={m.agentIcon} alt={m.agentName} class="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-black object-cover border border-white/15 group-hover:scale-105 transition-transform shadow-md" />
+                      <img src={m.agentIcon} alt={m.agentName} class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-black object-cover border border-white/15 group-hover:scale-105 transition-transform shadow-md" />
                       <span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black font-tactical uppercase bg-black text-white border border-white/20">
                         {m.agentName}
                       </span>
                     </div>
-                    <div class="min-w-0 flex-1">
-                      <span class="text-[11px] font-bold text-val-muted block font-tactical truncate">{m.timeAgo} // {m.queueMode}</span>
-                      <h4 class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide flex items-center gap-2 truncate">
-                        <span>{m.mapName}</span>
-                        <span class="text-xs text-slate-400 font-normal">({m.placement})</span>
-                      </h4>
-                    </div>
-                  </div>
 
-                  {/* Score & VAL Rating Badge (Fixed Width: 180px) */}
-                  <div class="w-full sm:w-[180px] flex-shrink-0 flex items-center justify-center gap-4 bg-black/50 px-3 py-2 rounded-xl border border-white/5">
-                    <div class="text-center">
-                      <span class="text-[10px] text-val-muted font-bold block uppercase font-tactical">Score</span>
-                      <span class={`text-lg font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
-                        {m.score}
-                      </span>
-                    </div>
-                    
-                    <div class="h-6 w-px bg-white/10" />
-
-                    <div class="flex items-center gap-2">
-                      <span class="px-1.5 py-0.5 rounded bg-val-cyan/20 border border-val-cyan/40 text-val-cyan text-[10px] font-black font-tactical uppercase">
-                        TRS
-                      </span>
-                      <div>
-                        <span class="text-[10px] text-val-muted font-bold block uppercase font-tactical">Rating</span>
-                        <span class="text-base font-black font-tactical text-white">{m.valRatingScore}</span>
+                    {/* Match Metadata & Uncluttered Badges Bar */}
+                    <div class="min-w-0 flex-1 space-y-2.5">
+                      
+                      {/* Top Line: Map, Placement, Queue, Score & Rating */}
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm">
+                        <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
+                        <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
+                        <span class="text-slate-600 font-black">•</span>
+                        <span class="text-xs font-bold text-val-muted font-tactical">{m.timeAgo} // {m.queueMode}</span>
+                        
+                        <span class="text-slate-600 font-black hidden sm:inline">•</span>
+                        
+                        {/* Compact Score Box */}
+                        <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">
+                          <span class="text-[10px] text-val-muted font-bold uppercase font-tactical">Score</span>
+                          <span class={`text-base font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
+                            {m.score}
+                          </span>
+                          <div class="h-3.5 w-px bg-white/20 mx-0.5" />
+                          <span class="text-[10px] text-val-cyan font-extrabold font-tactical uppercase">TRS {m.valRatingScore}</span>
+                        </div>
                       </div>
+
+                      {/* Bottom Line: Crisp, Horizontal Tactical Pills (ZERO text-wrapping, ZERO vertical stacking) */}
+                      <div class="flex flex-wrap items-center gap-2">
+                        <For each={m.badges}>
+                          {(b) => (
+                            <span class={`px-3 py-1 rounded-lg text-xs font-extrabold font-tactical uppercase tracking-wider whitespace-nowrap border transition-transform hover:scale-105 ${
+                              b.includes('MVP') ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-glow-gold font-black' :
+                              b.includes('4k') || b.includes('Flawless') || b.includes('First Blood') || b.includes('Clutch') ? 'bg-val-cyan/20 text-val-cyan border-val-cyan/40 shadow-glow-cyan' :
+                              'bg-white/10 text-white border-white/20'
+                            }`}>
+                              {b}
+                            </span>
+                          )}
+                        </For>
+                      </div>
+
                     </div>
+
                   </div>
 
-                  {/* Badges Console (Flex-1 Fluid Middle Area) */}
-                  <div class="flex flex-wrap items-center justify-start xl:justify-center gap-1.5 flex-1 min-w-0 w-full xl:w-auto px-1">
-                    <For each={m.badges}>
-                      {(b) => (
-                        <span class={`px-2.5 py-1 rounded-lg text-[10px] font-black font-tactical uppercase tracking-wider border ${
-                          b.includes('MVP') ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-glow-gold' :
-                          b.includes('4k') || b.includes('Flawless') || b.includes('First Blood') ? 'bg-val-cyan/20 text-val-cyan border-val-cyan/40 shadow-glow-cyan' :
-                          'bg-white/10 text-white border-white/20'
-                        }`}>
-                          {b}
-                        </span>
-                      )}
-                    </For>
-                  </div>
-
-                  {/* K/D, KDA, DDA, HS%, ACS Table Columns (Rigid Fixed Width: 480px) */}
-                  <div class="w-full xl:w-[480px] flex-shrink-0 grid grid-cols-5 gap-2 items-center bg-[#0D1220] px-4 py-2.5 rounded-xl border border-white/10 text-center">
+                  {/* Right Section: Standardized 5-Column Metrics Grid (Rigid Fixed Width: 430px) */}
+                  <div class="w-full xl:w-[430px] flex-shrink-0 grid grid-cols-5 gap-2 items-center bg-[#0E1320] px-4 py-3 rounded-xl border border-white/10 text-center">
                     <div>
                       <span class="text-[10px] font-bold text-val-muted block uppercase font-tactical">K/D</span>
                       <span class={`text-base sm:text-lg font-black font-tactical block ${m.kd >= 1.0 ? 'text-val-emerald' : 'text-rose-400'}`}>
@@ -257,10 +256,6 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     </div>
                   </div>
 
-                  {/* Options menu button */}
-                  <button class="hidden xl:block text-val-muted hover:text-white px-1 text-lg font-black" title="Match details and replay telems">
-                    ⋮
-                  </button>
                 </div>
               )}
             </For>
@@ -281,67 +276,66 @@ export const MatchEncounterLog: Component<Props> = (props) => {
             </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-3">
             <For each={aug3Matches}>
               {(m) => (
-                <div class={`bg-[#0B0F19] border-l-4 ${m.didWin ? 'border-l-val-emerald' : 'border-l-rose-500'} border-t border-r border-b border-white/10 p-3.5 sm:p-4 rounded-2xl hover:bg-[#111827] transition-all flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 sm:gap-6 shadow-xl group`}>
+                <div class={`bg-[#0B0F19] border-l-4 ${m.didWin ? 'border-l-val-emerald' : 'border-l-rose-500'} border-t border-r border-b border-white/10 p-4 sm:p-5 rounded-2xl hover:bg-[#111827] transition-all flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 shadow-xl group`}>
                   
-                  {/* Agent & Map Info (Fixed Width: 220px) */}
-                  <div class="flex items-center gap-3.5 w-full sm:w-[220px] flex-shrink-0">
+                  {/* Left Section: Agent Icon paired with spacious multi-line info and horizontal badge pills */}
+                  <div class="flex items-center gap-4 flex-1 min-w-0 w-full xl:w-auto">
+                    
+                    {/* Agent Avatar */}
                     <div class="relative flex-shrink-0">
-                      <img src={m.agentIcon} alt={m.agentName} class="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-black object-cover border border-white/15 group-hover:scale-105 transition-transform shadow-md" />
+                      <img src={m.agentIcon} alt={m.agentName} class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-black object-cover border border-white/15 group-hover:scale-105 transition-transform shadow-md" />
                       <span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[9px] font-black font-tactical uppercase bg-black text-white border border-white/20">
                         {m.agentName}
                       </span>
                     </div>
-                    <div class="min-w-0 flex-1">
-                      <span class="text-[11px] font-bold text-val-muted block font-tactical truncate">{m.timeAgo} // {m.queueMode}</span>
-                      <h4 class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide flex items-center gap-2 truncate">
-                        <span>{m.mapName}</span>
-                        <span class="text-xs text-slate-400 font-normal">({m.placement})</span>
-                      </h4>
-                    </div>
-                  </div>
 
-                  {/* Score & VAL Rating Badge (Fixed Width: 180px) */}
-                  <div class="w-full sm:w-[180px] flex-shrink-0 flex items-center justify-center gap-4 bg-black/50 px-3 py-2 rounded-xl border border-white/5">
-                    <div class="text-center">
-                      <span class="text-[10px] text-val-muted font-bold block uppercase font-tactical">Score</span>
-                      <span class={`text-lg font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
-                        {m.score}
-                      </span>
-                    </div>
-                    
-                    <div class="h-6 w-px bg-white/10" />
-
-                    <div class="flex items-center gap-2">
-                      <span class="px-1.5 py-0.5 rounded bg-val-cyan/20 border border-val-cyan/40 text-val-cyan text-[10px] font-black font-tactical uppercase">
-                        TRS
-                      </span>
-                      <div>
-                        <span class="text-[10px] text-val-muted font-bold block uppercase font-tactical">Rating</span>
-                        <span class="text-base font-black font-tactical text-white">{m.valRatingScore}</span>
+                    {/* Match Metadata & Uncluttered Badges Bar */}
+                    <div class="min-w-0 flex-1 space-y-2.5">
+                      
+                      {/* Top Line: Map, Placement, Queue, Score & Rating */}
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm">
+                        <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
+                        <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
+                        <span class="text-slate-600 font-black">•</span>
+                        <span class="text-xs font-bold text-val-muted font-tactical">{m.timeAgo} // {m.queueMode}</span>
+                        
+                        <span class="text-slate-600 font-black hidden sm:inline">•</span>
+                        
+                        {/* Compact Score Box */}
+                        <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">
+                          <span class="text-[10px] text-val-muted font-bold uppercase font-tactical">Score</span>
+                          <span class={`text-base font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
+                            {m.score}
+                          </span>
+                          <div class="h-3.5 w-px bg-white/20 mx-0.5" />
+                          <span class="text-[10px] text-val-cyan font-extrabold font-tactical uppercase">TRS {m.valRatingScore}</span>
+                        </div>
                       </div>
+
+                      {/* Bottom Line: Crisp, Horizontal Tactical Pills (ZERO text-wrapping, ZERO vertical stacking) */}
+                      <div class="flex flex-wrap items-center gap-2">
+                        <For each={m.badges}>
+                          {(b) => (
+                            <span class={`px-3 py-1 rounded-lg text-xs font-extrabold font-tactical uppercase tracking-wider whitespace-nowrap border transition-transform hover:scale-105 ${
+                              b.includes('MVP') ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-glow-gold font-black' :
+                              b.includes('4k') || b.includes('Flawless') || b.includes('First Blood') || b.includes('Clutch') ? 'bg-val-cyan/20 text-val-cyan border-val-cyan/40 shadow-glow-cyan' :
+                              'bg-white/10 text-white border-white/20'
+                            }`}>
+                              {b}
+                            </span>
+                          )}
+                        </For>
+                      </div>
+
                     </div>
+
                   </div>
 
-                  {/* Badges Console (Flex-1 Fluid Middle Area) */}
-                  <div class="flex flex-wrap items-center justify-start xl:justify-center gap-1.5 flex-1 min-w-0 w-full xl:w-auto px-1">
-                    <For each={m.badges}>
-                      {(b) => (
-                        <span class={`px-2.5 py-1 rounded-lg text-[10px] font-black font-tactical uppercase tracking-wider border ${
-                          b.includes('MVP') ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-glow-gold' :
-                          b.includes('4k') || b.includes('Flawless') || b.includes('First Blood') ? 'bg-val-cyan/20 text-val-cyan border-val-cyan/40 shadow-glow-cyan' :
-                          'bg-white/10 text-white border-white/20'
-                        }`}>
-                          {b}
-                        </span>
-                      )}
-                    </For>
-                  </div>
-
-                  {/* K/D, KDA, DDA, HS%, ACS Table Columns (Rigid Fixed Width: 480px) */}
-                  <div class="w-full xl:w-[480px] flex-shrink-0 grid grid-cols-5 gap-2 items-center bg-[#0D1220] px-4 py-2.5 rounded-xl border border-white/10 text-center">
+                  {/* Right Section: Standardized 5-Column Metrics Grid (Rigid Fixed Width: 430px) */}
+                  <div class="w-full xl:w-[430px] flex-shrink-0 grid grid-cols-5 gap-2 items-center bg-[#0E1320] px-4 py-3 rounded-xl border border-white/10 text-center">
                     <div>
                       <span class="text-[10px] font-bold text-val-muted block uppercase font-tactical">K/D</span>
                       <span class={`text-base sm:text-lg font-black font-tactical block ${m.kd >= 1.0 ? 'text-val-emerald' : 'text-rose-400'}`}>
@@ -369,10 +363,6 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     </div>
                   </div>
 
-                  {/* Options menu button */}
-                  <button class="hidden xl:block text-val-muted hover:text-white px-1 text-lg font-black" title="Match details and replay telems">
-                    ⋮
-                  </button>
                 </div>
               )}
             </For>
