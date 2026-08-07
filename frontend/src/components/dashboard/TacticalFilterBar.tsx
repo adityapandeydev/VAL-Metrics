@@ -41,7 +41,7 @@ export const TacticalFilterBar: Component<Props> = (props) => {
   onCleanup(() => document.removeEventListener('click', closeDropdowns));
 
   return (
-    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-3 flex flex-col xl:flex-row items-center justify-between gap-4 shadow-xl relative z-40">
+    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-2 sm:p-3 flex items-center justify-between gap-2 sm:gap-4 shadow-xl relative z-40">
       
       {/* Automatic Platform Indicator (PC default) */}
       <div class="hidden xl:flex items-center gap-2 bg-[#182234] px-4 py-2.5 rounded-xl border border-white/10 shadow-inner flex-shrink-0">
@@ -52,7 +52,7 @@ export const TacticalFilterBar: Component<Props> = (props) => {
       </div>
 
       {/* Primary Mode Buttons + Responsive Overflow Mode Dropdown */}
-      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 w-full xl:flex-1 relative dropdown-container">
+      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container min-w-0">
         
         <For each={PRIMARY_QUEUES}>
           {(queue, index) => {
@@ -157,12 +157,12 @@ export const TacticalFilterBar: Component<Props> = (props) => {
       </div>
 
       {/* Act & Episode Archive Selector with Scrollable History Dropdown */}
-      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 relative dropdown-container">
+      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 relative dropdown-container flex-shrink-0">
         
         {/* Quick Button: Active Act (V26: A4) */}
         <button
           onClick={() => props.onSelectAct('V26: A4')}
-          class={`px-4 py-2 rounded-lg text-xs font-black font-tactical tracking-widest uppercase transition-all ${
+          class={`px-2 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black font-tactical tracking-widest uppercase transition-all whitespace-nowrap ${
             props.selectedAct === 'V26: A4'
               ? 'bg-val-cyan text-val-obsidian shadow-glow-cyan'
               : 'text-val-muted hover:text-white hover:bg-white/5'
@@ -174,7 +174,7 @@ export const TacticalFilterBar: Component<Props> = (props) => {
         {/* Quick Button: All Acts */}
         <button
           onClick={() => props.onSelectAct('All Acts')}
-          class={`px-4 py-2 rounded-lg text-xs font-black font-tactical tracking-widest uppercase transition-all ${
+          class={`px-2 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black font-tactical tracking-widest uppercase transition-all whitespace-nowrap ${
             props.selectedAct === 'All Acts'
               ? 'bg-val-cyan text-val-obsidian shadow-glow-cyan'
               : 'text-val-muted hover:text-white hover:bg-white/5'
