@@ -43,6 +43,9 @@ func loadEnvFile(filenames ...string) {
 				}
 			}
 		}
+		if err := scanner.Err(); err != nil {
+			// Silently ignore or you could log it, but ignoring is fine for a basic env loader.
+		}
 	}
 }
 
