@@ -264,16 +264,29 @@ export const AnalyticsDashboard: Component = () => {
         />
 
         {/* Master Layout: Robust Flexbox design guaranteeing side-by-side positioning with compact Left Column & dominant Right Workspace */}
-        <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
-          
-          {/* LEFT COLUMN: Fixed compact width (~350px on laptop/desktop) */}
-          <div class="w-full lg:w-[350px] xl:w-[380px] flex-shrink-0 space-y-6">
-            <Show when={activeNavTab() === 'Matches'}>
-              {/* Activity Heatmap & Teammates exclusively shown on Matches Page */}
-              <ActivityHeatmap />
-            </Show>
+        <Show when={activeNavTab() === 'Overview' || activeNavTab() === 'Matches'} fallback={
+          <div class="w-full flex items-center justify-center py-20">
+            <div class="rounded-3xl border border-rose-500/20 bg-[#0E1320]/60 p-16 text-center space-y-4 w-full max-w-3xl backdrop-blur-md shadow-2xl">
+              <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-6">
+                <span class="text-2xl font-black font-tactical text-rose-400">!</span>
+              </div>
+              <h3 class="text-3xl font-black font-tactical text-white uppercase tracking-widest">MODULE NOT READY</h3>
+              <p class="text-slate-400 font-semibold text-sm max-w-lg mx-auto leading-relaxed mt-4">
+                Disclaimer: Waiting for production API keys to properly implement the <span class="text-val-cyan font-black uppercase">{activeNavTab()}</span> features.
+              </p>
+            </div>
+          </div>
+        }>
+          <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
+            
+            {/* LEFT COLUMN: Fixed compact width (~350px on laptop/desktop) */}
+            <div class="w-full lg:w-[350px] xl:w-[380px] flex-shrink-0 space-y-6">
+              <Show when={activeNavTab() === 'Matches'}>
+                {/* Activity Heatmap & Teammates exclusively shown on Matches Page */}
+                <ActivityHeatmap />
+              </Show>
 
-            <Show when={activeNavTab() !== 'Matches'}>
+              <Show when={activeNavTab() === 'Overview'}>
               <RatingCard 
                 currentRating="Unranked"
                 level={31}
@@ -306,7 +319,7 @@ export const AnalyticsDashboard: Component = () => {
               <MatchEncounterLog encounters={stats()?.recentEncounters} />
             </Show>
 
-            <Show when={activeNavTab() !== 'Matches'}>
+            <Show when={activeNavTab() === 'Overview'}>
               {/* Overview Page: Full Combat Analytics & Match History Preview */}
               <CombatOverviewGrid stats={stats() || undefined} />
 
@@ -327,6 +340,7 @@ export const AnalyticsDashboard: Component = () => {
           </div>
 
         </div>
+        </Show>
       </Show>
 
     </div>

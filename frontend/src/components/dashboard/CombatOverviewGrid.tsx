@@ -20,12 +20,6 @@ export const CombatOverviewGrid: Component<Props> = (props) => {
         </span>
       </div>
 
-      <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
-        <span class="text-xs font-bold font-mono text-rose-400 uppercase tracking-widest">
-          Disclaimer: Waiting for production API to properly implement these features.
-        </span>
-      </div>
-
       {/* Primary KPI Row (ADR, K/D, HS%, Win%) */}
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         

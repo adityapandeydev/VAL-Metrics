@@ -21,12 +21,6 @@ export const TopMapsList: Component<Props> = (props) => {
         </span>
       </div>
 
-      <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
-        <span class="text-[10px] font-bold font-mono text-rose-400 uppercase tracking-widest">
-          Disclaimer: Waiting for production API to properly implement these features.
-        </span>
-      </div>
-
       <div class="space-y-3">
         <For each={maps}>
           {(m) => (

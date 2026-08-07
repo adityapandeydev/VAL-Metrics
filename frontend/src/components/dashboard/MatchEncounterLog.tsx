@@ -189,18 +189,18 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     <div class="min-w-0 flex-1 space-y-2.5">
                       
                       {/* Top Line: Map, Placement, Queue, Score & Rating */}
-                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full h-8 sm:h-10">
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full min-h-[40px]">
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
                         
                         {/* Prominent Score Box */}
-                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto md:absolute md:left-[45%] md:-translate-x-1/2">
+                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0 xl:absolute xl:left-[45%] xl:-translate-x-1/2">
                           <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
                           <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
                           <div class="h-5 w-px bg-white/20 mx-1" />
-                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">TRS {m.valRatingScore}</span>
+                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
                         </div>
                       </div>
 
@@ -292,18 +292,18 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     <div class="min-w-0 flex-1 space-y-2.5">
                       
                       {/* Top Line: Map, Placement, Queue, Score & Rating */}
-                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full h-8 sm:h-10">
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full min-h-[40px]">
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
                         
                         {/* Prominent Score Box */}
-                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto md:absolute md:left-[45%] md:-translate-x-1/2">
+                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0 xl:absolute xl:left-[45%] xl:-translate-x-1/2">
                           <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
                           <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
                           <div class="h-5 w-px bg-white/20 mx-1" />
-                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">TRS {m.valRatingScore}</span>
+                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
                         </div>
                       </div>
 
