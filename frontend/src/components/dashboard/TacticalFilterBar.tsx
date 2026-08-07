@@ -52,21 +52,25 @@ export const TacticalFilterBar: Component<Props> = (props) => {
       </div>
 
       {/* Primary Mode Buttons + Overflow Mode Dropdown */}
-      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container overflow-x-auto min-w-0 custom-scrollbar">
-        <For each={PRIMARY_QUEUES}>
-          {(queue) => (
-            <button
-              onClick={() => props.onSelectQueue(queue)}
-              class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
-                props.selectedQueue === queue
-                  ? 'bg-val-red text-white shadow-glow-red'
-                  : 'text-val-muted hover:text-white hover:bg-white/5'
-              }`}
-            >
-              {queue}
-            </button>
-          )}
-        </For>
+      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container min-w-0">
+        
+        {/* Scrollable Container for the Buttons only */}
+        <div class="flex items-center gap-1 overflow-x-auto min-w-0 custom-scrollbar flex-1">
+          <For each={PRIMARY_QUEUES}>
+            {(queue) => (
+              <button
+                onClick={() => props.onSelectQueue(queue)}
+                class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
+                  props.selectedQueue === queue
+                    ? 'bg-val-red text-white shadow-glow-red'
+                    : 'text-val-muted hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {queue}
+              </button>
+            )}
+          </For>
+        </div>
 
         {/* Overflow Modes Button */}
         <div class="relative flex-shrink-0">
@@ -89,9 +93,6 @@ export const TacticalFilterBar: Component<Props> = (props) => {
           {/* Modes Popup Menu */}
           {showQueueDropdown() && (
             <div class="absolute right-0 mt-2 w-52 bg-[#0F1626] border border-white/20 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
-              <div class="px-3 py-1.5 text-[10px] font-extrabold text-slate-400 uppercase font-tactical border-b border-white/10 mb-1">
-                Additional Modes Archive
-              </div>
               <For each={OVERFLOW_QUEUES}>
                 {(queue) => (
                   <button
@@ -163,10 +164,6 @@ export const TacticalFilterBar: Component<Props> = (props) => {
           {/* Scrollable Acts Archive Popup Menu */}
           {showActDropdown() && (
             <div class="absolute right-0 mt-2 w-64 bg-[#0D1322] border border-val-cyan/40 rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-2xl">
-              <div class="flex items-center justify-between px-3 py-2 text-xs font-black text-val-cyan uppercase font-tactical border-b border-white/10 mb-2">
-                <span>Historical Act Archive</span>
-                <span class="text-[10px] text-slate-400 font-mono">E1 → V26</span>
-              </div>
               
               <div class="max-h-72 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                 <For each={HISTORICAL_ACTS}>
