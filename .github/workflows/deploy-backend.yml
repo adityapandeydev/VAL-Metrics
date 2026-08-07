@@ -27,7 +27,7 @@ jobs:
           script_stop: true
           script: |
             # Navigate to the repository directory
-            cd ~/VAL-Metircs
+            cd ~/VAL-Metrics
             
             # Fetch, force checkout, and reset to origin/main to clean local changes & HEAD
             git fetch origin
@@ -48,5 +48,5 @@ jobs:
               --restart always \
               --env-file .env \
               -p 8080:8080 \
-              -v ~/VAL-Metircs/backend/data:/app/data \
+              -v ~/VAL-Metrics/backend/data:/app/data \
               val-metrics-server
