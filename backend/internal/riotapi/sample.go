@@ -37,7 +37,7 @@ func GetSampleMatchDetails(matchID, puuid string) MatchDTO {
 	rng := rand.New(rand.NewSource(seed))
 
 	agents := []string{"Jett", "Reyna", "Raze", "Omen", "Viper", "Sova", "Fade", "Killjoy", "Cypher", "Clove", "Phoenix", "Iso"}
-	maps := []string{"/Game/Maps/Jude/Jude", "/Game/Maps/Ascent/Ascent", "/Game/Maps/Jam/Jam", "/Game/Maps/Duality/Duality", "/Game/Maps/Triad/Triad", "/Game/Maps/Bonsai/Bonsai"}
+	maps := []string{"Sunset", "Ascent", "Lotus", "Bind", "Haven", "Split"}
 	selectedAgent := agents[rng.Intn(len(agents))]
 	selectedMap := maps[rng.Intn(len(maps))]
 

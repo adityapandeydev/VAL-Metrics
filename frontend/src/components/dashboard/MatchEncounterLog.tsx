@@ -192,10 +192,6 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                       <div class="flex flex-wrap items-center gap-2.5 text-sm">
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
-                        <span class="text-slate-600 font-black">•</span>
-                        <span class="text-xs font-bold text-val-muted font-tactical">{m.timeAgo} // {m.queueMode}</span>
-                        
-                        <span class="text-slate-600 font-black hidden sm:inline">•</span>
                         
                         {/* Compact Score Box */}
                         <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">
@@ -299,10 +295,6 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                       <div class="flex flex-wrap items-center gap-2.5 text-sm">
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
-                        <span class="text-slate-600 font-black">•</span>
-                        <span class="text-xs font-bold text-val-muted font-tactical">{m.timeAgo} // {m.queueMode}</span>
-                        
-                        <span class="text-slate-600 font-black hidden sm:inline">•</span>
                         
                         {/* Compact Score Box */}
                         <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">

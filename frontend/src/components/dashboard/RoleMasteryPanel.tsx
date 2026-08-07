@@ -17,10 +17,10 @@ export const RoleMasteryPanel: Component<Props> = (props) => {
   return (
     <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
-        <span class="text-xs font-extrabold text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
+        <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
           Role Domination Profile
         </span>
-        <span class="text-[10px] text-val-muted font-mono">Primary Role</span>
+        <span class="text-[10px] text-val-muted font-mono">Best Role</span>
       </div>
 
       <div class="bg-[#0D121C] p-4 rounded-xl border border-white/5 flex items-center justify-between hover:border-val-cyan/40 transition-all group">

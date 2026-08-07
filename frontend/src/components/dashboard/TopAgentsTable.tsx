@@ -25,9 +25,9 @@ export const TopAgentsTable: Component<Props> = (props) => {
       <div class="flex items-center justify-between border-b border-white/10 pb-4">
         <div class="flex items-center gap-2.5">
           <span class="w-3 h-5 bg-val-cyan rounded-sm shadow-glow-cyan" />
-          <h3 class="text-xl font-black font-tactical text-white uppercase tracking-wider">
-            TOP OPERATOR AGENTS
-          </h3>
+          <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
+            AGENTS
+          </span>
         </div>
         <span class="text-xs font-bold text-val-muted font-tactical uppercase">
           Based on total playtime during V26: A4 • <span class="text-val-red hover:underline cursor-pointer">All Agents →</span>

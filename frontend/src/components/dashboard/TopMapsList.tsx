@@ -35,7 +35,7 @@ export const TopMapsList: Component<Props> = (props) => {
                     {m.mapName}
                   </h5>
                   <span class="text-[11px] font-semibold text-slate-400 font-mono block">
-                    {m.matchesPlayed} Matches Analyzed
+                    {m.matchesPlayed} {m.matchesPlayed === 1 ? 'Match' : 'Matches'} Analyzed
                   </span>
                 </div>
               </div>
