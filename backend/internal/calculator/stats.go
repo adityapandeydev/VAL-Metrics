@@ -161,6 +161,8 @@ func CleanMapName(raw string) string {
 		return "Fracture"
 	} else if strings.EqualFold(name, "Jam") {
 		return "Lotus"
+	} else if strings.EqualFold(name, "Juliett") || strings.EqualFold(name, "Jude") {
+		return "Abyss"
 	}
 	if len(name) == 0 {
 		return "Ascent"
