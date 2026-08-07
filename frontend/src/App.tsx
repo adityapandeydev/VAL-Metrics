@@ -2,7 +2,7 @@ import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid
 import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
 import { AnalyticsDashboard } from './components/dashboard/AnalyticsDashboard';
 import { AuthModal } from './components/auth/AuthModal';
-import { checkBackendHealth, auditLCUConnection, checkAuthStatus, isBackendOnline, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
+import { checkBackendHealth, auditLCUConnection, checkAuthStatus, isBackendOnline, authSession, fetchLiveOverlayTelemetry, BACKEND_URL } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
 
 export const App: Component = () => {
@@ -30,7 +30,7 @@ export const App: Component = () => {
     await auditLCUConnection();
     await checkAuthStatus();
 
-    fetch('http://localhost:8080/api/v1/system/info')
+    fetch(`${BACKEND_URL}/system/info`)
       .then(res => res.json())
       .then(data => {
         if (data && data.universal_db_version) {

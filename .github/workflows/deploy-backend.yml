@@ -24,9 +24,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+          script_stop: true
           script: |
             # Navigate to the repository directory
-            cd ~/VAL-Metrics
+            cd ~/VAL-Metircs
             
             # Fetch, force checkout, and reset to origin/main to clean local changes & HEAD
             git fetch origin
@@ -47,5 +48,5 @@ jobs:
               --restart always \
               --env-file .env \
               -p 8080:8080 \
-              -v ~/VAL-Metrics/backend/data:/app/data \
+              -v ~/VAL-Metircs/backend/data:/app/data \
               val-metrics-server
