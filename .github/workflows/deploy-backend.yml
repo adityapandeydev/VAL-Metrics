@@ -26,7 +26,7 @@ jobs:
           port: 22
           script: |
             # Navigate to the repository directory
-            cd ~/VAL-Metrics
+            cd ~/val-metrics
             
             # Fetch, force checkout, and reset to origin/main to clean local changes & HEAD
             git fetch origin
@@ -35,16 +35,17 @@ jobs:
             
             # Navigate to the backend folder and build the image
             cd backend
-            docker build -t val-metrics-backend .
+            sudo docker build -t val-metrics-server .
             
             # Stop and remove the existing container if running
-            docker stop val-metrics-api || true
-            docker rm val-metrics-api || true
+            sudo docker stop val-backend || true
+            sudo docker rm val-backend || true
             
             # Run the new container with production env file
-            docker run -d \
-              --name val-metrics-api \
-              -p 80:8080 \
+            sudo docker run -d \
+              --name val-backend \
               --restart always \
               --env-file .env \
-              val-metrics-backend
+              -p 8080:8080 \
+              -v ~/val-metrics/backend/data:/app/data \
+              val-metrics-server
