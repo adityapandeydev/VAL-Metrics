@@ -34,6 +34,12 @@ export const TopAgentsTable: Component<Props> = (props) => {
         </span>
       </div>
 
+      <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
+        <span class="text-[11px] font-bold font-mono text-rose-400 uppercase tracking-widest">
+          Disclaimer: Waiting for production API to properly implement these features.
+        </span>
+      </div>
+
       {/* Roster Table */}
       <div class="overflow-x-auto">
         <table class="w-full text-left font-tactical border-separate border-spacing-y-3">
