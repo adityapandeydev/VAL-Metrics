@@ -189,18 +189,20 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     <div class="min-w-0 flex-1 space-y-2.5">
                       
                       {/* Top Line: Map, Placement, Queue, Score & Rating */}
-                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full min-h-[40px]">
-                        <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
-                        <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm w-full">
+                        <div class="flex items-center gap-2.5 min-w-[140px] xl:w-40 flex-shrink-0">
+                          <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide truncate">{m.mapName}</span>
+                          <span class="text-xs font-semibold text-slate-400 flex-shrink-0">({m.placement})</span>
+                        </div>
                         
                         {/* Prominent Score Box */}
-                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0 xl:absolute xl:left-[45%] xl:-translate-x-1/2">
-                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
-                          <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
+                        <div class="inline-flex whitespace-nowrap flex-shrink-0 items-center gap-2 sm:gap-2.5 bg-[#0F141F] px-3 sm:px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0">
+                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest hidden sm:inline">Score</span>
+                          <span class={`text-lg sm:text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
-                          <div class="h-5 w-px bg-white/20 mx-1" />
-                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
+                          <div class="h-5 w-px bg-white/20 mx-0.5 sm:mx-1" />
+                          <span class="text-[10px] sm:text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
                         </div>
                       </div>
 
@@ -292,18 +294,20 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                     <div class="min-w-0 flex-1 space-y-2.5">
                       
                       {/* Top Line: Map, Placement, Queue, Score & Rating */}
-                      <div class="flex flex-wrap items-center gap-2.5 text-sm relative w-full min-h-[40px]">
-                        <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
-                        <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
+                      <div class="flex flex-wrap items-center gap-2.5 text-sm w-full">
+                        <div class="flex items-center gap-2.5 min-w-[140px] xl:w-40 flex-shrink-0">
+                          <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide truncate">{m.mapName}</span>
+                          <span class="text-xs font-semibold text-slate-400 flex-shrink-0">({m.placement})</span>
+                        </div>
                         
                         {/* Prominent Score Box */}
-                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0 xl:absolute xl:left-[45%] xl:-translate-x-1/2">
-                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
-                          <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
+                        <div class="inline-flex whitespace-nowrap flex-shrink-0 items-center gap-2 sm:gap-2.5 bg-[#0F141F] px-3 sm:px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto xl:ml-0">
+                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest hidden sm:inline">Score</span>
+                          <span class={`text-lg sm:text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
-                          <div class="h-5 w-px bg-white/20 mx-1" />
-                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
+                          <div class="h-5 w-px bg-white/20 mx-0.5 sm:mx-1" />
+                          <span class="text-[10px] sm:text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">VMS {m.valRatingScore}</span>
                         </div>
                       </div>
 
