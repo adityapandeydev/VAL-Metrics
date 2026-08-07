@@ -7,8 +7,8 @@ interface Props {
   onSelectAct: (act: string) => void;
 }
 
-const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay', 'TDM', 'Escalation', 'Skirmish 2v2'];
-const OVERFLOW_QUEUES = ['Premier', 'AROS', 'Snowball Fight', 'Replication'];
+const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay'];
+const OVERFLOW_QUEUES = ['TDM', 'Escalation', 'Skirmish 2v2', 'Premier', 'AROS', 'Snowball Fight', 'Replication'];
 
 const HISTORICAL_ACTS = [
   'V26: A4', 'All Acts',
@@ -52,25 +52,22 @@ export const TacticalFilterBar: Component<Props> = (props) => {
       </div>
 
       {/* Primary Mode Buttons + Overflow Mode Dropdown */}
-      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container min-w-0">
+      <div class="flex flex-wrap items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container">
         
-        {/* Scrollable Container for the Buttons only */}
-        <div class="flex items-center gap-1 overflow-x-auto min-w-0 custom-scrollbar flex-1">
-          <For each={PRIMARY_QUEUES}>
-            {(queue) => (
-              <button
-                onClick={() => props.onSelectQueue(queue)}
-                class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
-                  props.selectedQueue === queue
-                    ? 'bg-val-red text-white shadow-glow-red'
-                    : 'text-val-muted hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {queue}
-              </button>
-            )}
-          </For>
-        </div>
+        <For each={PRIMARY_QUEUES}>
+          {(queue) => (
+            <button
+              onClick={() => props.onSelectQueue(queue)}
+              class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
+                props.selectedQueue === queue
+                  ? 'bg-val-red text-white shadow-glow-red'
+                  : 'text-val-muted hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {queue}
+            </button>
+          )}
+        </For>
 
         {/* Overflow Modes Button */}
         <div class="relative flex-shrink-0">
