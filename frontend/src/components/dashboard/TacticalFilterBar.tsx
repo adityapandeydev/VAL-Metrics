@@ -7,8 +7,8 @@ interface Props {
   onSelectAct: (act: string) => void;
 }
 
-const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay'];
-const OVERFLOW_QUEUES = ['TDM', 'Escalation', 'Skirmish 2v2', 'Premier', 'AROS', 'Snowball Fight', 'Replication'];
+const PRIMARY_QUEUES = ['Competitive', 'Unrated', 'Deathmatch', 'Swiftplay', 'TDM', 'Escalation', 'Skirmish 2v2'];
+const OVERFLOW_QUEUES = ['Premier', 'AROS', 'Snowball Fight', 'Replication'];
 
 const HISTORICAL_ACTS = [
   'V26: A4', 'All Acts',
@@ -41,36 +41,47 @@ export const TacticalFilterBar: Component<Props> = (props) => {
   onCleanup(() => document.removeEventListener('click', closeDropdowns));
 
   return (
-    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-3 flex flex-wrap xl:flex-nowrap items-center justify-between gap-4 shadow-xl relative z-40">
+    <div class="w-full bg-[#0B0F17] border border-white/10 rounded-2xl p-3 flex flex-col xl:flex-row items-center justify-between gap-4 shadow-xl relative z-40">
       
       {/* Automatic Platform Indicator (PC default) */}
-      <div class="flex items-center gap-2 bg-[#182234] px-4 py-2.5 rounded-xl border border-white/10 shadow-inner flex-shrink-0">
+      <div class="hidden xl:flex items-center gap-2 bg-[#182234] px-4 py-2.5 rounded-xl border border-white/10 shadow-inner flex-shrink-0">
         <span class="w-2 h-2 rounded-full bg-val-emerald animate-pulse shadow-[0_0_8px_#10B981]" />
         <span class="text-xs font-extrabold font-tactical uppercase tracking-wider text-white">
           PC PLATFORM
         </span>
       </div>
 
-      {/* Primary Mode Buttons + Overflow Mode Dropdown */}
-      <div class="flex flex-wrap items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container">
+      {/* Primary Mode Buttons + Responsive Overflow Mode Dropdown */}
+      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 w-full xl:flex-1 relative dropdown-container">
         
         <For each={PRIMARY_QUEUES}>
-          {(queue) => (
-            <button
-              onClick={() => props.onSelectQueue(queue)}
-              class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
-                props.selectedQueue === queue
-                  ? 'bg-val-red text-white shadow-glow-red'
-                  : 'text-val-muted hover:text-white hover:bg-white/5'
-              }`}
-            >
-              {queue}
-            </button>
-          )}
+          {(queue, index) => {
+            const isSelected = props.selectedQueue === queue;
+            // CSS logic to responsively hide modes into the dropdown on smaller screens
+            let displayClass = 'block';
+            if (index() >= 6) displayClass = isSelected ? 'block' : 'hidden 2xl:block';
+            else if (index() >= 5) displayClass = isSelected ? 'block' : 'hidden xl:block';
+            else if (index() >= 4) displayClass = isSelected ? 'block' : 'hidden lg:block';
+            else if (index() >= 3) displayClass = isSelected ? 'block' : 'hidden md:block';
+            else if (index() >= 2) displayClass = isSelected ? 'block' : 'hidden sm:block';
+
+            return (
+              <button
+                onClick={() => props.onSelectQueue(queue)}
+                class={`flex-1 whitespace-nowrap px-2 sm:px-3 lg:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
+                  isSelected
+                    ? 'bg-val-red text-white shadow-glow-red'
+                    : 'text-val-muted hover:text-white hover:bg-white/5'
+                } ${displayClass}`}
+              >
+                {queue}
+              </button>
+            );
+          }}
         </For>
 
         {/* Overflow Modes Button */}
-        <div class="relative flex-shrink-0">
+        <div class="relative flex-shrink-0 ml-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -82,14 +93,46 @@ export const TacticalFilterBar: Component<Props> = (props) => {
                 ? 'bg-val-red text-white border-val-red shadow-glow-red'
                 : 'bg-white/5 text-val-muted hover:text-white border-white/10 hover:bg-white/10'
             }`}
-            title="More Game Modes (Premier, AROS, Snowball)"
+            title="More Game Modes"
           >
             ⋮
           </button>
 
-          {/* Modes Popup Menu */}
+          {/* Modes Popup Menu (Dynamically includes hidden Primary modes!) */}
           {showQueueDropdown() && (
             <div class="absolute right-0 mt-2 w-52 bg-[#0F1626] border border-white/20 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl">
+              
+              {/* Dynamic Shifted Primary Queues */}
+              <For each={PRIMARY_QUEUES}>
+                {(queue, index) => {
+                  const isSelected = props.selectedQueue === queue;
+                  let displayClass = 'hidden';
+                  if (index() >= 6) displayClass = isSelected ? 'hidden' : 'block 2xl:hidden';
+                  else if (index() >= 5) displayClass = isSelected ? 'hidden' : 'block xl:hidden';
+                  else if (index() >= 4) displayClass = isSelected ? 'hidden' : 'block lg:hidden';
+                  else if (index() >= 3) displayClass = isSelected ? 'hidden' : 'block md:hidden';
+                  else if (index() >= 2) displayClass = isSelected ? 'hidden' : 'block sm:hidden';
+
+                  return (
+                    <button
+                      onClick={() => {
+                        props.onSelectQueue(queue);
+                        setShowQueueDropdown(false);
+                      }}
+                      class={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-extrabold font-tactical tracking-wide transition-all items-center justify-between ${
+                        isSelected
+                          ? 'bg-val-red text-white shadow-glow-red'
+                          : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                      } flex ${displayClass}`}
+                    >
+                      <span>{queue}</span>
+                      {isSelected && <span>✓</span>}
+                    </button>
+                  );
+                }}
+              </For>
+
+              {/* Permanent Overflow Queues */}
               <For each={OVERFLOW_QUEUES}>
                 {(queue) => (
                   <button
