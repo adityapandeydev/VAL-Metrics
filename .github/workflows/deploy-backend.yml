@@ -26,7 +26,7 @@ jobs:
           port: 22
           script: |
             # Navigate to the repository directory
-            cd ~/sautuk
+            cd ~/VAL-Metrics
             
             # Fetch, force checkout, and reset to origin/main to clean local changes & HEAD
             git fetch origin
@@ -35,16 +35,16 @@ jobs:
             
             # Navigate to the backend folder and build the image
             cd backend
-            docker build -t sautuk-backend .
+            docker build -t val-metrics-backend .
             
             # Stop and remove the existing container if running
-            docker stop sautuk-api || true
-            docker rm sautuk-api || true
+            docker stop val-metrics-api || true
+            docker rm val-metrics-api || true
             
             # Run the new container with production env file
             docker run -d \
-              --name sautuk-api \
-              -p 80:3000 \
+              --name val-metrics-api \
+              -p 80:8080 \
               --restart always \
               --env-file .env \
-              sautuk-backend
+              val-metrics-backend
