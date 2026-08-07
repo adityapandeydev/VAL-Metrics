@@ -16,7 +16,7 @@ export const WeaponArmoryList: Component<Props> = (props) => {
     <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-          <span>🔫</span> Top Lethal Weapons
+          Top Lethal Weapons
         </span>
         <span class="text-xs font-extrabold text-val-cyan hover:underline cursor-pointer font-tactical uppercase">
           View All Armory →

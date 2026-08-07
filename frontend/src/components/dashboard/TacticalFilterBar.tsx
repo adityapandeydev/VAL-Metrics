@@ -52,14 +52,14 @@ export const TacticalFilterBar: Component<Props> = (props) => {
       </div>
 
       {/* Primary Mode Buttons + Overflow Mode Dropdown */}
-      <div class="flex flex-wrap items-center justify-between sm:justify-center gap-1.5 bg-black/60 p-1.5 rounded-xl border border-white/5 flex-1 relative dropdown-container">
+      <div class="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-white/5 flex-1 relative dropdown-container overflow-x-auto min-w-0 custom-scrollbar">
         <For each={PRIMARY_QUEUES}>
           {(queue) => (
             <button
               onClick={() => props.onSelectQueue(queue)}
-              class={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
+              class={`flex-1 whitespace-nowrap px-3 lg:px-4 py-2 rounded-lg text-xs font-black transition-all font-tactical uppercase tracking-wider text-center ${
                 props.selectedQueue === queue
-                  ? 'bg-val-red text-white shadow-glow-red scale-[1.02]'
+                  ? 'bg-val-red text-white shadow-glow-red'
                   : 'text-val-muted hover:text-white hover:bg-white/5'
               }`}
             >
@@ -69,7 +69,7 @@ export const TacticalFilterBar: Component<Props> = (props) => {
         </For>
 
         {/* Overflow Modes Button */}
-        <div class="relative">
+        <div class="relative flex-shrink-0">
           <button
             onClick={(e) => {
               e.stopPropagation();

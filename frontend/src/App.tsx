@@ -86,7 +86,7 @@ export const App: Component = () => {
                 class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#141E33] to-[#0D1524] border border-val-gold/50 shadow-glow-gold hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                 title="Click to manage your connected Riot Account or log out"
               >
-                <span class="text-val-gold font-bold text-sm">👑 {authSession().riotId}</span>
+                <span class="text-val-gold font-bold text-sm">{authSession().riotId}</span>
                 <span class="text-[10px] bg-val-gold/20 text-val-gold px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
                   LOGGED IN
                 </span>
@@ -96,7 +96,6 @@ export const App: Component = () => {
                 onClick={() => setIsAuthModalOpen(true)}
                 class="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-val-red via-rose-600 to-amber-500 text-white font-tactical font-black text-xs hover:brightness-110 active:scale-95 shadow-glow-red transition-all uppercase tracking-wider cursor-pointer"
               >
-                <span class="text-base">⚔️</span>
                 <span>LOG IN WITH RIOT ACCOUNT</span>
               </button>
             )}

@@ -268,20 +268,20 @@ export const AnalyticsDashboard: Component = () => {
           
           {/* LEFT COLUMN: Fixed compact width (~350px on laptop/desktop) */}
           <div class="w-full lg:w-[350px] xl:w-[380px] flex-shrink-0 space-y-6">
-            <RatingCard 
-              currentRating="Unranked"
-              level={31}
-              recordString="2W - 0L"
-              peakRating="Silver 2"
-              peakAct="V26: ACT III"
-            />
-
             <Show when={activeNavTab() === 'Matches'}>
               {/* Activity Heatmap & Teammates exclusively shown on Matches Page */}
               <ActivityHeatmap />
             </Show>
 
             <Show when={activeNavTab() !== 'Matches'}>
+              <RatingCard 
+                currentRating="Unranked"
+                level={31}
+                recordString="2W - 0L"
+                peakRating="Silver 2"
+                peakAct="V26: ACT III"
+              />
+
               {/* Overview Analytics Layout */}
               <AccuracySilhouette 
                 headshotPercent={stats()?.headshotPercent || 14.6}
