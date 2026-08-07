@@ -249,6 +249,15 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]interface{}{"connected": true, "port": creds.Port, "pid": creds.ProcessID})
 	})
 
+	// System Information Endpoint
+	http.HandleFunc("/api/v1/system/info", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		json.NewEncoder(w).Encode(map[string]string{
+			"universal_db_version": "Universal DB v4.0",
+		})
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

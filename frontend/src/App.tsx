@@ -8,6 +8,7 @@ import { OverlayTelemetryPayload } from './types/valorant';
 export const App: Component = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = createSignal<boolean>(false);
   const [liveTelemetry, setLiveTelemetry] = createSignal<OverlayTelemetryPayload | undefined>(undefined);
+  const [dbVersion, setDbVersion] = createSignal("Universal DB v3.0");
 
   // Detect if running inside Desktop/Tauri runtime or test overlay mode
   const isDesktop = () => {
@@ -28,6 +29,15 @@ export const App: Component = () => {
     await checkBackendHealth();
     await auditLCUConnection();
     await checkAuthStatus();
+
+    fetch('http://localhost:8080/api/v1/system/info')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.universal_db_version) {
+          setDbVersion(data.universal_db_version);
+        }
+      })
+      .catch(err => console.error("Could not fetch DB version:", err));
 
     const interval = setInterval(async () => {
       // In desktop overlay mode, poll live telemetry; in web mode, check basic server health quietly every 30 seconds
@@ -71,7 +81,7 @@ export const App: Component = () => {
             <div>
               <span class="font-extrabold text-xl tracking-wider text-white font-tactical">VAL<span class="text-val-red">-</span>METRICS</span>
               <span class="ml-2 text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-[#1A2338] text-val-cyan border border-val-cyan/30">
-                Universal DB v3.0
+                {dbVersion()}
               </span>
             </div>
           </div>

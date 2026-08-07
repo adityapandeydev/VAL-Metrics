@@ -1,0 +1,50 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Execute remote SSH commands to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            # Navigate to the repository directory
+            cd ~/val-metrics
+            
+            # Fetch, force checkout, and reset to origin/main to clean local changes & HEAD
+            git fetch origin
+            git checkout main || git checkout -b main
+            git reset --hard origin/main
+            
+            # Navigate to the backend folder and build the image
+            cd backend
+            docker build -t val-metrics-backend .
+            
+            # Stop and remove the existing container if running
+            docker stop val-metrics-api || true
+            docker rm val-metrics-api || true
+            
+            # Run the new container with production env file
+            docker run -d \
+              --name val-metrics-api \
+              -p 80:8080 \
+              --restart always \
+              --env-file .env \
+              val-metrics-backend
