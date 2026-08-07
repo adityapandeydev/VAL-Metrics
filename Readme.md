@@ -14,6 +14,7 @@ To deliver our analytics and match histories, VAL-Metrics strictly interacts wit
 * **account-v1:** Used to securely resolve player Riot IDs and Taglines into PUUIDs for our Universal Database.
 * **val-match-v1:** Used extensively to fetch player match histories and retrieve detailed post-match telemetry (kills, deaths, rounds won, weapon usage, and combat scores). This data feeds our proprietary performance algorithm and encounter log.
 * **val-content-v1:** Used to synchronize live game assets (Agents, Maps, Game Modes, and Weapons) so our frontend UI correctly displays localized names and icons for the current patch.
+* **val-status-v1:** Used to ping real-time server health and maintenance schedules, enabling us to display live alerts to our users if Riot's servers are experiencing latency or downtime.
 
 ## Current Development Status
 ### What We Have Completed
