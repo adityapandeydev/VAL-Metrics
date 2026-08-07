@@ -26,7 +26,7 @@ export const TopAgentsTable: Component<Props> = (props) => {
         <div class="flex items-center gap-2.5">
           <span class="w-3 h-5 bg-val-cyan rounded-sm shadow-glow-cyan" />
           <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-            AGENTS
+            TOP AGENTS
           </span>
         </div>
         <span class="text-xs font-bold text-val-muted font-tactical uppercase">
@@ -50,7 +50,7 @@ export const TopAgentsTable: Component<Props> = (props) => {
             </tr>
           </thead>
           <tbody>
-            <For each={list}>
+            <For each={list.slice(0, 3)}>
               {(agent) => (
                 <tr class="bg-[#0A0D14] hover:bg-[#111726] transition-all rounded-xl shadow-lg border border-white/5 text-sm font-extrabold group">
                   

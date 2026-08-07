@@ -79,6 +79,15 @@ export const App: Component = () => {
           {/* Riot Account Login & Server Status */}
           <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-tactical">
             
+            {/* Database & Server Status Pill */}
+            <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
+              <div class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#10B981]' : 'bg-rose-500 animate-pulse'}`} />
+              <span class="text-val-muted font-medium uppercase text-[11px]">DB ENGINE:</span>
+              <span class={isBackendOnline() ? 'text-white font-black uppercase text-[11px]' : 'text-rose-400 font-bold uppercase text-[11px]'}>
+                {isBackendOnline() ? 'SNAPPYSTORE CONNECTED' : 'OFFLINE'}
+              </span>
+            </div>
+
             {/* Single Clear Riot Login / Authenticated Badge */}
             {authSession().authenticated && authSession().riotId ? (
               <button
@@ -99,15 +108,6 @@ export const App: Component = () => {
                 <span>LOG IN WITH RIOT ACCOUNT</span>
               </button>
             )}
-
-            {/* Database & Server Status Pill */}
-            <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141A29] border border-white/10 shadow-inner">
-              <div class={`w-2 h-2 rounded-full ${isBackendOnline() ? 'bg-val-emerald shadow-[0_0_8px_#10B981]' : 'bg-rose-500 animate-pulse'}`} />
-              <span class="text-val-muted font-medium uppercase text-[11px]">DB ENGINE:</span>
-              <span class={isBackendOnline() ? 'text-white font-black uppercase text-[11px]' : 'text-rose-400 font-bold uppercase text-[11px]'}>
-                {isBackendOnline() ? 'SNAPPYSTORE CONNECTED' : 'OFFLINE'}
-              </span>
-            </div>
 
           </div>
         </div>

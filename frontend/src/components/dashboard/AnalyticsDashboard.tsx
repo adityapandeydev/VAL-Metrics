@@ -168,11 +168,11 @@ export const AnalyticsDashboard: Component = () => {
 
                     {/* Share & Favorite Action Icons */}
                     <div class="flex items-center gap-2 ml-auto xl:ml-2">
-                      <button class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-tactical font-extrabold text-xs uppercase transition-all border border-white/10 shadow" title="Share Player Profile URL">
-                        Share
+                      <button class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/10 shadow flex items-center justify-center" title="Share Player Profile URL">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
                       </button>
-                      <button class="px-3 py-2 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-val-obsidian text-slate-300 font-tactical font-extrabold text-xs uppercase transition-all border border-white/10 shadow" title="Favorite Player Profile">
-                        Favorite
+                      <button class="p-2 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-val-obsidian text-slate-300 transition-all border border-white/10 shadow flex items-center justify-center group" title="Favorite Player Profile">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:fill-current"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       </button>
                     </div>
                   </div>
@@ -203,7 +203,7 @@ export const AnalyticsDashboard: Component = () => {
               disabled={loading()}
               class="bg-gradient-to-r from-val-cyan via-teal-400 to-val-emerald text-val-obsidian font-black px-6 py-2.5 rounded-xl text-xs uppercase font-tactical tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-glow-cyan disabled:opacity-50 whitespace-nowrap cursor-pointer"
             >
-              {loading() ? "QUERYING DB..." : "UNIVERSAL SEARCH"}
+              {loading() ? "QUERYING DB..." : "SEARCH"}
             </button>
           </form>
 
@@ -319,9 +319,9 @@ export const AnalyticsDashboard: Component = () => {
                 damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
               />
 
-              <MatchEncounterLog encounters={stats()?.recentEncounters} />
-
               <TopAgentsTable agents={stats()?.agentLeaderboard} />
+
+              <MatchEncounterLog encounters={stats()?.recentEncounters} />
             </Show>
 
           </div>

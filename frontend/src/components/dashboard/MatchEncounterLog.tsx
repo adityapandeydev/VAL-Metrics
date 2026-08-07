@@ -193,14 +193,14 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
                         
-                        {/* Compact Score Box */}
-                        <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">
-                          <span class="text-[10px] text-val-muted font-bold uppercase font-tactical">Score</span>
-                          <span class={`text-base font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
+                        {/* Prominent Score Box */}
+                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto sm:ml-2">
+                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
+                          <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
-                          <div class="h-3.5 w-px bg-white/20 mx-0.5" />
-                          <span class="text-[10px] text-val-cyan font-extrabold font-tactical uppercase">TRS {m.valRatingScore}</span>
+                          <div class="h-5 w-px bg-white/20 mx-1" />
+                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">TRS {m.valRatingScore}</span>
                         </div>
                       </div>
 
@@ -296,14 +296,14 @@ export const MatchEncounterLog: Component<Props> = (props) => {
                         <span class="text-lg sm:text-xl font-black font-tactical text-white tracking-wide">{m.mapName}</span>
                         <span class="text-xs font-semibold text-slate-400">({m.placement})</span>
                         
-                        {/* Compact Score Box */}
-                        <div class="inline-flex items-center gap-2 bg-black/50 px-3 py-1 rounded-lg border border-white/10 shadow-inner ml-auto sm:ml-2">
-                          <span class="text-[10px] text-val-muted font-bold uppercase font-tactical">Score</span>
-                          <span class={`text-base font-black font-tactical tracking-wider ${m.didWin ? 'text-val-emerald' : 'text-rose-400'}`}>
+                        {/* Prominent Score Box */}
+                        <div class="inline-flex items-center gap-2.5 bg-[#0F141F] px-4 py-1.5 rounded-xl border border-white/20 shadow-md ml-auto sm:ml-2">
+                          <span class="text-[10px] text-slate-400 font-black uppercase font-tactical tracking-widest">Score</span>
+                          <span class={`text-xl font-black font-tactical tracking-widest drop-shadow-md ${m.didWin ? 'text-val-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'}`}>
                             {m.score}
                           </span>
-                          <div class="h-3.5 w-px bg-white/20 mx-0.5" />
-                          <span class="text-[10px] text-val-cyan font-extrabold font-tactical uppercase">TRS {m.valRatingScore}</span>
+                          <div class="h-5 w-px bg-white/20 mx-1" />
+                          <span class="text-xs text-val-cyan font-black font-tactical uppercase tracking-wider">TRS {m.valRatingScore}</span>
                         </div>
                       </div>
 
