@@ -14,7 +14,7 @@ export const TopMapsList: Component<Props> = (props) => {
     <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-          Top Tournament Maps
+          Top Maps
         </span>
         <span class="text-xs font-extrabold text-val-gold hover:underline cursor-pointer font-tactical uppercase">
           View All Maps →
