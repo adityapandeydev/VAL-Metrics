@@ -289,7 +289,7 @@ export const AnalyticsDashboard: Component = () => {
 
             <Show when={activeNavTab() === 'Overview'}>
               {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
-              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
                 
                 {/* Left Column */}
                 <div class="xl:col-span-1 space-y-6 flex flex-col">
