@@ -263,83 +263,77 @@ export const AnalyticsDashboard: Component = () => {
           }}
         />
 
-        {/* Master Layout: Robust Flexbox design guaranteeing side-by-side positioning with compact Left Column & dominant Right Workspace */}
+        {/* Tab Content */}
         <Show when={activeNavTab() === 'Overview' || activeNavTab() === 'Matches'} fallback={
-          <div class="w-full flex items-center justify-center py-20">
-            <div class="rounded-3xl border border-rose-500/20 bg-[#0E1320]/60 p-16 text-center space-y-4 w-full max-w-3xl backdrop-blur-md shadow-2xl">
-              <div class="w-16 h-16 mx-auto rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-6">
-                <span class="text-2xl font-black font-tactical text-rose-400">!</span>
-              </div>
-              <h3 class="text-3xl font-black font-tactical text-white uppercase tracking-widest">MODULE NOT READY</h3>
-              <p class="text-slate-400 font-semibold text-sm max-w-lg mx-auto leading-relaxed mt-4">
-                Disclaimer: Waiting for production API keys to properly implement the <span class="text-val-cyan font-black uppercase">{activeNavTab()}</span> features.
-              </p>
+          <div class="card p-12 text-center space-y-4 max-w-2xl mx-auto">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-val-red/10 flex items-center justify-center border border-val-red/30">
+              <span class="text-val-red font-bold text-lg font-tactical">!</span>
             </div>
+            <h3 class="text-xl font-bold font-tactical tracking-widest text-white uppercase">MODULE NOT READY</h3>
+            <p class="text-sm text-slate-400 max-w-md mx-auto">
+              <span class="text-val-cyan font-bold">{activeNavTab()}</span> analytics require a production API key for full historical data.
+            </p>
           </div>
         }>
-          <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
-            
-            {/* LEFT COLUMN: Fixed compact width (~350px on laptop/desktop) */}
-            <div class="w-full lg:w-[350px] xl:w-[380px] flex-shrink-0 space-y-6">
-              <Show when={activeNavTab() === 'Matches'}>
-                {/* Activity Heatmap & Teammates exclusively shown on Matches Page */}
-                <ActivityHeatmap />
-              </Show>
-
-              <Show when={activeNavTab() === 'Overview'}>
-              <RatingCard 
-                currentRating="Unranked"
-                level={31}
-                recordString="2W - 0L"
-                peakRating="Silver 2"
-                peakAct="V26: ACT III"
-              />
-
-              {/* Overview Analytics Layout */}
-              <AccuracySilhouette 
-                headshotPercent={stats()?.headshotPercent || 14.6}
-                bodyshotPercent={stats()?.bodyshotPercent || 81.9}
-                legshotPercent={stats()?.legshotPercent || 3.5}
-                totalHits={stats()?.totalHits || 171}
-              />
-
-              <RoleMasteryPanel roleStats={stats()?.roleMastery} />
-
-              <WeaponArmoryList weapons={stats()?.weaponArmory} />
-
-              <TopMapsList maps={stats()?.mapDomination} />
-            </Show>
-          </div>
-
-          {/* RIGHT COLUMN: Dominant fluid workspace, taking all remaining monitor width */}
-          <div class="flex-1 w-full min-w-0 space-y-8">
-            
+          <div class="space-y-6 stagger w-full">
             <Show when={activeNavTab() === 'Matches'}>
-              {/* Matches Page: Dedicated Full Match Encounter Table & Summary Stats */}
-              <MatchEncounterLog encounters={stats()?.recentEncounters} />
+              <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                  <ActivityHeatmap />
+                </div>
+                <div class="lg:col-span-3">
+                  <MatchEncounterLog encounters={stats()?.recentEncounters} />
+                </div>
+              </div>
             </Show>
 
             <Show when={activeNavTab() === 'Overview'}>
-              {/* Overview Page: Full Combat Analytics & Match History Preview */}
-              <CombatOverviewGrid stats={stats() || undefined} />
+              {/* VAL-Index + Combat Overview — top row */}
+              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="xl:col-span-1">
+                  <ValIndexScorecard
+                    valIndexScore={stats()?.valIndexScore || 927}
+                    valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
+                    roundWinRate={stats()?.roundWinRate || 57.8}
+                    kastPercent={stats()?.kastPercent || 73.3}
+                    acs={stats()?.averageCombatScore || 321.7}
+                    damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
+                  />
+                </div>
+                <div class="xl:col-span-2">
+                  <CombatOverviewGrid stats={stats() || undefined} />
+                </div>
+              </div>
 
-              <ValIndexScorecard
-                valIndexScore={stats()?.valIndexScore || 927}
-                valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
-                roundWinRate={stats()?.roundWinRate || 57.8}
-                kastPercent={stats()?.kastPercent || 73.3}
-                acs={stats()?.averageCombatScore || 321.7}
-                damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
-              />
+              {/* Middle row: Rank + Accuracy + Role + Weapons + Maps */}
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <RatingCard 
+                  currentRating="Unranked"
+                  level={31}
+                  recordString="2W - 0L"
+                  peakRating="Silver 2"
+                  peakAct="V26: ACT III"
+                />
+                <AccuracySilhouette 
+                  headshotPercent={stats()?.headshotPercent || 14.6}
+                  bodyshotPercent={stats()?.bodyshotPercent || 81.9}
+                  legshotPercent={stats()?.legshotPercent || 3.5}
+                  totalHits={stats()?.totalHits || 171}
+                />
+                <RoleMasteryPanel roleStats={stats()?.roleMastery} />
+                <div class="space-y-6">
+                  <WeaponArmoryList weapons={stats()?.weaponArmory} />
+                  <TopMapsList maps={stats()?.mapDomination} />
+                </div>
+              </div>
 
+              {/* Agent table */}
               <TopAgentsTable agents={stats()?.agentLeaderboard} />
 
+              {/* Recent matches */}
               <MatchEncounterLog encounters={stats()?.recentEncounters} />
             </Show>
-
           </div>
-
-        </div>
         </Show>
       </Show>
 
