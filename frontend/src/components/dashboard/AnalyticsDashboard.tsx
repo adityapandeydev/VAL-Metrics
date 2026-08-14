@@ -288,9 +288,19 @@ export const AnalyticsDashboard: Component = () => {
             </Show>
 
             <Show when={activeNavTab() === 'Overview'}>
-              {/* VAL-Index + Combat Overview — top row */}
+              {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
               <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div class="xl:col-span-1">
+                
+                {/* Left Column */}
+                <div class="xl:col-span-1 space-y-6 flex flex-col">
+                  <RatingCard 
+                    currentRating="Unranked"
+                    level={31}
+                    recordString="2W - 0L"
+                    peakRating="Silver 2"
+                    peakAct="V26: ACT III"
+                  />
+                  
                   <ValIndexScorecard
                     valIndexScore={stats()?.valIndexScore || 927}
                     valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
@@ -300,31 +310,28 @@ export const AnalyticsDashboard: Component = () => {
                     damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
                   />
                 </div>
-                <div class="xl:col-span-2">
+
+                {/* Right Column */}
+                <div class="xl:col-span-2 space-y-6 flex flex-col">
                   <CombatOverviewGrid stats={stats() || undefined} />
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <RoleMasteryPanel roleStats={stats()?.roleMastery} />
+                    <WeaponArmoryList weapons={stats()?.weaponArmory} />
+                  </div>
                 </div>
+
               </div>
 
-              {/* Middle row: Rank + Accuracy + Role + Weapons + Maps */}
-              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <RatingCard 
-                  currentRating="Unranked"
-                  level={31}
-                  recordString="2W - 0L"
-                  peakRating="Silver 2"
-                  peakAct="V26: ACT III"
-                />
+              {/* Middle Section: Marksmanship + Top Maps */}
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <AccuracySilhouette 
                   headshotPercent={stats()?.headshotPercent || 14.6}
                   bodyshotPercent={stats()?.bodyshotPercent || 81.9}
                   legshotPercent={stats()?.legshotPercent || 3.5}
                   totalHits={stats()?.totalHits || 171}
                 />
-                <RoleMasteryPanel roleStats={stats()?.roleMastery} />
-                <div class="space-y-6">
-                  <WeaponArmoryList weapons={stats()?.weaponArmory} />
-                  <TopMapsList maps={stats()?.mapDomination} />
-                </div>
+                <TopMapsList maps={stats()?.mapDomination} />
               </div>
 
               {/* Agent table */}

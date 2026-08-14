@@ -23,28 +23,24 @@ export const ValIndexScorecard: Component<Props> = (props) => {
       {/* Top Section: Score Square & Grade */}
       <div class="relative z-10 flex flex-col items-center justify-center space-y-6">
         
-        {/* Square Score Box */}
-        <div class="relative w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center shadow-glow-cyan rounded-3xl bg-val-obsidian/80 backdrop-blur-md">
-          {/* SVG Square Progress */}
+        {/* Circular Score Box */}
+        <div class="relative w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center shadow-glow-cyan rounded-full bg-val-obsidian/80 backdrop-blur-md">
+          {/* SVG Circular Progress */}
           <svg class="absolute inset-0 w-full h-full transform -rotate-90">
-            {/* Background Rect */}
-            <rect
-              x="6"
-              y="6"
-              width="calc(100% - 12px)"
-              height="calc(100% - 12px)"
-              rx="24"
+            {/* Background Circle */}
+            <circle
+              cx="50%"
+              cy="50%"
+              r="calc(50% - 6px)"
               fill="transparent"
               stroke="rgba(0, 229, 255, 0.1)"
               stroke-width="6"
             />
-            {/* Progress Rect */}
-            <rect
-              x="6"
-              y="6"
-              width="calc(100% - 12px)"
-              height="calc(100% - 12px)"
-              rx="24"
+            {/* Progress Circle */}
+            <circle
+              cx="50%"
+              cy="50%"
+              r="calc(50% - 6px)"
               fill="transparent"
               stroke="#00E5FF"
               stroke-width="6"
