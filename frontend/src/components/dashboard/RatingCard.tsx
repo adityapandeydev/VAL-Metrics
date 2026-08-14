@@ -34,8 +34,8 @@ export const RatingCard: Component<Props> = (props) => {
         </div>
 
         <div class="w-16 h-16 rounded-2xl border-2 border-val-cyan/40 bg-val-cyan/10 flex flex-col items-center justify-center font-tactical text-center p-2 shadow-glow-cyan">
-          <span class="text-sm font-black text-white leading-none">{props.recordString || "2 W"}</span>
-          <span class="text-[10px] font-extrabold text-val-cyan mt-0.5">0 L</span>
+          <span class="text-sm font-black text-white leading-none">{props.recordString ? props.recordString.split('-')[0].trim() : "2W"}</span>
+          <span class="text-[10px] font-extrabold text-val-cyan mt-0.5">{props.recordString && props.recordString.includes('-') ? props.recordString.split('-')[1].trim() : "0L"}</span>
         </div>
       </div>
 
