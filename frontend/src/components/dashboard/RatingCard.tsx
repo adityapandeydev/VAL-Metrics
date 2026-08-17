@@ -48,7 +48,7 @@ export const RatingCard: Component<Props> = (props) => {
       </div>
 
       {/* Peak Rating Strip */}
-      <div class="bg-gradient-to-r from-[#0A0D14] to-transparent p-3 border-l-2 border-val-gold flex items-center justify-between group-hover:bg-val-gold/5 transition-colors">
+      <div class="bg-gradient-to-r from-[#0A0D14] to-transparent py-4 px-3 border-l-2 border-val-gold flex items-center justify-between group-hover:bg-val-gold/5 transition-colors">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-val-gold/10 flex items-center justify-center text-[10px] font-black font-tactical text-val-gold">
             PEAK
