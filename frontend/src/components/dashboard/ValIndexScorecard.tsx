@@ -22,7 +22,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiIvPjwvc3ZnPg==')] opacity-20 pointer-events-none" />
 
       {/* Top Section: Score HUD */}
-      <div class="relative z-10 flex flex-col items-center justify-center space-y-4 flex-1 mt-2">
+      <div class="relative z-10 flex flex-col items-center justify-center space-y-2 flex-1">
         
         {/* Tactical HUD Ring */}
         <div class="relative w-36 h-36 flex items-center justify-center bg-[#0A0D14] rounded-full border border-val-cyan/10 shadow-[0_0_15px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_25px_rgba(0,229,255,0.2)] transition-shadow">

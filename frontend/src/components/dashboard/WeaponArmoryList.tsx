@@ -26,37 +26,34 @@ export const WeaponArmoryList: Component<Props> = (props) => {
       <div class="space-y-3">
         <For each={armory.slice(0, 1)}>
           {(w) => (
-            <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 hover:border-val-red/30 transition-all space-y-2.5 group">
+            <div class="bg-[#0B0E14] p-5 rounded-xl border border-white/5 hover:border-val-red/30 transition-all space-y-4 group">
               
-              <div class="flex items-center justify-between">
+              <div class="flex items-start justify-between">
                 <div>
-                  <h5 class="text-lg font-black text-white font-tactical tracking-wide group-hover:text-val-red transition-colors">
-                    {w.weaponName}
-                  </h5>
-                  <span class="text-[10px] font-semibold text-val-muted uppercase tracking-wider block">
-                    {w.category}
-                  </span>
+                  <h4 class="text-xl font-black text-white font-tactical">{w.weaponName}</h4>
+                  <span class="text-[10px] text-slate-400 font-mono uppercase tracking-widest">{w.category}</span>
                 </div>
-
-                <div class="text-right flex items-center gap-4">
-                  <div class="text-[11px] font-tactical">
-                    <span class="text-val-red font-bold block">Head {w.headshotPercent}%</span>
-                    <span class="text-val-cyan font-bold block">Body {w.bodyshotPercent}%</span>
+                
+                <div class="flex items-center gap-5 text-right">
+                  <div class="space-y-1.5">
+                    <div class="text-[9px] font-black font-tactical text-val-red">Head {w.headshotPercent}%</div>
+                    <div class="text-[9px] font-black font-tactical text-val-cyan">Body {w.bodyshotPercent}%</div>
+                    <div class="text-[9px] font-black font-tactical text-slate-400">Legs {w.legshotPercent}%</div>
                   </div>
-                  <div class="bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 text-center">
-                    <span class="text-[10px] text-val-muted uppercase block leading-none">Kills</span>
-                    <span class="text-xl font-black text-white font-tactical block mt-0.5">{w.totalKills}</span>
+                  
+                  <div class="w-14 h-14 rounded-lg bg-[#0A0D14] border border-white/10 flex flex-col items-center justify-center">
+                    <span class="text-[8px] font-bold text-val-muted uppercase font-tactical">KILLS</span>
+                    <span class="text-base font-black text-white font-tactical leading-none">{w.totalKills}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Segmented Marksmanship Progress Bar */}
-              <div class="w-full h-2.5 bg-black rounded-full overflow-hidden flex border border-white/5 shadow-inner">
-                <div class="bg-val-red transition-all" style={{ width: `${w.headshotPercent}%` }} title={`Head: ${w.headshotPercent}%`} />
-                <div class="bg-val-cyan transition-all" style={{ width: `${w.bodyshotPercent}%` }} title={`Body: ${w.bodyshotPercent}%`} />
-                <div class="bg-slate-700 transition-all" style={{ width: `${w.legshotPercent}%` }} title={`Legs: ${w.legshotPercent}%`} />
+              {/* Progress Bar */}
+              <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                <div class="h-full bg-val-red" style={{ width: `${w.headshotPercent}%` }} />
+                <div class="h-full bg-val-cyan" style={{ width: `${w.bodyshotPercent}%` }} />
+                <div class="h-full bg-slate-600" style={{ width: `${w.legshotPercent}%` }} />
               </div>
-
             </div>
           )}
         </For>
