@@ -14,6 +14,8 @@ import { TopAgentsTable } from './TopAgentsTable';
 import { WeaponArmoryList } from './WeaponArmoryList';
 import { TopMapsList } from './TopMapsList';
 import { MatchEncounterLog } from './MatchEncounterLog';
+import { LiveMatchOverlay } from '../overlay/LiveMatchOverlay';
+import { reveal } from '../../utils/scrollObserver';
 
 const PROFILE_TABS = ['Overview', 'Matches', 'Performance', 'Agents', 'Maps', 'Weapons'];
 
@@ -289,7 +291,7 @@ export const AnalyticsDashboard: Component = () => {
 
             <Show when={activeNavTab() === 'Overview'}>
               {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
-              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start animate-fade-in">
                 
                 {/* Left Column */}
                 <div class="xl:col-span-1 space-y-6 flex flex-col">
@@ -324,7 +326,7 @@ export const AnalyticsDashboard: Component = () => {
               </div>
 
               {/* Middle Section: Marksmanship + Top Maps */}
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div use:reveal={{ delay: 100 }} class="grid grid-cols-1 lg:grid-cols-2 gap-6 opacity-0">
                 <AccuracySilhouette 
                   headshotPercent={stats()?.headshotPercent || 14.6}
                   bodyshotPercent={stats()?.bodyshotPercent || 81.9}
@@ -335,7 +337,9 @@ export const AnalyticsDashboard: Component = () => {
               </div>
 
               {/* Agent table */}
-              <TopAgentsTable agents={stats()?.agentLeaderboard} />
+              <div use:reveal={{ delay: 200 }} class="opacity-0">
+                <TopAgentsTable agents={stats()?.agentLeaderboard} />
+              </div>
 
               {/* Recent matches */}
               <MatchEncounterLog encounters={stats()?.recentEncounters} />

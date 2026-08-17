@@ -7,7 +7,7 @@ interface Props {
 
 export const CombatOverviewGrid: Component<Props> = (props) => {
   return (
-    <div class="glass-panel rounded-2xl p-6 border border-white/10 shadow-xl space-y-6">
+    <div class="bento-card rounded-2xl p-6 border border-white/10 shadow-xl space-y-6">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-val-red shadow-glow-red" />

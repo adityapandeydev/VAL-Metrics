@@ -10,7 +10,7 @@ interface Props {
 
 export const RatingCard: Component<Props> = (props) => {
   return (
-    <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl relative overflow-hidden group">
+    <div class="bento-card rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl relative overflow-hidden group">
       <div class="absolute -right-8 -top-8 w-32 h-32 bg-val-red/10 rounded-full blur-2xl pointer-events-none group-hover:bg-val-red/20 transition-all" />
       
       <div class="flex items-center justify-between border-b border-white/10 pb-3">

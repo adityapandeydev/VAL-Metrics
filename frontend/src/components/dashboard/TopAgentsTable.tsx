@@ -20,7 +20,7 @@ export const TopAgentsTable: Component<Props> = (props) => {
   ];
 
   return (
-    <div class="glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl space-y-5">
+    <div class="bento-card rounded-2xl p-6 border border-white/10 shadow-2xl space-y-5">
       
       <div class="flex items-center justify-between border-b border-white/10 pb-4">
         <div class="flex items-center gap-2.5">

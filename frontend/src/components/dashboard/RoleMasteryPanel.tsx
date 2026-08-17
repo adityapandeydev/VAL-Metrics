@@ -15,7 +15,7 @@ export const RoleMasteryPanel: Component<Props> = (props) => {
   };
 
   return (
-    <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
+    <div class="bento-card rounded-2xl p-5 border border-white/10 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
           Role Domination Profile

@@ -13,7 +13,7 @@ export const AccuracySilhouette: Component<Props> = (props) => {
   const legs = props.legshotPercent || 3.5;
 
   return (
-    <div class="glass-panel rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl relative overflow-hidden group">
+    <div class="bento-card rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl relative overflow-hidden group">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <span class="text-xs font-black text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-val-red shadow-glow-red" />
