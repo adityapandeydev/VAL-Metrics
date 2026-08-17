@@ -99,32 +99,22 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         </div>
 
         {/* ACS */}
-              Combat Score
-            </span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-xl sm:text-2xl font-black text-val-gold font-tactical tracking-tight">{props.acs}</span>
-            <span class="text-[9px] font-bold text-val-gold px-2 py-0.5 rounded bg-val-gold/10 border border-val-gold/20 self-start mt-1 shadow-sm">
-              S • Top 1.1%
-            </span>
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-gold group-hover:bg-val-gold/5 transition-colors">
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Combat Score</span>
+          <div class="flex items-end justify-between">
+            <span class="text-xl font-black text-white font-tactical leading-none">{props.acs}</span>
+            <span class="text-[9px] text-val-gold font-tactical">TOP 1.1%</span>
           </div>
         </div>
 
-        {/* DDΔ */}
-        <div class="bg-val-obsidian/50 rounded-lg p-3 sm:p-4 border border-val-border hover:border-val-red/40 transition-colors shadow-lg">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="w-1 h-3 rounded-sm bg-val-red shadow-[0_0_6px_rgba(255,70,85,0.6)]" />
-            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest font-tactical">
-              DDΔ / Round
-            </span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-xl sm:text-2xl font-black text-val-red font-tactical tracking-tight">
+        {/* Damage Delta */}
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-red group-hover:bg-val-red/5 transition-colors">
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">DDΔ / Round</span>
+          <div class="flex items-end justify-between">
+            <span class="text-xl font-black text-white font-tactical leading-none">
               {props.damageDelta > 0 ? `+${props.damageDelta}` : props.damageDelta}
             </span>
-            <span class="text-[9px] font-bold text-val-red px-2 py-0.5 rounded bg-val-red/10 border border-val-red/20 self-start mt-1 shadow-sm">
-              S • Top 0.9%
-            </span>
+            <span class="text-[9px] text-val-red font-tactical">TOP 0.9%</span>
           </div>
         </div>
 
