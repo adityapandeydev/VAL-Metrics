@@ -24,7 +24,7 @@ export const WeaponArmoryList: Component<Props> = (props) => {
       </div>
 
       <div class="space-y-3">
-        <For each={armory}>
+        <For each={armory.slice(0, 1)}>
           {(w) => (
             <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 hover:border-val-red/30 transition-all space-y-2.5 group">
               

@@ -45,41 +45,15 @@ export const RoleMasteryPanel: Component<Props> = (props) => {
 
       </div>
 
-      <div class="space-y-2 pt-2">
-        <div class="bg-[#0A0D14] p-3.5 border-l-2 border-slate-700 flex items-center justify-between opacity-50 hover:opacity-100 transition-opacity group/role">
-          <div class="flex items-center gap-3">
-            <span class="w-6 h-6 bg-slate-800 rounded flex items-center justify-center text-[10px] font-tactical text-slate-400 group-hover/role:text-white transition-colors">
-              C
-            </span>
-            <span class="text-xs font-bold text-slate-400 font-tactical uppercase tracking-widest group-hover/role:text-white transition-colors">
-              Controller
-            </span>
-          </div>
-          <span class="text-[10px] font-tactical text-slate-500 tracking-widest">0 MATCHES</span>
+      <div class="grid grid-cols-3 gap-2 text-center pt-1 text-[11px] font-tactical font-semibold text-slate-400">
+        <div class="bg-black/40 p-2 rounded-lg border border-white/5 opacity-50 hover:opacity-100 transition-opacity">
+          Controller (0)
         </div>
-
-        <div class="bg-[#0A0D14] p-3.5 border-l-2 border-slate-700 flex items-center justify-between opacity-50 hover:opacity-100 transition-opacity group/role">
-          <div class="flex items-center gap-3">
-            <span class="w-6 h-6 bg-slate-800 rounded flex items-center justify-center text-[10px] font-tactical text-slate-400 group-hover/role:text-white transition-colors">
-              I
-            </span>
-            <span class="text-xs font-bold text-slate-400 font-tactical uppercase tracking-widest group-hover/role:text-white transition-colors">
-              Initiator
-            </span>
-          </div>
-          <span class="text-[10px] font-tactical text-slate-500 tracking-widest">0 MATCHES</span>
+        <div class="bg-black/40 p-2 rounded-lg border border-white/5 opacity-50 hover:opacity-100 transition-opacity">
+          Initiator (0)
         </div>
-
-        <div class="bg-[#0A0D14] p-3.5 border-l-2 border-slate-700 flex items-center justify-between opacity-50 hover:opacity-100 transition-opacity group/role">
-          <div class="flex items-center gap-3">
-            <span class="w-6 h-6 bg-slate-800 rounded flex items-center justify-center text-[10px] font-tactical text-slate-400 group-hover/role:text-white transition-colors">
-              S
-            </span>
-            <span class="text-xs font-bold text-slate-400 font-tactical uppercase tracking-widest group-hover/role:text-white transition-colors">
-              Sentinel
-            </span>
-          </div>
-          <span class="text-[10px] font-tactical text-slate-500 tracking-widest">0 MATCHES</span>
+        <div class="bg-black/40 p-2 rounded-lg border border-white/5 opacity-50 hover:opacity-100 transition-opacity">
+          Sentinel (0)
         </div>
       </div>
     </div>

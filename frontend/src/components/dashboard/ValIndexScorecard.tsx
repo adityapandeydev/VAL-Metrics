@@ -81,7 +81,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
       <div class="relative z-10 grid grid-cols-2 gap-3 pt-4 border-t border-val-border/50">
         
         {/* Win Rate */}
-        <div class="bg-[#0A0D14] py-4 px-3 border-l-2 border-val-cyan group-hover:bg-val-cyan/5 transition-colors">
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-cyan group-hover:bg-val-cyan/5 transition-colors">
           <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Win Rate</span>
           <div class="flex items-end justify-between">
             <span class="text-xl font-black text-white font-tactical leading-none">{props.roundWinRate}%</span>
@@ -90,7 +90,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         </div>
 
         {/* KAST */}
-        <div class="bg-[#0A0D14] py-4 px-3 border-l-2 border-val-emerald group-hover:bg-val-emerald/5 transition-colors">
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-emerald group-hover:bg-val-emerald/5 transition-colors">
           <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">KAST Rating</span>
           <div class="flex items-end justify-between">
             <span class="text-xl font-black text-white font-tactical leading-none">{props.kastPercent}%</span>
@@ -99,7 +99,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         </div>
 
         {/* ACS */}
-        <div class="bg-[#0A0D14] py-4 px-3 border-l-2 border-val-gold group-hover:bg-val-gold/5 transition-colors">
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-gold group-hover:bg-val-gold/5 transition-colors">
           <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Combat Score</span>
           <div class="flex items-end justify-between">
             <span class="text-xl font-black text-white font-tactical leading-none">{props.acs}</span>
@@ -108,7 +108,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
         </div>
 
         {/* Damage Delta */}
-        <div class="bg-[#0A0D14] py-4 px-3 border-l-2 border-val-red group-hover:bg-val-red/5 transition-colors">
+        <div class="bg-[#0A0D14] p-3 border-l-2 border-val-red group-hover:bg-val-red/5 transition-colors">
           <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">DDΔ / Round</span>
           <div class="flex items-end justify-between">
             <span class="text-xl font-black text-white font-tactical leading-none">
