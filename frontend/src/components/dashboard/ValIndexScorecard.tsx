@@ -16,7 +16,7 @@ export const ValIndexScorecard: Component<Props> = (props) => {
   });
 
   return (
-    <div class="tactical-panel p-5 space-y-6 flex flex-col shrink-0 overflow-hidden group">
+    <div class="tactical-panel p-5 space-y-6 flex flex-col h-full overflow-hidden group">
       
       {/* Background Pattern */}
       <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiIvPjwvc3ZnPg==')] opacity-20 pointer-events-none" />

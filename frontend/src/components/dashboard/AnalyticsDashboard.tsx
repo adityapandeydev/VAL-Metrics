@@ -291,38 +291,42 @@ export const AnalyticsDashboard: Component = () => {
 
             <Show when={activeNavTab() === 'Overview'}>
               {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
-              <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start animate-fade-in">
+              <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch animate-fade-in">
                 
                 {/* Left Column */}
-                <div class="xl:col-span-1 space-y-4 flex flex-col">
+                <div class="xl:col-span-1 flex flex-col gap-4">
                   <RatingCard 
                     currentRating="Unranked"
                     level={31}
                     recordString="2W - 0L"
                     peakRating="Silver 2"
-                    peakAct="V26: ACT III"
+                    peakAct="E7: ACT III"
                   />
-                  
-                  <ValIndexScorecard
-                    valIndexScore={stats()?.valIndexScore || 927}
-                    valIndexGrade={stats()?.valIndexGrade || "S • Top 1.0% Sovereign"}
-                    roundWinRate={stats()?.roundWinRate || 57.8}
-                    kastPercent={stats()?.kastPercent || 73.3}
-                    acs={stats()?.averageCombatScore || 321.7}
-                    damageDelta={intDelta(stats()?.damageDeltaPerRound || 71)}
-                  />
-                </div>
-
-                {/* Right Column */}
-                <div class="xl:col-span-2 space-y-4 flex flex-col">
-                  <CombatOverviewGrid stats={stats() || undefined} />
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <RoleMasteryPanel roleStats={stats()?.roleMastery} />
-                    <WeaponArmoryList weapons={stats()?.weaponArmory} />
+                  <div class="flex-1 flex flex-col">
+                    <ValIndexScorecard 
+                      valIndexScore={stats()?.valIndexScore || 712}
+                      valIndexGrade={stats()?.valIndexGrade || "B • Standard Combatant"}
+                      roundWinRate={stats()?.roundWinRate || 57.8}
+                      kastPercent={stats()?.kastPercent || 73.3}
+                      acs={stats()?.averageCombatScore || 321.7}
+                      damageDelta={stats()?.damageDeltaPerRound || 71.0}
+                    />
                   </div>
                 </div>
 
+                {/* Right Column */}
+                <div class="xl:col-span-2 flex flex-col gap-4">
+                  <CombatOverviewGrid stats={stats() || undefined} />
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                    <div class="flex-1 flex flex-col">
+                      <RoleMasteryPanel roleStats={stats()?.roleMastery} />
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                      <WeaponArmoryList weapons={stats()?.weaponArmory} />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Middle Section: Marksmanship + Top Maps */}
