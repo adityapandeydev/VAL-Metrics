@@ -7,7 +7,7 @@ interface Props {
 
 export const CombatOverviewGrid: Component<Props> = (props) => {
   return (
-    <div class="bento-card rounded-2xl p-6 border border-white/10 shadow-xl space-y-6">
+    <div class="tactical-panel rounded-2xl p-6 border border-white/10 shadow-xl space-y-6">
       <div class="flex items-center justify-between border-b border-white/10 pb-3">
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-val-red shadow-glow-red" />
@@ -24,27 +24,29 @@ export const CombatOverviewGrid: Component<Props> = (props) => {
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         
         <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-cyan/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Damage / Round (ADR)</span>
-          <p class="text-3xl font-black text-white font-tactical mt-1">{props.stats?.damagePerRound || "211.6"}</p>
-          <span class="text-[10px] font-extrabold text-val-cyan mt-1 inline-block">Top 0.9% Sovereign</span>
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Damage / Round (ADR)</span>
+          <div class="flex items-end justify-between">
+            <span class="text-3xl font-black text-white font-tactical leading-none">{props.stats?.damagePerRound || "211.6"}</span>
+          </div>
+          <span class="text-[9px] font-bold text-val-cyan font-tactical uppercase tracking-widest mt-2 block">Top 0.9% Sovereign</span>
         </div>
 
-        <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-emerald/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">K/D Ratio</span>
-          <p class="text-3xl font-black text-val-emerald font-tactical mt-1">{props.stats?.kdRatio || "1.63"}</p>
-          <span class="text-[10px] font-extrabold text-val-emerald mt-1 inline-block">Top 1.0% Lethal</span>
+        <div class="bg-[#0A0D14] rounded-lg p-3 sm:p-4 border border-white/5">
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">K/D Ratio</span>
+          <span class="text-2xl font-black text-val-emerald font-tactical block">{props.stats?.kdRatio || "1.63"}</span>
+          <span class="text-[9px] font-bold text-val-emerald font-tactical uppercase tracking-widest mt-2 block">Top 1.0% Lethal</span>
         </div>
 
-        <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-red/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Headshot %</span>
-          <p class="text-3xl font-black text-white font-tactical mt-1">{props.stats?.headshotPercent || "14.6"}%</p>
-          <span class="text-[10px] font-extrabold text-val-red mt-1 inline-block">25 Head Hits</span>
+        <div class="bg-[#0A0D14] rounded-lg p-3 sm:p-4 border border-white/5">
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Headshot %</span>
+          <span class="text-2xl font-black text-white font-tactical block">{props.stats?.headshotPercent || "14.6"}%</span>
+          <span class="text-[9px] font-bold text-val-red font-tactical uppercase tracking-widest mt-2 block">25 Head Hits</span>
         </div>
 
-        <div class="bg-[#0B0E14] p-4 rounded-xl border border-white/5 relative group hover:border-val-gold/40 transition-all">
-          <span class="text-xs font-bold text-val-muted uppercase font-tactical block">Win Percentage</span>
-          <p class="text-3xl font-black text-val-gold font-tactical mt-1">{props.stats?.winRate || "100.0"}%</p>
-          <span class="text-[10px] font-extrabold text-val-gold mt-1 inline-block">Top 0.1% Undefeated</span>
+        <div class="bg-[#0A0D14] rounded-lg p-3 sm:p-4 border border-white/5">
+          <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block mb-1">Win Percentage</span>
+          <span class="text-2xl font-black text-val-gold font-tactical block">{props.stats?.winRate || "100.0"}%</span>
+          <span class="text-[9px] font-bold text-val-gold font-tactical uppercase tracking-widest mt-2 block">Top 0.1% Undefeated</span>
         </div>
 
       </div>

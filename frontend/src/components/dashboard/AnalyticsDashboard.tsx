@@ -291,10 +291,10 @@ export const AnalyticsDashboard: Component = () => {
 
             <Show when={activeNavTab() === 'Overview'}>
               {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
-              <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start animate-fade-in">
+              <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start animate-fade-in">
                 
                 {/* Left Column */}
-                <div class="xl:col-span-1 space-y-6 flex flex-col">
+                <div class="xl:col-span-1 space-y-4 flex flex-col">
                   <RatingCard 
                     currentRating="Unranked"
                     level={31}
@@ -314,10 +314,10 @@ export const AnalyticsDashboard: Component = () => {
                 </div>
 
                 {/* Right Column */}
-                <div class="xl:col-span-2 space-y-6 flex flex-col">
+                <div class="xl:col-span-2 space-y-4 flex flex-col">
                   <CombatOverviewGrid stats={stats() || undefined} />
                   
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <RoleMasteryPanel roleStats={stats()?.roleMastery} />
                     <WeaponArmoryList weapons={stats()?.weaponArmory} />
                   </div>
@@ -326,7 +326,7 @@ export const AnalyticsDashboard: Component = () => {
               </div>
 
               {/* Middle Section: Marksmanship + Top Maps */}
-              <div use:reveal={{ delay: 100 }} class="grid grid-cols-1 lg:grid-cols-2 gap-6 opacity-0">
+              <div use:reveal={{ delay: 100 }} class="grid grid-cols-1 lg:grid-cols-2 gap-4 opacity-0 mt-4">
                 <AccuracySilhouette 
                   headshotPercent={stats()?.headshotPercent || 14.6}
                   bodyshotPercent={stats()?.bodyshotPercent || 81.9}

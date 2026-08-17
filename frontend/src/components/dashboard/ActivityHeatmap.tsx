@@ -30,7 +30,7 @@ export const ActivityHeatmap: Component = () => {
   return (
     <div class="space-y-6">
       {/* Activity Heatmap Card */}
-      <div class="bento-card rounded-2xl p-5 border border-white/10 shadow-2xl space-y-4 bg-[#0B0F17]">
+      <div class="tactical-panel rounded-2xl p-5 border border-white/10 shadow-2xl space-y-4 bg-[#0B0F17]">
         <div class="flex items-baseline justify-between border-b border-white/10 pb-3">
           <div class="flex items-baseline gap-2">
             <h3 class="text-base font-black font-tactical text-white uppercase tracking-wider">
@@ -109,7 +109,7 @@ export const ActivityHeatmap: Component = () => {
       </div>
 
       {/* TEAMMATES PANEL */}
-      <div class="bento-card rounded-2xl p-5 border border-white/10 shadow-2xl space-y-3 bg-[#0B0F17]">
+      <div class="tactical-panel rounded-2xl p-5 border border-white/10 shadow-2xl space-y-3 bg-[#0B0F17]">
         <div class="flex items-baseline gap-2 border-b border-white/10 pb-3">
           <h3 class="text-base font-black font-tactical text-white uppercase tracking-wider">
             TEAMMATES

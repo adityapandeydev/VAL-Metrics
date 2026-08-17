@@ -10,49 +10,57 @@ interface Props {
 
 export const RatingCard: Component<Props> = (props) => {
   return (
-    <div class="bento-card rounded-2xl p-5 border border-white/10 space-y-5 shadow-xl relative overflow-hidden group">
-      <div class="absolute -right-8 -top-8 w-32 h-32 bg-val-red/10 rounded-full blur-2xl pointer-events-none group-hover:bg-val-red/20 transition-all" />
+    <div class="tactical-panel p-5 space-y-5 shadow-xl relative group">
       
-      <div class="flex items-center justify-between border-b border-white/10 pb-3">
-        <span class="text-xs font-extrabold text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-val-cyan animate-ping" />
+      {/* Top Banner */}
+      <div class="flex items-center justify-between border-b border-val-border/50 pb-3">
+        <span class="text-xs font-bold text-val-muted font-tactical uppercase tracking-widest flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-val-cyan shadow-[0_0_8px_rgba(0,229,255,0.8)]" />
           Current Standing
         </span>
-        <span class="text-xs font-mono text-val-muted px-2 py-0.5 rounded bg-black/40 border border-white/5">
-          Level {props.level || 31}
-        </span>
+        <div class="relative group-hover:text-white transition-colors">
+          <span class="absolute inset-0 bg-val-cyan/10 blur-sm scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span class="relative text-xs font-black font-tactical text-val-cyan tracking-widest uppercase">
+            Level {props.level || 31}
+          </span>
+        </div>
       </div>
 
+      {/* Main Data */}
       <div class="flex items-center justify-between gap-4">
-        <div class="space-y-1">
-          <h3 class="text-3xl font-black text-white font-tactical tracking-wide">
+        <div class="space-y-0.5">
+          <h3 class="text-3xl font-black text-white font-tactical tracking-wide uppercase">
             {props.currentRating || "Unranked"}
           </h3>
-          <p class="text-xs text-val-emerald font-bold tracking-wider">
+          <p class="text-[10px] font-bold text-val-emerald font-tactical tracking-widest uppercase">
             Placement Phase • Active Act
           </p>
         </div>
 
-        <div class="w-16 h-16 rounded-2xl border-2 border-val-cyan/40 bg-val-cyan/10 flex flex-col items-center justify-center font-tactical text-center p-2 shadow-glow-cyan">
-          <span class="text-sm font-black text-white leading-none">{props.recordString ? props.recordString.split('-')[0].trim() : "2W"}</span>
-          <span class="text-[10px] font-extrabold text-val-cyan mt-0.5">{props.recordString && props.recordString.includes('-') ? props.recordString.split('-')[1].trim() : "0L"}</span>
+        {/* Tactical W/L Box */}
+        <div class="relative w-16 h-16 bg-[#0A0D14] flex flex-col items-center justify-center border border-val-cyan/20 group-hover:border-val-cyan/60 transition-colors">
+          <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-val-cyan/80" />
+          <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-val-cyan/80" />
+          
+          <span class="text-lg font-black text-white font-tactical leading-none">{props.recordString ? props.recordString.split('-')[0].trim() : "2W"}</span>
+          <span class="text-[10px] font-bold text-val-cyan font-tactical mt-0.5">{props.recordString && props.recordString.includes('-') ? props.recordString.split('-')[1].trim() : "0L"}</span>
         </div>
       </div>
 
-      {/* Peak Rating Banner */}
-      <div class="bg-[#0A0D14] p-3.5 rounded-xl border border-white/5 flex items-center justify-between hover:border-val-gold/30 transition-all">
+      {/* Peak Rating Strip */}
+      <div class="bg-gradient-to-r from-[#0A0D14] to-transparent p-3 border-l-2 border-val-gold flex items-center justify-between group-hover:bg-val-gold/5 transition-colors">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 border border-val-gold/40 flex items-center justify-center text-xs font-black font-tactical text-val-gold shadow-inner">
+          <div class="w-8 h-8 bg-val-gold/10 flex items-center justify-center text-[10px] font-black font-tactical text-val-gold">
             PEAK
           </div>
           <div>
-            <span class="text-[10px] font-semibold text-val-muted uppercase block leading-tight">Peak Career Standing</span>
-            <span class="text-base font-extrabold text-white font-tactical">{props.peakRating || "Silver 2"}</span>
+            <span class="text-[9px] font-bold text-val-muted font-tactical uppercase tracking-widest block">Peak Career</span>
+            <span class="text-base font-black text-white font-tactical uppercase">{props.peakRating || "Silver 2"}</span>
           </div>
         </div>
-        <span class="text-[10px] font-black font-tactical px-2 py-1 rounded bg-val-gold/15 text-val-gold border border-val-gold/30">
-          {props.peakAct || "V26: ACT III"}
-        </span>
+        <div class="text-right">
+          <span class="text-[10px] font-bold text-val-gold font-tactical uppercase tracking-wider">{props.peakAct || "E7: ACT III"}</span>
+        </div>
       </div>
     </div>
   );
