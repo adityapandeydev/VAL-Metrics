@@ -1,0 +1,18 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "val-metrics-desktop",
+  "outputfilename": "val-metrics-desktop",
+  "frontend:dir": "../frontend/dist",
+  "frontend:dev:serverUrl": "http://localhost:1420",
+  "frontend:dev:watcher": "npm --prefix ../frontend run dev",
+  "author": {
+    "name": "VAL-Metrics Team"
+  },
+  "info": {
+    "companyName": "VAL-Metrics",
+    "productName": "VAL-Metrics Desktop HUD",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright 2026",
+    "comments": "VALORANT In-Game Tactical HUD Overlay powered by Wails v3"
+  }
+}

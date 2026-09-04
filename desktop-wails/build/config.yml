@@ -1,0 +1,16 @@
+# Wails v3 Build Configuration
+# Central project metadata and platform packaging configuration.
+
+name: "val-metrics-desktop"
+productName: "VAL-Metrics Desktop HUD"
+description: "VALORANT In-Game Tactical HUD & Performance Intelligence"
+version: "1.0.0"
+identifier: "com.val-metrics.desktop"
+author: "VAL-Metrics Team"
+
+windows:
+  webview2:
+    runtime: "installed"
+  nsis:
+    package: "nsis"
+    icon: "../icons/icon.ico"

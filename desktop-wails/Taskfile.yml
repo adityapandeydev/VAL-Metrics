@@ -1,0 +1,19 @@
+version: '3'
+
+tasks:
+  dev:
+    desc: "Runs desktop-wails in development mode with live frontend devserver"
+    cmds:
+      - go run .
+    env:
+      FRONTEND_DEVSERVER_URL: "http://localhost:1420"
+
+  build:
+    desc: "Compiles the unified single-binary executable"
+    cmds:
+      - go build -ldflags="-s -w -H=windowsgui" -o bin/val-metrics-hud.exe .
+
+  build:debug:
+    desc: "Compiles debug build with console output"
+    cmds:
+      - go build -o bin/val-metrics-hud-debug.exe .
