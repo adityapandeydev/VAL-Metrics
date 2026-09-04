@@ -2,7 +2,9 @@
 
 ## Detailed Description & Purpose
 
-VAL-Metrics is an advanced tactical performance analytics suite and ultra-low-latency companion overlay designed for VALORANT players seeking tournament-grade self-improvement without sacrificing PC performance or gameplay stability. Traditional gaming companion apps rely on resource-heavy web wrappers that degrade frames-per-second (FPS) and introduce latency in high-stakes competitive shooters. VAL-Metrics addresses these challenges through an architecture built from the ground up using Go, Rust, Tauri, and SolidJS.
+VAL-Metrics is an advanced tactical performance analytics suite and ultra-low-latency companion overlay designed for VALORANT players seeking tournament-grade self-improvement without sacrificing PC performance or gameplay stability. Traditional gaming companion apps rely on resource-heavy web wrappers that degrade frames-per-second (FPS) and introduce latency in high-stakes competitive shooters. VAL-Metrics addresses these challenges through an architecture built from the ground up using Go, Wails (v3), and SolidJS.
+
+> **Desktop Architecture Update:** Since submitting my Riot API application, I discovered the Wails framework. As a solo developer with an existing Go backend, migrating the desktop shell from Tauri/Rust to Wails v3 allows me to maintain a single Go codebase instead of juggling multiple tech stacks. Performance and resource overhead remain virtually identical (both leverage native WebView2), while significantly simplifying builds and long-term maintenance.
 
 A fully functional web dashboard and an accompanying transparent overlay client have been developed and deployed to live cloud infrastructure.
 
@@ -29,7 +31,7 @@ To deliver player analytics and match histories, the app interacts exclusively w
 
 - **Cloud Infrastructure:** I deployed the Go backend to AWS EC2 with automated CI/CD using GitHub Actions.
 - **Universal Database:** Implemented a caching layer that minimizes redundant API requests, manages rate limits, and stores lightweight telemetry for faster data retrieval.
-- **Dashboard & Overlay:** Built the analytical dashboard and transparent overlay using SolidJS, Tailwind CSS, Tauri, and Rust.
+- **Dashboard & Overlay:** Built the analytical dashboard and transparent overlay using SolidJS and Tailwind CSS, transitioning the desktop wrapper from Tauri (Rust) to Wails v3 (Go).
 - **Analytics Engine:** Implemented match history aggregation, encounter tracking, combat statistics, and the VAL-Index performance metric across multiple game modes.
 
 ### In Progress (Pending Production API Access)
