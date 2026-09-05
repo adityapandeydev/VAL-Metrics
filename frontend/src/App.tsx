@@ -10,10 +10,20 @@ export const App: Component = () => {
   const [liveTelemetry, setLiveTelemetry] = createSignal<OverlayTelemetryPayload | undefined>(undefined);
   const [dbVersion, setDbVersion] = createSignal("Universal DB v3.0");
 
-  // Detect if running inside Desktop/Tauri runtime or test overlay mode
+  // Detect if running inside Desktop (Wails v3 / Tauri) runtime or test overlay mode
   const isDesktop = () => {
     if (typeof window === 'undefined') return false;
-    return '__TAURI_INTERNALS__' in window || '__TAURI__' in window || navigator.userAgent.includes('Tauri') || window.location.search.includes('mode=overlay');
+    const w = window as any;
+    return (
+      Boolean(w._wails?.environment?.OS) ||
+      Boolean(w._wails && (w.chrome?.webview || w.webkit?.messageHandlers)) ||
+      Boolean(w.wails) ||
+      navigator.userAgent.includes('Wails') ||
+      '__TAURI_INTERNALS__' in window ||
+      '__TAURI__' in window ||
+      navigator.userAgent.includes('Tauri') ||
+      window.location.search.includes('mode=overlay')
+    );
   };
 
   // Automatically adjust body class when running as Desktop Overlay

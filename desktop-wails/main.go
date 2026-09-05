@@ -70,7 +70,7 @@ func main() {
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Name:            windowName,
 		Title:           "VAL-Metrics Desktop HUD",
-		URL:             "/",
+		URL:             "/?mode=overlay",
 		Width:           1280,
 		Height:          820,
 		MinWidth:        900,

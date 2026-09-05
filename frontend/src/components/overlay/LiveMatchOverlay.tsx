@@ -1,4 +1,5 @@
 import { Component, createSignal, onMount, onCleanup, Show, For } from 'solid-js';
+import { Window as WailsWindow, Call as WailsCall, Events as WailsEvents } from '@wailsio/runtime';
 import { authSession, auditLCUConnection, LCUStatus } from '../../services/telemetry';
 import { OverlayTelemetryPayload } from '../../types/valorant';
 
@@ -24,21 +25,57 @@ interface TeammateStat {
   isPrivate: boolean;
 }
 
+// Detect if running inside Wails v3 desktop environment
+const isWails = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const w = window as any;
+  return Boolean(
+    w._wails?.environment?.OS ||
+    (w._wails && (w.chrome?.webview || w.webkit?.messageHandlers)) ||
+    w.wails ||
+    navigator.userAgent.includes('Wails')
+  );
+};
+
 export const LiveMatchOverlay: Component<Props> = (props) => {
   const [activeStage, setActiveStage] = createSignal<OverlayStage>('live_team');
   const [lcuStatus, setLcuStatus] = createSignal<LCUStatus>({ connected: false });
   const [selectedMap, setSelectedMap] = createSignal("Haven");
   const [gameMode, setGameMode] = createSignal("Competitive");
+  const [isClickThrough, setIsClickThrough] = createSignal<boolean>(false);
 
-  // Native Rust window manipulation commands (guaranteed zero-latency win32 response)
+  // Zero-latency desktop window manipulation commands supporting Wails v3 and Tauri
   const handleWindowControl = async (action: 'minimize' | 'maximize' | 'close' | 'hide') => {
+    // 1. Wails v3 Go runtime dispatch
+    if (isWails()) {
+      try {
+        if (action === 'minimize') await WailsCall.ByName('main.OverlayService.MinimizeWindow');
+        else if (action === 'maximize') await WailsCall.ByName('main.OverlayService.MaximizeWindow');
+        else if (action === 'close') await WailsCall.ByName('main.OverlayService.CloseWindow');
+        else if (action === 'hide') await WailsCall.ByName('main.OverlayService.HideWindow');
+        return;
+      } catch {
+        try {
+          if (action === 'minimize') await WailsWindow.Minimise();
+          else if (action === 'maximize') await WailsWindow.ToggleMaximise();
+          else if (action === 'close') await WailsWindow.Close();
+          else if (action === 'hide') await WailsWindow.Hide();
+          return;
+        } catch (wErr) {
+          console.warn('Wails Window API call failed:', wErr);
+        }
+      }
+    }
+
+    // 2. Tauri v2 IPC dispatch (backward compatibility)
     try {
       const { invoke } = await import('@tauri-apps/api/core');
       if (action === 'minimize') await invoke('minimize_window');
       if (action === 'maximize') await invoke('maximize_window');
       if (action === 'close') await invoke('close_window');
       if (action === 'hide') await invoke('hide_window');
-    } catch (err) {
+      return;
+    } catch {
       // Browser test fallback
       try {
         const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -47,9 +84,26 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
         if (action === 'maximize') await win.toggleMaximize();
         if (action === 'close') await win.close();
         if (action === 'hide') await win.hide();
+        return;
       } catch {
         console.log(`Window control action (${action}) simulated outside native desktop environment.`);
       }
+    }
+  };
+
+  // Toggle Win32 pointer click-through bypass into VALORANT
+  const toggleClickThrough = async () => {
+    const nextState = !isClickThrough();
+    if (isWails()) {
+      try {
+        const res = await WailsCall.ByName('main.OverlayService.ToggleClickThrough', nextState);
+        setIsClickThrough(Boolean(res));
+      } catch (err) {
+        console.error('Failed to toggle click-through via Wails:', err);
+      }
+    } else {
+      setIsClickThrough(nextState);
+      console.log(`Click-through mode ${nextState ? 'enabled' : 'disabled'} (simulated).`);
     }
   };
 
@@ -66,6 +120,21 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
     };
     window.addEventListener('keydown', handleKeyDown);
     onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+
+    // Listen for click-through status changes from Wails backend (hotkeys or service calls)
+    if (typeof window !== 'undefined' && isWails()) {
+      try {
+        const unsubWailsEvents = WailsEvents.On('click-through-status-changed', (event: any) => {
+          const enabled = Array.isArray(event?.data) ? event.data[0] : event?.data;
+          setIsClickThrough(Boolean(enabled));
+        });
+        onCleanup(() => {
+          if (unsubWailsEvents) unsubWailsEvents();
+        });
+      } catch (err) {
+        console.warn('Could not register Wails event listener:', err);
+      }
+    }
   });
 
   // Mocked rich telemetry ready for Riot Production Key integration
@@ -94,26 +163,48 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
   return (
     <div class="w-full h-screen bg-[#080C12] text-white font-sans flex flex-col select-none overflow-hidden border border-white/10">
       
-      {/* CUSTOM WINDOW TITLE BAR WITH TAURI DRAG REGION & WIN32 WINDOW CONTROLS */}
+      {/* CUSTOM WINDOW TITLE BAR WITH TAURI & WAILS DRAG REGION & WIN32 WINDOW CONTROLS */}
       <header 
         data-tauri-drag-region="true"
+        style="--wails-draggable: drag;"
         class="w-full h-10 bg-[#0B0E17] border-b border-white/10 flex items-center justify-between px-3 select-none shrink-0"
       >
         {/* Brand & Drag Handle */}
-        <div data-tauri-drag-region="true" class="flex items-center gap-2 cursor-grab active:cursor-grabbing">
-          <span data-tauri-drag-region="true" class="w-2 h-5 bg-val-cyan rounded-sm shadow-glow-cyan" />
-          <span data-tauri-drag-region="true" class="font-extrabold font-tactical text-xs tracking-wider text-white">
+        <div data-tauri-drag-region="true" style="--wails-draggable: drag;" class="flex items-center gap-2 cursor-grab active:cursor-grabbing">
+          <span data-tauri-drag-region="true" style="--wails-draggable: drag;" class="w-2 h-5 bg-val-cyan rounded-sm shadow-glow-cyan" />
+          <span data-tauri-drag-region="true" style="--wails-draggable: drag;" class="font-extrabold font-tactical text-xs tracking-wider text-white">
             VAL-METRICS <span class="text-val-cyan font-normal text-[11px]">DESKTOP HUD [ALT + V TO TOGGLE]</span>
           </span>
-          <span data-tauri-drag-region="true" class="ml-2 px-2 py-0.5 rounded bg-val-emerald/20 text-val-emerald text-[9px] font-extrabold uppercase tracking-wider">
+          <span data-tauri-drag-region="true" style="--wails-draggable: drag;" class="ml-2 px-2 py-0.5 rounded bg-val-emerald/20 text-val-emerald text-[9px] font-extrabold uppercase tracking-wider">
             ● SNAPPY DB & LCU ONLINE
           </span>
+          <Show when={isClickThrough()}>
+            <span class="ml-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[9px] font-extrabold uppercase tracking-wider animate-pulse">
+              ⚡ CLICK-THROUGH ACTIVE
+            </span>
+          </Show>
         </div>
 
         {/* Native Window Action Control Buttons (Guarded against drag interception) */}
-        <div class="flex items-center gap-1" data-tauri-drag-region="false" onMouseDown={(e) => e.stopPropagation()}>
+        <div class="flex items-center gap-1" data-tauri-drag-region="false" style="--wails-draggable: no-drag;" onMouseDown={(e) => e.stopPropagation()}>
           <button
             data-tauri-drag-region="false"
+            style="--wails-draggable: no-drag;"
+            onMouseDown={(e) => { e.stopPropagation(); }}
+            onClick={toggleClickThrough}
+            class={`px-2 h-7 flex items-center gap-1.5 rounded text-[11px] font-tactical font-bold transition-all cursor-pointer shadow-sm border ${
+              isClickThrough()
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                : 'bg-transparent text-val-muted border-white/10 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Toggle pointer click-through (Alt+V / Alt+T)"
+          >
+            <span>🎯</span>
+            <span class="hidden sm:inline">{isClickThrough() ? 'GHOST ON' : 'GHOST OFF'}</span>
+          </button>
+          <button
+            data-tauri-drag-region="false"
+            style="--wails-draggable: no-drag;"
             onMouseDown={(e) => { e.stopPropagation(); }}
             onClick={() => handleWindowControl('minimize')}
             class="w-8 h-7 flex items-center justify-center rounded bg-transparent text-val-muted hover:bg-white/10 hover:text-white transition-all text-sm font-black cursor-pointer shadow-sm"
@@ -123,6 +214,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
           </button>
           <button
             data-tauri-drag-region="false"
+            style="--wails-draggable: no-drag;"
             onMouseDown={(e) => { e.stopPropagation(); }}
             onClick={() => handleWindowControl('close')}
             class="w-8 h-7 flex items-center justify-center rounded bg-transparent text-val-muted hover:bg-rose-600 hover:text-white transition-all text-xs font-black cursor-pointer shadow-sm"
@@ -146,7 +238,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
         </div>
 
         {/* Stage Testing Simulator Navigation */}
-        <div class="flex items-center bg-[#070A0F] p-1 rounded-xl border border-white/10 gap-1 text-[11px] font-tactical" data-tauri-drag-region="false" onMouseDown={(e) => e.stopPropagation()}>
+        <div class="flex items-center bg-[#070A0F] p-1 rounded-xl border border-white/10 gap-1 text-[11px] font-tactical" data-tauri-drag-region="false" style="--wails-draggable: no-drag;" onMouseDown={(e) => e.stopPropagation()}>
           <button
             data-tauri-drag-region="false"
             onClick={() => { setActiveStage('home'); setGameMode('Idle Lobby'); }}
