@@ -81,22 +81,9 @@ func main() {
 		BackgroundColour: application.NewRGBA(11, 14, 20, 255),
 	})
 
-	// 4. Register global hotkeys (Alt+V / Alt+T) to toggle HUD overlay visibility
-	toggleVisibility := func() {
-		if window.IsVisible() {
-			window.Hide()
-		} else {
-			window.Show()
-			window.Focus()
-		}
-	}
-
-	if err := app.GlobalShortcut.Register("Alt+V", toggleVisibility); err != nil {
-		log.Printf("Notice: Alt+V global shortcut could not be bound: %v", err)
-	}
-	if err := app.GlobalShortcut.Register("Alt+T", toggleVisibility); err != nil {
-		log.Printf("Notice: Alt+T global shortcut could not be bound: %v", err)
-	}
+	// 4. Register global hotkeys (Alt+V / Alt+T) via HotkeyManager
+	hotkeyManager := NewHotkeyManager(app, window)
+	hotkeyManager.RegisterAll()
 
 	log.Println("VALORANT Tactical Overlay Wails v3 desktop module initialized successfully.")
 

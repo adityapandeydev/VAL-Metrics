@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"sync/atomic"
 
@@ -77,15 +78,32 @@ func (s *OverlayService) ShowWindow() {
 }
 
 // ToggleClickThrough toggles mouse event transparency for in-game HUD mode.
-// Full native Win32 style adjustments are hooked here and expanded in Phase 3.
+// Applies native Win32 extended styles (WS_EX_TRANSPARENT, WS_EX_LAYERED, HWND_TOPMOST)
+// for true pointer bypass into VALORANT, along with Wails runtime mouse event controls.
 func (s *OverlayService) ToggleClickThrough(enable bool) (bool, error) {
 	win := s.getWindow()
-	if win != nil {
-		win.SetIgnoreMouseEvents(enable)
-		s.isClickThrough.Store(enable)
-		win.EmitEvent("click-through-status-changed", enable)
-		log.Printf("[OverlayService] Click-through mode set to: %v", enable)
+	if win == nil {
+		return false, fmt.Errorf("overlay window not available")
 	}
+
+	// 1. Apply native Win32 extended styles for true pointer bypass into VALORANT
+	hwnd := GetHWND(win)
+	if hwnd != 0 {
+		if err := ApplyWin32ClickThrough(hwnd, enable); err != nil {
+			log.Printf("[OverlayService] Warning: ApplyWin32ClickThrough failed: %v", err)
+		}
+	}
+
+	// 2. Also toggle Wails v3 built-in mouse event ignoring
+	win.SetIgnoreMouseEvents(enable)
+
+	// 3. Update internal state
+	s.isClickThrough.Store(enable)
+
+	// 4. Emit event to frontend (listened to by LiveMatchOverlay.tsx for badge state)
+	win.EmitEvent("click-through-status-changed", enable)
+
+	log.Printf("[OverlayService] Click-through mode set to: %v", enable)
 	return enable, nil
 }
 
