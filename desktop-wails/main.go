@@ -4,7 +4,11 @@ import (
 	"embed"
 	"io/fs"
 	"log"
+	"net"
+	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -26,9 +30,17 @@ func configureWebviewHardwareSafety() {
 // resolveAssetFS selects between local dist filesystem (for rapid development)
 // and embedded compiled assets (for standalone single binary production).
 func resolveAssetFS() fs.FS {
-	// If ../frontend/dist exists on disk, serve directly
-	if info, err := os.Stat("../frontend/dist"); err == nil && info.IsDir() {
-		return os.DirFS("../frontend/dist")
+	// Check common relative paths for compiled dist
+	candidates := []string{
+		"frontend/dist",
+		"../frontend/dist",
+		"../../frontend/dist",
+	}
+	for _, p := range candidates {
+		if info, err := os.Stat(p); err == nil && info.IsDir() {
+			log.Printf("[Wails] Serving assets from local filesystem: %s", p)
+			return os.DirFS(p)
+		}
 	}
 
 	// Otherwise serve embedded fallback assets
@@ -43,18 +55,50 @@ func main() {
 	// 1. Enforce Webview hardware acceleration safety before webview runtime initialization
 	configureWebviewHardwareSafety()
 
+	// 2. Automatically detect if Vite dev server is active on http://localhost:1420
+	// When active, Wails v3 AssetFileServerFS proxies directly to the live dev server (with HMR)
+	if os.Getenv("FRONTEND_DEVSERVER_URL") == "" {
+		conn, err := net.DialTimeout("tcp", "127.0.0.1:1420", 250*time.Millisecond)
+		if err == nil {
+			_ = conn.Close()
+			os.Setenv("FRONTEND_DEVSERVER_URL", "http://localhost:1420")
+			log.Println("[Wails] Connected to active Vite dev server at http://localhost:1420")
+		}
+	}
+
 	const windowName = "overlay"
 	overlayService := NewOverlayService(windowName)
 
-	// 2. Initialize the Wails v3 application
+	backendService, err := NewBackendService()
+	if err != nil {
+		log.Fatalf("Failed to initialize embedded backend service: %v", err)
+	}
+
+	// 3. Initialize the Wails v3 application
 	app := application.New(application.Options{
 		Name:        "VAL-Metrics",
 		Description: "VALORANT In-Game Tactical HUD & Performance Intelligence",
 		Services: []application.Service{
 			application.NewService(overlayService),
+			application.NewServiceWithOptions(backendService, application.ServiceOptions{
+				Name:  "BackendService",
+				Route: "/api",
+			}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(resolveAssetFS()),
+			Middleware: func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if strings.HasPrefix(r.URL.Path, "/api/") {
+						backendService.ServeHTTP(w, r)
+						return
+					}
+					next.ServeHTTP(w, r)
+				})
+			},
+		},
+		OnShutdown: func() {
+			backendService.Shutdown()
 		},
 		Windows: application.WindowsOptions{
 			DisabledFeatures: []string{"RendererCodeIntegrity"},

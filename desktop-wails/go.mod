@@ -2,7 +2,12 @@ module github.com/val-metrics/desktop-wails
 
 go 1.25.0
 
-require github.com/wailsapp/wails/v3 v3.0.0-beta.16
+require (
+	github.com/val-metrics/backend v0.0.0
+	github.com/wailsapp/wails/v3 v3.0.0-beta.16
+)
+
+replace github.com/val-metrics/backend => ../backend
 
 require (
 	github.com/adrg/xdg v0.5.3 // indirect

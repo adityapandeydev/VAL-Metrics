@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"sync/atomic"
 
+	"github.com/val-metrics/backend"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -111,3 +114,67 @@ func (s *OverlayService) ToggleClickThrough(enable bool) (bool, error) {
 func (s *OverlayService) IsClickThrough() bool {
 	return s.isClickThrough.Load()
 }
+
+// BackendService exposes the in-process Go backend server to Wails v3,
+// providing HTTP route mounting, automatic lifecycle management,
+// and direct RPC methods for the desktop HUD.
+type BackendService struct {
+	server *backend.EmbeddedServer
+}
+
+// NewBackendService initializes an in-process BackendService instance.
+func NewBackendService() (*BackendService, error) {
+	server, err := backend.NewServer(backend.ServerConfig{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create embedded backend server: %w", err)
+	}
+	return &BackendService{
+		server: server,
+	}, nil
+}
+
+// ServiceStartup satisfies application.ServiceStartup, launching the backend server on desktop start.
+func (s *BackendService) ServiceStartup(ctx context.Context, options application.ServiceOptions) error {
+	log.Println("[BackendService] Starting in-process backend server...")
+	return s.server.Start()
+}
+
+// ServiceShutdown satisfies application.ServiceShutdown, gracefully stopping daemons and database.
+func (s *BackendService) ServiceShutdown() error {
+	log.Println("[BackendService] Shutting down in-process backend server...")
+	return s.server.Stop()
+}
+
+// ServeHTTP satisfies http.Handler so Wails AssetServer can route /api requests in-process.
+func (s *BackendService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if s.server != nil {
+		s.server.ServeHTTP(w, r)
+		return
+	}
+	http.Error(w, "Backend service unavailable", http.StatusServiceUnavailable)
+}
+
+// Shutdown provides a manual shutdown hook for Wails app.OnShutdown.
+func (s *BackendService) Shutdown() {
+	if s.server != nil {
+		_ = s.server.Stop()
+	}
+}
+
+// GetServer returns the underlying EmbeddedServer instance.
+func (s *BackendService) GetServer() *backend.EmbeddedServer {
+	return s.server
+}
+
+// CheckLCU provides direct RPC access to LCU credentials from the frontend without HTTP.
+func (s *BackendService) CheckLCU() map[string]interface{} {
+	if s.server == nil {
+		return map[string]interface{}{"connected": false, "reason": "backend not initialized"}
+	}
+	creds, err := s.server.LocateLCU()
+	if err != nil {
+		return map[string]interface{}{"connected": false, "reason": err.Error()}
+	}
+	return map[string]interface{}{"connected": true, "port": creds.Port, "pid": creds.ProcessID}
+}
+
