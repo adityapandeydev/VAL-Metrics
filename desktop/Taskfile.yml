@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   dev:
-    desc: "Runs desktop-wails in development mode with live frontend devserver"
+    desc: "Runs desktop application in development mode with live frontend devserver"
     cmds:
       - go run .
     env:

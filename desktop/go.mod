@@ -1,4 +1,4 @@
-module github.com/val-metrics/desktop-wails
+module github.com/val-metrics/desktop
 
 go 1.25.0
 

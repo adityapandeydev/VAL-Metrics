@@ -6,10 +6,10 @@
   "scripts": {
     "install:frontend": "npm install --prefix frontend",
     "dev:ui": "npm run dev --prefix frontend",
-    "dev:desktop": "npm run dev --prefix desktop",
     "build:ui": "npm run build --prefix frontend",
-    "build:desktop": "npm run build --prefix desktop",
     "dev:backend": "go run ./backend/cmd/server/main.go",
-    "dev:wails": "go run ./desktop-wails"
+    "build:backend": "go build -o ./bin/val-metrics-server.exe ./backend/cmd/server/main.go",
+    "dev:desktop": "go run ./desktop",
+    "build:desktop": "go build -o ./bin/val-metrics-desktop.exe ./desktop"
   }
 }
