@@ -73,6 +73,9 @@ func loadEnvFiles(filenames ...string) {
 				}
 			}
 		}
+		if err := scanner.Err(); err != nil {
+			log.Printf("[EmbeddedServer] [WARN] Error scanning env file %s: %v", filename, err)
+		}
 		file.Close()
 	}
 }
