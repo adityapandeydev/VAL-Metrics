@@ -49,10 +49,10 @@ export const OverviewTab: Component<Props> = (props) => {
             <div class="flex items-center justify-between gap-4">
               <div>
                 <h3 class="text-2xl sm:text-3xl font-black font-tactical text-white uppercase tracking-wide">
-                  IMMORTAL 2
+                  {props.stats.currentRating || "IMMORTAL 2"}
                 </h3>
                 <span class="text-[11px] font-mono font-bold text-val-emerald uppercase tracking-wider block mt-0.5">
-                  64 RR • Top 0.8% Regional Leaderboard
+                  Top 0.8% Regional Leaderboard
                 </span>
               </div>
 
