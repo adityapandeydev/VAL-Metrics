@@ -12,10 +12,10 @@ func GetSampleMatchlist(puuid string) *MatchlistDTO {
 	seed := hashPUUIDToSeed(puuid)
 	rng := rand.New(rand.NewSource(seed))
 
-	maps := []string{"SUNSET", "ASCENT", "LOTUS", "BIND", "HAVEN", "SPLIT"}
+	maps := []string{"Sunset", "Ascent", "Lotus", "Bind", "Haven", "Split", "Abyss", "Icebox", "Corrode", "Summit"}
 	var history []MatchlistEntryDTO
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 8; i++ {
 		mapName := maps[rng.Intn(len(maps))]
 		matchID := fmt.Sprintf("DEV-VAL-%s-%d-%s", mapName, 100+i, puuid[:4])
 		history = append(history, MatchlistEntryDTO{
@@ -36,8 +36,13 @@ func GetSampleMatchDetails(matchID, puuid string) MatchDTO {
 	seed := hashPUUIDToSeed(puuid + matchID)
 	rng := rand.New(rand.NewSource(seed))
 
-	agents := []string{"Jett", "Reyna", "Raze", "Omen", "Viper", "Sova", "Fade", "Killjoy", "Cypher", "Clove", "Phoenix", "Iso"}
-	maps := []string{"Sunset", "Ascent", "Lotus", "Bind", "Haven", "Split"}
+	agents := []string{
+		"Jett", "Phoenix", "Raze", "Reyna", "Yoru", "Neon", "Iso", "Waylay",
+		"Sova", "Breach", "Skye", "KAY/O", "Fade", "Gekko", "Tejo",
+		"Brimstone", "Viper", "Omen", "Astra", "Harbor", "Clove", "Miks",
+		"Sage", "Cypher", "Killjoy", "Chamber", "Deadlock", "Vyse", "Veto",
+	}
+	maps := []string{"Sunset", "Ascent", "Lotus", "Bind", "Haven", "Split", "Abyss", "Icebox", "Corrode", "Summit"}
 	selectedAgent := agents[rng.Intn(len(agents))]
 	selectedMap := maps[rng.Intn(len(maps))]
 
@@ -57,6 +62,69 @@ func GetSampleMatchDetails(matchID, puuid string) MatchDTO {
 
 	acs := 180 + rng.Intn(160)
 	score := acs * roundsPlayed
+
+	// Generate realistic round results with weapon distributions and hit splits
+	weapons := []string{"Vandal", "Phantom", "Ghost", "Sheriff", "Operator", "Spectre", "Outlaw"}
+	var roundResults []RoundResultDTO
+	for r := 1; r <= roundsPlayed; r++ {
+		roundWonByPlayer := (r <= roundsWon)
+		winningTeam := "Red"
+		if roundWonByPlayer {
+			winningTeam = "Blue"
+		}
+
+		ceremony := ""
+		if roundWonByPlayer && r%5 == 0 {
+			ceremony = "Flawless"
+		} else if roundWonByPlayer && r%7 == 0 {
+			ceremony = "Clutch"
+		}
+
+		wName := weapons[rng.Intn(len(weapons))]
+		hs := rng.Intn(2)
+		body := 1 + rng.Intn(3)
+		leg := 0
+		if rng.Float32() < 0.2 {
+			leg = 1
+		}
+		dmgDealt := (hs * 160) + (body * 40) + (leg * 34)
+
+		var playerKills []KillDTO
+		if rng.Float32() < 0.6 {
+			playerKills = append(playerKills, KillDTO{
+				TimeSinceRoundStartMillis: int64(15000 + rng.Intn(40000)),
+				Killer:                    puuid,
+				Victim:                    "enemy-puuid-placeholder",
+				FinishingDamage: FinishingDamageDTO{
+					DamageType: "Weapon",
+					DamageItem: wName,
+				},
+			})
+		}
+
+		roundResults = append(roundResults, RoundResultDTO{
+			RoundNum:      r,
+			RoundResult:   "Elimination",
+			RoundCeremony: ceremony,
+			WinningTeam:   winningTeam,
+			PlayerStats: []PlayerRoundStatsDTO{
+				{
+					PUUID: puuid,
+					Kills: playerKills,
+					Damage: []DamageDTO{
+						{
+							Receiver:  "enemy-puuid-placeholder",
+							Damage:    dmgDealt,
+							Headshots: hs,
+							Bodyshots: body,
+							Legshots:  leg,
+						},
+					},
+					Score: acs,
+				},
+			},
+		})
+	}
 
 	return MatchDTO{
 		MatchInfo: MatchInfoDTO{
@@ -88,6 +156,7 @@ func GetSampleMatchDetails(matchID, puuid string) MatchDTO {
 				},
 			},
 		},
+		RoundResults: roundResults,
 	}
 }
 

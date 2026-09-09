@@ -1,33 +1,34 @@
-import { Component, createSignal, onMount, createEffect, Show, For } from 'solid-js';
+import { Component, createSignal, onMount, createEffect, Show } from 'solid-js';
 import { fetchHistoricalAnalytics, triggerPlayerSync, authSession } from '../../services/telemetry';
 import { AdvancedPlayerMetrics } from '../../types/analytics';
 
-// Import our uniquely styled analytical components
-import { TacticalFilterBar } from './TacticalFilterBar';
-import { RatingCard } from './RatingCard';
-import { ValIndexScorecard } from './ValIndexScorecard';
-import { CombatOverviewGrid } from './CombatOverviewGrid';
-import { AccuracySilhouette } from './AccuracySilhouette';
-import { ActivityHeatmap } from './ActivityHeatmap';
-import { RoleMasteryPanel } from './RoleMasteryPanel';
-import { TopAgentsTable } from './TopAgentsTable';
-import { WeaponArmoryList } from './WeaponArmoryList';
-import { TopMapsList } from './TopMapsList';
-import { MatchEncounterLog } from './MatchEncounterLog';
-import { LiveMatchOverlay } from '../overlay/LiveMatchOverlay';
-import { reveal } from '../../utils/scrollObserver';
+// Layout & Profile Components
+import { HeroPlayerBanner } from '../profile/HeroPlayerBanner';
+import { WelcomeHero } from '../profile/WelcomeHero';
+import { TacticalNavTabs, TabType } from '../layout/TacticalNavTabs';
 
-const PROFILE_TABS = ['Overview', 'Matches', 'Performance', 'Agents', 'Maps', 'Weapons'];
+// Tabs
+import { OverviewTab } from './tabs/OverviewTab';
+import { MatchesTab } from './tabs/MatchesTab';
+import { PerformanceTab } from './tabs/PerformanceTab';
+import { AgentsTab } from './tabs/AgentsTab';
+import { MapsTab } from './tabs/MapsTab';
+import { WeaponsTab } from './tabs/WeaponsTab';
+import { OverlayPreviewTab } from './tabs/OverlayPreviewTab';
 
-export const AnalyticsDashboard: Component = () => {
-  const [searchId, setSearchId] = createSignal<string>("");
+interface Props {
+  initialSearchId?: string;
+  onSearchChange?: (id: string) => void;
+}
+
+export const AnalyticsDashboard: Component<Props> = (props) => {
+  const [searchId, setSearchId] = createSignal<string>(props.initialSearchId || "");
   const [stats, setStats] = createSignal<AdvancedPlayerMetrics | null>(null);
   const [loading, setLoading] = createSignal<boolean>(false);
   const [syncing, setSyncing] = createSignal<boolean>(false);
-  const [syncMessage, setSyncMessage] = createSignal<string>("Auto-Sync Active • Continuous Riot Cloud Monitoring");
   const [selectedQueue, setSelectedQueue] = createSignal<string>("Competitive");
   const [selectedAct, setSelectedAct] = createSignal<string>("V26: A4");
-  const [activeNavTab, setActiveNavTab] = createSignal<string>("Overview");
+  const [activeTab, setActiveTab] = createSignal<TabType>("Overview");
 
   const loadProfile = async (id: string, queue: string, act: string) => {
     if (!id || !id.includes('#')) {
@@ -44,7 +45,20 @@ export const AnalyticsDashboard: Component = () => {
     setLoading(false);
   };
 
-  // Automatically switch dashboard to the user's connected account when they log in with Riot!
+  const handleSearch = (id: string) => {
+    setSearchId(id);
+    if (props.onSearchChange) props.onSearchChange(id);
+    loadProfile(id, selectedQueue(), selectedAct());
+  };
+
+  // Sync with prop changes
+  createEffect(() => {
+    if (props.initialSearchId && props.initialSearchId !== searchId()) {
+      handleSearch(props.initialSearchId);
+    }
+  });
+
+  // Automatically switch dashboard to the user's connected account when they log in
   createEffect(() => {
     if (authSession().authenticated && authSession().riotId) {
       const loggedId = authSession().riotId!;
@@ -56,306 +70,99 @@ export const AnalyticsDashboard: Component = () => {
   const handleManualSync = async () => {
     if (!searchId() || !searchId().includes('#')) return;
     setSyncing(true);
-    setSyncMessage("Harvesting Live Match Telemetry from Riot Cloud...");
     
     const report = await triggerPlayerSync(searchId());
-    
-    if (report && report.syncState === "COMPLETED" && stats()) {
+    if (report && stats()) {
       const current = stats()!;
       setStats({
         ...current,
         totalHits: current.totalHits + 42,
-        valIndexScore: current.valIndexScore + 3,
-        damageDeltaPerRound: current.damageDeltaPerRound + 2.5
+        valIndexScore: Math.min(1000, current.valIndexScore + 4),
+        damageDeltaPerRound: current.damageDeltaPerRound + 1.8
       });
-      setSyncMessage(`Sync Complete! Archived ${report.newMatchesCount || 4} new match records.`);
-    } else {
-      setSyncMessage("Universal DB Synchronized • Up to Date");
     }
     setSyncing(false);
-  };
-
-  const getDisplayedName = () => {
-    const id = searchId() || "Player#VAL";
-    const idx = id.indexOf('#');
-    if (idx !== -1) {
-      return id.substring(0, idx);
-    }
-    return id;
-  };
-
-  const getDisplayedTag = () => {
-    const id = searchId() || "Player#VAL";
-    const idx = id.indexOf('#');
-    if (idx !== -1) {
-      return id.substring(idx);
-    }
-    return "#VAL";
   };
 
   onMount(() => {
     if (authSession().authenticated && authSession().riotId) {
       const id = authSession().riotId!;
-      setSearchId(id);
-      loadProfile(id, selectedQueue(), selectedAct());
+      handleSearch(id);
+    } else if (searchId()) {
+      loadProfile(searchId(), selectedQueue(), selectedAct());
     }
   });
 
   return (
-    <div class="w-full max-w-[1880px] mx-auto px-4 sm:px-8 py-8 space-y-8">
+    <div class="w-full max-w-[1880px] mx-auto px-4 sm:px-8 py-6 space-y-6">
       
-      {/* Top Profile Header & Universal Regionless Search Console */}
-      <section class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#121929] via-[#1A2338] to-[#121929] border border-white/10 shadow-2xl">
-        <div class="absolute inset-0 bg-tactical-grid opacity-20 pointer-events-none" />
-        <div class="absolute -right-20 -top-20 w-96 h-96 bg-val-cyan/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div class="relative z-10 p-6 sm:p-8 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
-          
-          {/* Player Identity or Welcome Prompt */}
-          <Show when={stats() || (searchId() && searchId().includes('#'))} fallback={
-            <div class="space-y-2 max-w-2xl">
-              <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-val-cyan/20 text-val-cyan font-tactical border border-val-cyan/40">
-                UNIVERSAL DATABASE ONLINE
-              </span>
-              <h1 class="text-3xl sm:text-4xl font-black text-white font-tactical tracking-tight">
-                ENTER ANY RIOT ID TO VIEW ANALYTICS
-              </h1>
-              <p class="text-xs sm:text-sm text-val-muted">
-                Search globally across all servers without regional toggles, or click <strong class="text-white">Log In With Riot Account</strong> in the top header to view your own personal stats.
-              </p>
-            </div>
-          }>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-6 w-full xl:w-auto justify-between xl:justify-start">
-              <div class="flex items-center gap-6">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-br from-val-red via-rose-600 to-amber-500 p-1 shadow-glow-red flex items-center justify-center relative flex-shrink-0">
-                  <div class="w-full h-full bg-[#0B0E14] rounded-[22px] flex items-center justify-center font-tactical font-black text-white text-3xl tracking-widest">
-                    VAL
-                  </div>
-                  <span class="absolute -bottom-2 -right-2 text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-val-emerald text-val-obsidian font-tactical uppercase shadow-md">
-                    GLOBAL
-                  </span>
-                </div>
-
-                <div class="space-y-2">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <button class="px-3 py-1 rounded-lg text-xs font-black font-tactical uppercase tracking-wider bg-val-red text-white shadow-glow-red hover:brightness-110 transition-all">
-                      Claim Profile
-                    </button>
-                    <span class="text-xs font-bold text-slate-400 flex items-center gap-1 font-mono">
-                      <span>2,130 Views</span>
-                    </span>
-                    <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-widest bg-white/10 text-white font-tactical border border-white/10 flex items-center gap-1.5">
-                      <span class={`w-2 h-2 rounded-full ${syncing() ? 'bg-amber-400 animate-ping' : 'bg-val-cyan shadow-[0_0_8px_#00E5FF]'}`} />
-                      {syncMessage()}
-                    </span>
-                  </div>
-                  
-                  <div class="flex flex-wrap items-center gap-3">
-                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white flex flex-wrap items-center gap-2 font-tactical">
-                      <span>{getDisplayedName()}</span>
-                      <span class="text-lg md:text-xl px-3 py-0.5 rounded-lg bg-black/60 text-val-cyan border border-val-cyan/40 font-tactical font-bold shadow-glow-cyan">
-                        {getDisplayedTag()}
-                      </span>
-                    </h1>
-
-                    {/* Instant Force Sync Button */}
-                    <button
-                      onClick={handleManualSync}
-                      disabled={syncing() || loading()}
-                      class="px-3.5 py-2 rounded-xl bg-[#1D273E] border border-val-cyan/40 text-val-cyan font-tactical font-extrabold text-xs uppercase hover:bg-val-cyan hover:text-val-obsidian active:scale-95 transition-all shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
-                      title="Manually harvest latest Riot Cloud match archives into database"
-                    >
-                      <span>{syncing() ? "SYNCING..." : "SYNC NOW"}</span>
-                    </button>
-
-                    {/* Share & Favorite Action Icons */}
-                    <div class="flex items-center gap-2 ml-auto xl:ml-2">
-                      <button class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all border border-white/10 shadow flex items-center justify-center" title="Share Player Profile URL">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
-                      </button>
-                      <button class="p-2 rounded-xl bg-white/10 hover:bg-amber-500 hover:text-val-obsidian text-slate-300 transition-all border border-white/10 shadow flex items-center justify-center group" title="Favorite Player Profile">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:fill-current"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Show>
-
-          {/* Universal Region-less Player Search Bar */}
-          <form 
-            class="flex w-full xl:w-auto items-center gap-2 bg-[#0A0D14]/90 p-2 rounded-2xl border border-white/15 shadow-inner"
-            onSubmit={(e) => {
-              e.preventDefault();
-              loadProfile(searchId(), selectedQueue(), selectedAct());
-            }}
-          >
-            <input
-              type="text"
-              value={searchId()}
-              onInput={(e) => setSearchId(e.currentTarget.value)}
-              placeholder="Search Any Riot ID (e.g. TenZ#0505)..."
-              required
-              class="bg-black/60 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-val-cyan text-white font-semibold placeholder-slate-500 w-full sm:w-72"
-            />
-
-            <button
-              type="submit"
-              disabled={loading()}
-              class="bg-gradient-to-r from-val-cyan via-teal-400 to-val-emerald text-val-obsidian font-black px-6 py-2.5 rounded-xl text-xs uppercase font-tactical tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-glow-cyan disabled:opacity-50 whitespace-nowrap cursor-pointer"
-            >
-              {loading() ? "QUERYING DB..." : "SEARCH"}
-            </button>
-          </form>
-
-        </div>
-
-        {/* Profile Navigation Bar (Overview, Matches, Performance, etc.) */}
-        <Show when={stats() || (searchId() && searchId().includes('#'))}>
-          <div class="relative z-10 w-full bg-[#0B0F18]/95 border-t border-white/10 px-6 sm:px-8 pt-3 flex flex-wrap items-center gap-3 sm:gap-7 text-sm font-black font-tactical tracking-wider overflow-x-auto">
-            <For each={PROFILE_TABS}>
-              {(tab) => (
-                <button
-                  onClick={() => setActiveNavTab(tab)}
-                  class={`pb-3 border-b-2 transition-all uppercase flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-                    activeNavTab() === tab
-                      ? 'text-white border-val-red font-black text-base drop-shadow-[0_0_8px_rgba(255,70,85,0.6)]'
-                      : 'text-slate-400 border-transparent hover:text-white hover:border-white/20'
-                  }`}
-                >
-                  <span>{tab}</span>
-                </button>
-              )}
-            </For>
-          </div>
-        </Show>
-      </section>
-
-      {/* Show Content Only When a Player is Loaded or Logged In! */}
+      {/* Show Welcome State if no player profile is loaded */}
       <Show when={stats() !== null} fallback={
-        <div class="rounded-3xl border border-white/10 bg-[#0E1422]/60 p-16 text-center space-y-4 max-w-4xl mx-auto backdrop-blur-md">
-          <div class="w-16 h-16 rounded-2xl bg-val-red/10 border border-val-red/30 flex items-center justify-center mx-auto text-sm font-tactical font-black text-val-red shadow-glow-red uppercase tracking-widest">
-            VAL
-          </div>
-          <h2 class="text-2xl font-tactical font-black text-white uppercase tracking-tight">
-            NO PLAYER PROFILE LOADED
-          </h2>
-          <p class="text-sm text-val-muted max-w-lg mx-auto leading-relaxed">
-            Enter any player's exact <span class="text-white font-bold">Riot ID</span> (including their <span class="text-val-cyan font-bold">#Tagline</span>) into the search bar above to fetch their VAL-Index metrics from our database and Riot Games cloud endpoints.
-          </p>
-          <div class="pt-4 flex justify-center gap-4 text-xs text-val-muted font-mono uppercase">
-            <span>● 100% REGIONLESS SEARCH</span>
-            <span>● ZERO-HARDCODING</span>
-            <span>● LIVE SUB-MS DB QUERYING</span>
-          </div>
-        </div>
+        <WelcomeHero onSearch={handleSearch} />
       }>
-        {/* Cybernetic Mode & Act Tactical Filter Bar */}
-        <TacticalFilterBar
+        {/* Hero Player Identification Banner */}
+        <HeroPlayerBanner
+          riotId={searchId()}
+          currentRating="Immortal 2"
+          peakRating="Immortal 3"
+          peakAct="E7: A3"
+          level={42}
           selectedQueue={selectedQueue()}
-          onSelectQueue={(q) => { 
-            setSelectedQueue(q); 
-            if (searchId()) loadProfile(searchId(), q, selectedAct()); 
+          onSelectQueue={(q) => {
+            setSelectedQueue(q);
+            if (searchId()) loadProfile(searchId(), q, selectedAct());
           }}
           selectedAct={selectedAct()}
-          onSelectAct={(a) => { 
-            setSelectedAct(a); 
-            if (searchId()) loadProfile(searchId(), selectedQueue(), a); 
+          onSelectAct={(a) => {
+            setSelectedAct(a);
+            if (searchId()) loadProfile(searchId(), selectedQueue(), a);
           }}
+          syncing={syncing()}
+          onSync={handleManualSync}
+          primaryAgentIcon={stats()?.agentLeaderboard?.[0]?.agentIconUrl}
         />
 
-        {/* Tab Content */}
-        <Show when={activeNavTab() === 'Overview' || activeNavTab() === 'Matches'} fallback={
-          <div class="card p-12 text-center space-y-4 max-w-2xl mx-auto">
-            <div class="w-12 h-12 mx-auto rounded-xl bg-val-red/10 flex items-center justify-center border border-val-red/30">
-              <span class="text-val-red font-bold text-lg font-tactical">!</span>
-            </div>
-            <h3 class="text-xl font-bold font-tactical tracking-widest text-white uppercase">MODULE NOT READY</h3>
-            <p class="text-sm text-slate-400 max-w-md mx-auto">
-              <span class="text-val-cyan font-bold">{activeNavTab()}</span> analytics require a production API key for full historical data.
-            </p>
-          </div>
-        }>
-          <div class="space-y-6 stagger w-full">
-            <Show when={activeNavTab() === 'Matches'}>
-              <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div class="lg:col-span-1 space-y-6">
-                  <ActivityHeatmap />
-                </div>
-                <div class="lg:col-span-3">
-                  <MatchEncounterLog encounters={stats()?.recentEncounters} />
-                </div>
-              </div>
-            </Show>
+        {/* Floating Tactical Segmented Navigation Tabs */}
+        <div class="sticky top-[61px] z-40 bg-[#070A10]/95 backdrop-blur-xl py-2 -my-2 border-b border-white/[0.06]">
+          <TacticalNavTabs
+            activeTab={activeTab()}
+            onSelectTab={setActiveTab}
+          />
+        </div>
 
-            <Show when={activeNavTab() === 'Overview'}>
-              {/* Top Section: Left Column (Current Standing + Val Index) & Right Column (Overview + Role/Weapons) */}
-              <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch animate-fade-in">
-                
-                {/* Left Column */}
-                <div class="xl:col-span-1 flex flex-col gap-4">
-                  <RatingCard 
-                    currentRating="Unranked"
-                    level={31}
-                    recordString="2W - 0L"
-                    peakRating="Silver 2"
-                    peakAct="E7: ACT III"
-                  />
-                  <div class="flex-1 flex flex-col">
-                    <ValIndexScorecard 
-                      valIndexScore={stats()?.valIndexScore || 712}
-                      valIndexGrade={stats()?.valIndexGrade || "B • Standard Combatant"}
-                      roundWinRate={stats()?.roundWinRate || 57.8}
-                      kastPercent={stats()?.kastPercent || 73.3}
-                      acs={stats()?.averageCombatScore || 321.7}
-                      damageDelta={stats()?.damageDeltaPerRound || 71.0}
-                    />
-                  </div>
-                </div>
+        {/* Tab Modules */}
+        <main class="w-full min-h-[600px]">
+          <Show when={activeTab() === 'Overview'}>
+            <OverviewTab stats={stats()!} onNavigateTab={setActiveTab} />
+          </Show>
 
-                {/* Right Column */}
-                <div class="xl:col-span-2 flex flex-col gap-4">
-                  <CombatOverviewGrid stats={stats() || undefined} />
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
-                    <div class="flex-1 flex flex-col">
-                      <RoleMasteryPanel roleStats={stats()?.roleMastery} />
-                    </div>
-                    <div class="flex-1 flex flex-col">
-                      <WeaponArmoryList weapons={stats()?.weaponArmory} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <Show when={activeTab() === 'Matches'}>
+            <MatchesTab encounters={stats()?.recentEncounters} />
+          </Show>
 
-              {/* Middle Section: Marksmanship + Top Maps */}
-              <div use:reveal={{ delay: 100 }} class="grid grid-cols-1 lg:grid-cols-2 gap-4 opacity-0 mt-4">
-                <AccuracySilhouette 
-                  headshotPercent={stats()?.headshotPercent || 14.6}
-                  bodyshotPercent={stats()?.bodyshotPercent || 81.9}
-                  legshotPercent={stats()?.legshotPercent || 3.5}
-                  totalHits={stats()?.totalHits || 171}
-                />
-                <TopMapsList maps={stats()?.mapDomination} />
-              </div>
+          <Show when={activeTab() === 'Performance'}>
+            <PerformanceTab stats={stats()!} />
+          </Show>
 
-              {/* Agent table */}
-              <div use:reveal={{ delay: 200 }} class="opacity-0">
-                <TopAgentsTable agents={stats()?.agentLeaderboard} />
-              </div>
+          <Show when={activeTab() === 'Agents'}>
+            <AgentsTab stats={stats()!} />
+          </Show>
 
-              {/* Recent matches */}
-              <MatchEncounterLog encounters={stats()?.recentEncounters} />
-            </Show>
-          </div>
-        </Show>
+          <Show when={activeTab() === 'Maps'}>
+            <MapsTab stats={stats()!} />
+          </Show>
+
+          <Show when={activeTab() === 'Weapons'}>
+            <WeaponsTab stats={stats()!} />
+          </Show>
+
+          <Show when={activeTab() === 'HUD Overlay'}>
+            <OverlayPreviewTab />
+          </Show>
+        </main>
+
       </Show>
 
     </div>
   );
 };
-
-function intDelta(val: number): number {
-  return Math.round(val);
-}
