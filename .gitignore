@@ -11,4 +11,5 @@ gen/
 .system_generated/
 In-game Overlay Images
 docs
-data
+/data/
+backend/data/
