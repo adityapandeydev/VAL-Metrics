@@ -179,8 +179,9 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
             ● SNAPPY DB & LCU ONLINE
           </span>
           <Show when={isClickThrough()}>
-            <span class="ml-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[9px] font-extrabold uppercase tracking-wider animate-pulse">
-              ⚡ CLICK-THROUGH ACTIVE
+            <span class="ml-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[9px] font-extrabold uppercase tracking-wider animate-pulse flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" />
+              CLICK-THROUGH ACTIVE
             </span>
           </Show>
         </div>
@@ -192,14 +193,14 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
             style="--wails-draggable: no-drag;"
             onMouseDown={(e) => { e.stopPropagation(); }}
             onClick={toggleClickThrough}
-            class={`px-2 h-7 flex items-center gap-1.5 rounded text-[11px] font-tactical font-bold transition-all cursor-pointer shadow-sm border ${
+            class={`px-2.5 h-7 flex items-center gap-1.5 rounded text-[11px] font-tactical font-bold transition-all cursor-pointer shadow-sm border ${
               isClickThrough()
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
                 : 'bg-transparent text-val-muted border-white/10 hover:bg-white/10 hover:text-white'
             }`}
             title="Toggle pointer click-through (Alt+V / Alt+T)"
           >
-            <span>🎯</span>
+            <span class={`w-1.5 h-1.5 rounded-full transition-all ${isClickThrough() ? 'bg-amber-400 shadow-[0_0_8px_#fbbf24] animate-pulse' : 'bg-val-muted'}`} />
             <span class="hidden sm:inline">{isClickThrough() ? 'GHOST ON' : 'GHOST OFF'}</span>
           </button>
           <button
@@ -242,30 +243,30 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
           <button
             data-tauri-drag-region="false"
             onClick={() => { setActiveStage('home'); setGameMode('Idle Lobby'); }}
-            class={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${activeStage() === 'home' ? 'bg-val-cyan text-val-obsidian shadow-glow-cyan font-black' : 'text-val-muted hover:text-white'}`}
+            class={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer tracking-wider ${activeStage() === 'home' ? 'bg-val-cyan text-val-obsidian shadow-glow-cyan font-black' : 'text-val-muted hover:text-white'}`}
           >
-            🏡 HOME
+            HOME
           </button>
           <button
             data-tauri-drag-region="false"
             onClick={() => { setActiveStage('agent_select'); setGameMode('Competitive'); }}
-            class={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${activeStage() === 'agent_select' ? 'bg-val-gold text-val-obsidian font-black' : 'text-val-muted hover:text-white'}`}
+            class={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer tracking-wider ${activeStage() === 'agent_select' ? 'bg-val-gold text-val-obsidian font-black' : 'text-val-muted hover:text-white'}`}
           >
-            🎭 AGENT SELECT
+            AGENT SELECT
           </button>
           <button
             data-tauri-drag-region="false"
             onClick={() => { setActiveStage('live_team'); setGameMode('Competitive'); }}
-            class={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${activeStage() === 'live_team' ? 'bg-val-red text-white shadow-glow-red font-black' : 'text-val-muted hover:text-white'}`}
+            class={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer tracking-wider ${activeStage() === 'live_team' ? 'bg-val-red text-white shadow-glow-red font-black' : 'text-val-muted hover:text-white'}`}
           >
-            ⚔️ LIVE 5V5 MATCH
+            LIVE 5V5 MATCH
           </button>
           <button
             data-tauri-drag-region="false"
             onClick={() => { setActiveStage('live_ffa'); setGameMode('Deathmatch'); }}
-            class={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${activeStage() === 'live_ffa' ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)] font-black' : 'text-val-muted hover:text-white'}`}
+            class={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer tracking-wider ${activeStage() === 'live_ffa' ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)] font-black' : 'text-val-muted hover:text-white'}`}
           >
-            🎯 DEATHMATCH / FFA
+            DEATHMATCH / FFA
           </button>
         </div>
       </div>
@@ -324,7 +325,8 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
             <div class="bg-[#111726]/90 p-5 rounded-2xl border border-white/10 flex flex-col justify-between shadow-xl">
               <div>
                 <h3 class="text-sm font-black font-tactical text-white flex items-center gap-2">
-                  <span>🛡️</span> DESKTOP OVERLAY CAPABILITIES
+                  <span class="w-1.5 h-4 bg-val-cyan rounded-full shadow-glow-cyan" />
+                  DESKTOP OVERLAY CAPABILITIES
                 </h3>
                 <ul class="mt-4 space-y-2.5 text-xs">
                   <li class="flex items-center gap-2.5 bg-white/5 p-2.5 rounded-xl border border-white/5 text-val-muted">
@@ -341,8 +343,9 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                   </li>
                 </ul>
               </div>
-              <div class="mt-4 p-3 rounded-xl bg-gradient-to-r from-val-red/20 via-rose-600/10 to-transparent border border-val-red/30 text-[11px] text-rose-300 font-mono">
-                ⚡ READY FOR RIOT PRODUCTION API DEPLOYMENT
+              <div class="mt-4 p-3 rounded-xl bg-gradient-to-r from-val-red/20 via-rose-600/10 to-transparent border border-val-red/30 text-[11px] text-rose-300 font-mono flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-val-red animate-pulse shrink-0" />
+                <span>READY FOR RIOT PRODUCTION API DEPLOYMENT</span>
               </div>
             </div>
           </div>
@@ -391,7 +394,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                           </td>
                           {player.isPrivate ? (
                             <td colSpan={7} class="text-center py-1.5 text-[11px] text-val-muted font-tactical italic tracking-wider bg-black/20 rounded-lg">
-                              🔒 PROFILE SET TO PRIVATE • RSO UNLINKED
+                              RESTRICTED: PROFILE SET TO PRIVATE • RSO UNLINKED
                             </td>
                           ) : (
                             <>
@@ -410,8 +413,9 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                   </tbody>
                 </table>
               </div>
-              <div class="text-[10px] text-val-muted border-t border-white/5 pt-1.5 text-right font-mono">
-                ⚡ All players scanned in <span class="text-val-emerald font-bold">14ms</span> via local LCU cache
+              <div class="text-[10px] text-val-muted border-t border-white/5 pt-1.5 text-right font-mono flex items-center justify-end gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-val-emerald" />
+                <span>All players scanned in <strong class="text-val-emerald">14ms</strong> via local LCU cache</span>
               </div>
             </div>
 
@@ -420,8 +424,9 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
               <div>
                 <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
                   <div>
-                    <h3 class="text-sm font-black font-tactical text-val-cyan tracking-wider flex items-center gap-1.5">
-                      <span>👑</span> MY TOP AGENTS
+                    <h3 class="text-sm font-black font-tactical text-val-cyan tracking-wider flex items-center gap-2">
+                      <span class="w-1.5 h-4 bg-val-cyan rounded-full shadow-glow-cyan" />
+                      MY TOP AGENTS
                     </h3>
                     <p class="text-[10px] text-val-muted uppercase font-bold">
                       {selectedMap()} Competitive • Act V26:A4
@@ -470,7 +475,8 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
               </div>
 
               <div class="pt-2 border-t border-white/10 text-center text-[11px] text-slate-400">
-                💡 On <strong class="text-val-cyan">{selectedMap()}</strong>, your Omen wins +14.3% more rounds than Duelist picks.
+                <span class="text-val-gold font-bold uppercase font-mono mr-1">TACTICAL INSIGHT:</span>
+                On <strong class="text-val-cyan">{selectedMap()}</strong>, your Omen wins +14.3% more rounds than Duelist picks.
               </div>
             </div>
 
@@ -513,7 +519,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                         </td>
                         {player.isPrivate ? (
                           <td colSpan={7} class="text-center py-2.5 text-val-muted font-tactical text-xs italic tracking-wider">
-                            🔒 PROFILE SET TO PRIVATE
+                            RESTRICTED: PROFILE SET TO PRIVATE
                           </td>
                         ) : (
                           <>
@@ -535,8 +541,9 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
 
             {/* CENTRAL MATCHUP COMPARISON BAR */}
             <div class="w-full bg-[#080B12] px-6 py-2 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-2 shadow-lg shrink-0">
-              <span class="text-xs font-black font-tactical text-val-gold uppercase tracking-widest">
-                ⚔️ LIVE COMBAT DIFFERENTIALS
+              <span class="text-xs font-black font-tactical text-val-gold uppercase tracking-widest flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-val-gold shadow-[0_0_8px_#eab308]" />
+                LIVE COMBAT DIFFERENTIALS
               </span>
               <div class="flex items-center gap-6 font-mono text-xs">
                 <div class="flex items-center gap-1.5">
@@ -588,7 +595,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                         </td>
                         {player.isPrivate ? (
                           <td colSpan={7} class="text-center py-2.5 text-val-muted font-tactical text-xs italic tracking-wider">
-                            🔒 PROFILE SET TO PRIVATE
+                            RESTRICTED: PROFILE SET TO PRIVATE
                           </td>
                         ) : (
                           <>
@@ -645,7 +652,7 @@ export const LiveMatchOverlay: Component<Props> = (props) => {
                       </td>
                       {player.isPrivate ? (
                         <td colSpan={7} class="text-center py-3.5 text-val-muted font-tactical text-xs italic tracking-wider">
-                          🔒 PROFILE SET TO PRIVATE
+                          RESTRICTED: PROFILE SET TO PRIVATE
                         </td>
                       ) : (
                         <>
