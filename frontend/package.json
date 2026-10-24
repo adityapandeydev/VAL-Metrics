@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test:tracker": "node scripts/test-tracker.mjs",
     "build": "vite build && node scripts/generate-redirects.js",
     "serve": "vite preview"
   },
