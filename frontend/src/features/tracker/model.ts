@@ -7,6 +7,7 @@ export interface Encounter {
   rounds?: number; time: string;
 }
 export interface PlayerView {
+  details?: AdvancedPlayerMetrics;
   name: string; source: string; matches: Encounter[];
   summary: { total: number; wins: number; kd: number; adr: number; hs: number; acs: number; kast: number };
   agents: { name: string; matches: number; winRate: number; kd: number }[];
@@ -35,6 +36,7 @@ export function summarize(matches: Encounter[]) {
 }
 export function fromServer(s: AdvancedPlayerMetrics): PlayerView {
   return {
+    details: s,
     name: s.riotId, source: s.dataSource || 'Server response · source unspecified',
     summary: { total: s.totalMatches, wins: s.wins, kd: s.kdRatio, adr: s.damagePerRound, hs: s.headshotPercent, acs: s.averageCombatScore, kast: s.kastPercent },
     matches: s.recentEncounters.map(m => {

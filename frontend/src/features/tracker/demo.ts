@@ -1,4 +1,5 @@
 import { Encounter, PlayerView, summarize } from './model';
+import type { AdvancedPlayerMetrics } from '../../types/analytics';
 
 const rows = [
   ['Haven','Omen',13,9,21,14,9,166,264,31,83,4,5,'38 min'],
@@ -22,5 +23,23 @@ export function demoPlayer(count: number): PlayerView {
     const subset = matches.filter(m => m[key] === name);
     return { name, matches: subset.length, winRate: subset.filter(m => m.win).length / subset.length * 100, kd: summarize(subset).kd };
   });
-  return { name:'Ghost#PLAY', source:'Sample data', matches, summary:summarize(matches), agents:group('agent'), maps:group('map'), weapons:[] };
+  const summary = summarize(matches);
+  const kills = matches.reduce((n,m)=>n+m.k,0), deaths=matches.reduce((n,m)=>n+m.d,0), assists=matches.reduce((n,m)=>n+m.a,0);
+  const rounds=matches.reduce((n,m)=>n+m.rounds!,0);
+  const hits=matches.reduce((n,m)=>n+m.k*6,0), headshots=Math.round(hits*summary.hs/100), legshots=Math.round(hits*.06), bodyshots=hits-headshots-legshots;
+  const weapons=[{name:'Vandal',kills:Math.round(kills*.55),hs:34},{name:'Phantom',kills:Math.round(kills*.25),hs:23},{name:'Ghost',kills:Math.round(kills*.12),hs:38}];
+  weapons.push({name:'Sheriff',kills:kills-weapons.reduce((n,w)=>n+w.kills,0),hs:45});
+  const agents=group('agent'), maps=group('map');
+  const details: AdvancedPlayerMetrics = {
+    riotId:'Ghost#PLAY',puuid:'demo',dataSource:'Synthetic sample',selectedAct:'Sample history',selectedQueue:'Competitive',playtimeHours:matches.reduce((n,m)=>n+parseInt(m.time),0)/60,
+    totalMatches:matches.length,wins:summary.wins,losses:matches.length-summary.wins,winRate:summary.wins/Math.max(1,matches.length)*100,
+    kills,deaths,assists,kdRatio:summary.kd,kadRatio:(kills+assists)/Math.max(1,deaths),killsPerRound:kills/rounds,damagePerRound:summary.adr,damageDeltaPerRound:18,averageCombatScore:summary.acs,kastPercent:summary.kast,
+    firstBloods:matches.reduce((n,m)=>n+m.openingWins!,0),flawlessRounds:matches.length,aces:0,clutches:Math.floor(matches.length/3),valIndexScore:0,valIndexGrade:'',roundWinRate:matches.reduce((n,m)=>n+Number(m.score.split(':')[0]),0)/rounds*100,
+    totalHits:hits,headshots,bodyshots,legshots,headshotPercent:headshots/hits*100,bodyshotPercent:bodyshots/hits*100,legshotPercent:legshots/hits*100,
+    roleMastery:Object.fromEntries(agents.map(a=>{const role=a.name==='Omen'?'Controller':a.name==='Sova'?'Initiator':'Sentinel';const ms=matches.filter(m=>m.agent===a.name);return [role,{roleName:role,matches:a.matches,winRate:a.winRate,kdRatio:a.kd,adr:summarize(ms).adr}];})),
+    agentLeaderboard:agents.map(a=>{const ms=matches.filter(m=>m.agent===a.name),s=summarize(ms);const best=[...new Set(ms.map(m=>m.map))].map(name=>{const played=ms.filter(m=>m.map===name);return {name,winRate:played.filter(m=>m.win).length/played.length*100};}).sort((a,b)=>b.winRate-a.winRate)[0];return {agentName:a.name,agentIconUrl:'',role:a.name==='Omen'?'Controller':a.name==='Sova'?'Initiator':'Sentinel',matchesPlayed:a.matches,playtimeHours:ms.reduce((n,m)=>n+parseInt(m.time),0)/60,winRate:a.winRate,kdRatio:a.kd,adr:s.adr,acs:s.acs,damageDelta:18,bestMapName:best?.name||'',bestMapWinRate:best?.winRate||0};}),
+    mapDomination:maps.map(m=>({mapName:m.name,matchesPlayed:m.matches,winRate:m.winRate,recordString:`${Math.round(m.matches*m.winRate/100)}W · ${m.matches-Math.round(m.matches*m.winRate/100)}L`})),
+    weaponArmory:weapons.map(w=>({weaponName:w.name,category:w.name==='Vandal'||w.name==='Phantom'?'Rifle':'Sidearm',totalKills:w.kills,headshotPercent:w.hs,bodyshotPercent:100-w.hs-5,legshotPercent:5})),recentEncounters:[],
+  };
+  return { name:'Ghost#PLAY', source:'Sample data', matches, summary, agents, maps, weapons, details };
 }

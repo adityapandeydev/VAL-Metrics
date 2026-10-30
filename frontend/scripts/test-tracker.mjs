@@ -29,5 +29,11 @@ try {
   assert.equal(six.summary.total, 6);
   assert.equal(six.agents.reduce((sum,a) => sum+a.matches,0),6);
   assert.equal(six.maps.reduce((sum,m) => sum+m.matches,0),6);
+  const details = six.details;
+  assert.equal(details.weaponArmory.reduce((n,w)=>n+w.totalKills,0), details.kills);
+  assert.equal(details.headshots+details.bodyshots+details.legshots,details.totalHits);
+  assert.equal(details.agentLeaderboard.reduce((n,a)=>n+a.matchesPlayed,0),6);
+  assert.equal(Object.values(details.roleMastery).reduce((n,r)=>n+r.matches,0),6);
+  assert.ok(Math.abs(details.headshotPercent+details.bodyshotPercent+details.legshotPercent-100)<.001);
   console.log('Tracker model: scoring, missing inputs, bounds, and sample aggregates passed.');
 } finally { await rm(temp, { recursive:true, force:true }); }
