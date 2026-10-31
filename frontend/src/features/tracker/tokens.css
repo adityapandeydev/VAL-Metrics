@@ -1,0 +1,32 @@
+/* Application design tokens. Skills and inspection artifacts live outside this repository. */
+:root {
+  --color-paper: oklch(17% 0.008 255);
+  --color-paper-2: oklch(21% 0.009 255);
+  --color-paper-3: oklch(25% 0.01 255);
+  --color-paper-4: oklch(30% 0.012 255);
+  --color-ink: oklch(95% 0.005 70);
+  --color-ink-2: oklch(80% 0.008 255);
+  --color-muted: oklch(72% 0.012 255);
+  --color-rule: oklch(39% 0.012 255);
+  --color-field-edge: oklch(59% 0.012 255);
+  --color-accent: #ff7855;
+  --color-accent-ink: oklch(18% 0.02 40);
+  --color-focus: oklch(80% 0.15 45);
+  --color-win: #81e0b4;
+  --color-loss: #ff969a;
+  --color-win-paper: oklch(23% 0.025 155);
+  --color-loss-paper: oklch(23% 0.025 20);
+  --color-scrim: oklch(10% 0.008 255 / 0.8);
+  --color-shadow: oklch(8% 0.008 255 / 0.4);
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px;
+  --space-sm: 12px; --space-md: 16px; --space-lg: 24px;
+  --space-xl: 40px; --space-2xl: 64px;
+  --text-xs: 12px; --text-sm: 14px; --text-md: 16px;
+  --text-lg: 18px; --text-xl: 22px; --text-2xl: 26px; --text-3xl: 32px;
+  --radius-control: 4px; --radius-card: 8px; --radius-dialog: 12px;
+  --container: 1520px; --profile-width: 236px; --intel-width: 244px;
+  --dur-micro: 120ms; --dur-short: 220ms;
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
