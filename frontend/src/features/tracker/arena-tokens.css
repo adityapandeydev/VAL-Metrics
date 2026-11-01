@@ -1,0 +1,34 @@
+/* Current application tokens. The retired dossier styles are not imported. */
+:root {
+  --color-paper: #0b101b;
+  --color-paper-2: #131d2c;
+  --color-paper-3: #19263a;
+  --color-paper-4: #24344b;
+  --color-ink: #edf2fa;
+  --color-ink-2: #becbdf;
+  --color-muted: #9bacc5;
+  --color-rule: #34445d;
+  --color-field-edge: #7085a4;
+  --color-accent: #ff9166;
+  --color-accent-ink: #1c1620;
+  --color-focus: #b9d0ff;
+  --color-series: #87aaff;
+  --color-series-area: #1b2c50;
+  --color-win: #8cd8ba;
+  --color-loss: #efa0aa;
+  --color-win-paper: #182f31;
+  --color-loss-paper: #352331;
+  --color-scrim: #060a13cc;
+  --color-shadow: #03070d80;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px;
+  --space-sm: 12px; --space-md: 16px; --space-lg: 24px;
+  --space-xl: 40px; --space-2xl: 64px;
+  --text-xs: 12px; --text-sm: 14px; --text-md: 16px;
+  --text-lg: 18px; --text-xl: 22px; --text-2xl: 28px; --text-3xl: 36px;
+  --radius-control: 5px; --radius-card: 10px; --radius-dialog: 12px;
+  --container: 1480px; --intel-width: 284px;
+  --dur-micro: 120ms; --dur-short: 220ms;
+  --ease-out: cubic-bezier(.23,1,.32,1);
+}
