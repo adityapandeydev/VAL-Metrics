@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
-import { LiveMatchOverlay } from './components/overlay/LiveMatchOverlay';
+import { HudOverlay } from './features/overlay/HudOverlay';
 import { TrackerWorkspace } from './features/tracker/TrackerWorkspace';
 import { checkBackendHealth, auditLCUConnection, checkAuthStatus, authSession, fetchLiveOverlayTelemetry } from './services/telemetry';
 import { OverlayTelemetryPayload } from './types/valorant';
@@ -60,9 +60,7 @@ export const App: Component = () => {
   // If executing inside Wails desktop runtime or tested via ?mode=overlay, serve ONLY the tactical gaming HUD
   if (isDesktop()) {
     return (
-      <main class="w-full min-h-screen bg-transparent select-none overflow-hidden">
-        <LiveMatchOverlay initialData={liveTelemetry()} />
-      </main>
+      <HudOverlay initialData={liveTelemetry()} />
     );
   }
 

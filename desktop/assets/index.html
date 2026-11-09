@@ -3,46 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VAL-Metrics Desktop HUD</title>
+  <title>VAL-Metrics HUD</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0b0e14;
-      color: #f1f5f9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-      user-select: none;
-    }
-    .container {
-      text-align: center;
-      padding: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      background: rgba(18, 24, 38, 0.7);
-      backdrop-filter: blur(12px);
-    }
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: #ff4655;
-    }
-    p {
-      color: #94a3b8;
-      font-size: 0.9rem;
-    }
+    /* Embedded fallback shown only when neither frontend/dist nor the Vite dev server is available. */
+    :root { --bg: #07080d; --surface: #10131b; --line: rgba(236,232,225,.08); --ink: #ece8e1; --muted: #7d8394; --accent: #ff4655; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--ink); font: 14px/1.5 'Segoe UI', system-ui, sans-serif; user-select: none; overflow: hidden; }
+    .card { position: relative; width: min(440px, calc(100vw - 32px)); padding: 28px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+    .card::before { content: ''; position: absolute; top: -1px; left: -1px; width: 12px; height: 12px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); border-top-left-radius: 10px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .18em; font-size: 15px; }
+    .brand b { color: var(--accent); }
+    h1 { margin-top: 18px; font-size: 18px; font-weight: 600; }
+    p { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    code { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>VAL-Metrics Desktop HUD</h1>
-    <p>Wails v3 Desktop Runtime Initialized</p>
-    <p>Waiting for frontend build or dev server at http://localhost:1420...</p>
+  <div class="card">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 40 40" aria-hidden="true"><path d="M4 6h9l7 16 7-16h9L20 36z" fill="#ece8e1"/><path d="M4 6l16 30-3.6-.2L4 9z" fill="#ff4655"/></svg>
+      <span>VAL<b>METRICS</b></span>
+    </div>
+    <h1>HUD interface not found</h1>
+    <p>The desktop runtime started, but no interface build was available.</p>
+    <p>Build it with <code>npm run build --prefix frontend</code>, or start the dev server on <code>localhost:1420</code>, then reopen the HUD.</p>
   </div>
 </body>
 </html>
