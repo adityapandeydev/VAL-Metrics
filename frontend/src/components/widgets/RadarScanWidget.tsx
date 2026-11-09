@@ -1,1 +1,0 @@
-import { Component } from 'solid-js'; export const RadarScanWidget: Component = () => <div class="animate-radar w-10 h-10 border border-val-cyan rounded-full" />;

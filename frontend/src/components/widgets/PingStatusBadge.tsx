@@ -1,1 +1,0 @@
-import { Component } from 'solid-js'; export const PingStatusBadge: Component = () => <span class="text-xs font-mono text-val-emerald">PING 14ms • TOKYO_01</span>;

@@ -2,24 +2,64 @@ import { Component, JSX, Show, createSignal, splitProps } from 'solid-js';
 import { reveal, CountUp } from './motion';
 import { FALLBACK, agentIcon, rankHue, rankIcon, rankName } from './data/assets';
 
+/* ───────────── Shared Tailwind class recipes ───────────── */
+export const tw = {
+  kicker: 'block font-display text-[10.5px] leading-tight font-semibold tracking-[.16em] uppercase text-muted',
+  label: 'block font-display text-[10.5px] font-semibold tracking-[.14em] uppercase text-muted',
+  h2: 'mt-[3px] font-display text-base font-bold uppercase tracking-[.04em]',
+  h3: 'font-display text-[13px] font-bold uppercase tracking-[.1em] text-ink-2',
+  num: 'font-display font-bold tabular-nums',
+  well: 'rounded-lg border border-line bg-bg/35',
+  btn: 'relative inline-flex items-center gap-2 overflow-hidden rounded-md px-4 py-2.5 font-display text-[12.5px] font-semibold uppercase tracking-[.08em] transition-transform duration-200 ease-out-expo hover:-translate-y-0.5 active:scale-[.97]',
+  primary: 'bg-accent text-white shadow-[0_10px_26px_-10px_rgb(255_70_85/.8)]',
+  ghost: 'border border-line-2 text-ink-2 hover:border-ink-2 hover:text-ink',
+  chip: 'inline-flex items-center gap-1.5 rounded-full border border-line-2 px-2.5 py-1 font-display text-[11px] font-semibold uppercase tracking-[.06em] text-ink-2 transition duration-200 hover:-translate-y-px hover:border-accent hover:text-ink',
+  chipOn: 'border-[var(--role,var(--color-accent))] bg-[color-mix(in_srgb,var(--role,var(--color-accent))_22%,transparent)] text-ink',
+  select: 'inline-flex items-center gap-2 font-display text-[11px] font-semibold uppercase tracking-[.08em] text-muted [&_select]:rounded-md [&_select]:border [&_select]:border-line-2 [&_select]:bg-surface-2 [&_select]:px-2.5 [&_select]:py-1.5 [&_select]:font-body [&_select]:text-[13px] [&_select]:font-medium [&_select]:normal-case [&_select]:tracking-normal [&_select]:text-ink',
+  segWrap: 'relative inline-flex flex-wrap rounded-lg border border-line bg-bg/60 p-[3px]',
+  seg: 'rounded-md px-3.5 py-2 font-display text-xs font-semibold uppercase tracking-[.06em] text-ink-2 transition-colors duration-200 hover:text-ink active:scale-[.96]',
+  segSm: 'rounded-md px-2.5 py-1.5 font-display text-[11px] font-semibold uppercase tracking-[.06em] text-ink-2 transition-colors duration-200 hover:text-ink',
+  segOn: 'bg-linear-135 from-accent to-[#d63445] text-white! shadow-[0_6px_18px_-6px_rgb(255_70_85/.7)]',
+  iconBtn: 'grid size-9 place-items-center rounded-full border border-line-2 bg-bg/60 transition-transform duration-300 ease-spring hover:rotate-90 hover:border-accent',
+  table: 'w-full border-collapse text-[13px] [&_td]:border-b [&_td]:border-line [&_td]:px-3 [&_td]:py-2.5 [&_td]:text-left [&_td]:whitespace-nowrap [&_th]:border-b [&_th]:border-line [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:whitespace-nowrap [&_tbody_th]:font-semibold [&_thead_th]:bg-bg/35 [&_thead_th]:font-display [&_thead_th]:text-[10.5px] [&_thead_th]:font-semibold [&_thead_th]:uppercase [&_thead_th]:tracking-[.12em] [&_thead_th]:text-muted',
+  rrChip: 'min-w-[46px] justify-self-end rounded-md bg-surface-3 px-2 py-1 text-center font-display text-[13px] font-bold text-ink-2',
+  rrUp: 'bg-win/10 text-win',
+  rrDown: 'bg-loss/10 text-loss',
+  up: 'text-win',
+  down: 'text-loss',
+};
+export const rrTone = (v?: number) => (v == null ? 'text-muted' : v > 0 ? tw.rrUp : v < 0 ? tw.rrDown : '');
+export const tone = (v: number) => (v > 0 ? tw.up : v < 0 ? tw.down : '');
+
+/* ───────────── Card: reveals on scroll, cursor spotlight, corner notch ───────────── */
+const cardBase = 'card fx-reveal relative min-w-0 overflow-hidden rounded-[10px] border border-line bg-linear-to-b from-surface-2/92 to-surface/92 transition-[border-color,box-shadow] duration-300 hover:border-line-2 hover:shadow-[0_24px_50px_-30px_rgb(0_0_0/.9)] '
+  + 'before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(420px_circle_at_var(--mx,-500px)_var(--my,-500px),rgb(255_70_85/.09),transparent_45%)] before:opacity-0 before:transition-opacity hover:before:opacity-100 '
+  + 'after:pointer-events-none after:absolute after:top-0 after:left-0 after:size-3.5 after:rounded-tl-[10px] after:border-t-2 after:border-l-2 after:border-accent after:opacity-0 after:transition-opacity after:delay-500 [&.in]:after:opacity-90';
+
 export const Card: Component<JSX.HTMLAttributes<HTMLElement> & { as?: 'section' | 'article' | 'div'; i?: number; flush?: boolean }> = props => {
   const [p, rest] = splitProps(props, ['as', 'i', 'class', 'children', 'flush', 'style']);
+  const cls = () => `${cardBase} ${p.flush ? '' : 'p-5'} ${p.class || ''}`;
   const style = () => ({ '--d': `${(p.i ?? 0) * 70}ms`, ...(typeof p.style === 'object' ? p.style : {}) });
   return p.as === 'article'
-    ? <article ref={reveal} class={`card rv ${p.flush ? 'flush' : ''} ${p.class || ''}`} style={style()} {...(rest as any)}>{p.children}</article>
+    ? <article ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</article>
     : p.as === 'div'
-      ? <div ref={reveal} class={`card rv ${p.flush ? 'flush' : ''} ${p.class || ''}`} style={style()} {...(rest as any)}>{p.children}</div>
-      : <section ref={reveal} class={`card rv ${p.flush ? 'flush' : ''} ${p.class || ''}`} style={style()} {...(rest as any)}>{p.children}</section>;
+      ? <div ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</div>
+      : <section ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</section>;
 };
 
 export const Head: Component<{ title: string; kicker?: string; children?: JSX.Element }> = p =>
-  <header class="head"><div><Show when={p.kicker}><span class="kicker">{p.kicker}</span></Show><h2>{p.title}</h2></div><Show when={p.children}><div class="head-aside">{p.children}</div></Show></header>;
+  <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <div><Show when={p.kicker}><span class={tw.kicker}>{p.kicker}</span></Show><h2 class={tw.h2}>{p.title}</h2></div>
+    <Show when={p.children}><div class="flex flex-wrap items-center gap-2">{p.children}</div></Show>
+  </header>;
 
 export const Stat: Component<{ label: string; value: number | null | undefined; digits?: number; suffix?: string; note?: string; signed?: boolean; i?: number; tone?: 'up' | 'down' | 'accent' }> = p =>
-  <div class="stat" style={{ '--i': p.i ?? 0 }}>
-    <span class="stat-label">{p.label}</span>
-    <strong class={`stat-value ${p.tone || ''}`}><CountUp value={p.value} digits={p.digits} suffix={p.suffix} signed={p.signed} delay={(p.i ?? 0) * 45} /></strong>
-    <Show when={p.note}><small class="stat-note">{p.note}</small></Show>
+  <div class={`fx-rise ${tw.well} px-3.5 py-3 transition duration-200 ease-out-expo hover:-translate-y-[3px] hover:border-line-2 hover:bg-bg/55`} style={{ '--i': p.i ?? 0 }}>
+    <span class={tw.label}>{p.label}</span>
+    <strong class="mt-1 block font-display text-2xl leading-[1.15] font-bold" classList={{ 'text-win': p.tone === 'up', 'text-loss': p.tone === 'down', 'text-accent': p.tone === 'accent' }}>
+      <CountUp value={p.value} digits={p.digits} suffix={p.suffix} signed={p.signed} delay={(p.i ?? 0) * 45} />
+    </strong>
+    <Show when={p.note}><small class="mt-0.5 block text-[11.5px] text-muted">{p.note}</small></Show>
   </div>;
 
 export const Img: Component<{ src: string; alt?: string; class?: string; loading?: 'lazy' | 'eager' }> = p =>
@@ -27,28 +67,40 @@ export const Img: Component<{ src: string; alt?: string; class?: string; loading
     onError={e => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />;
 
 export const AgentIcon: Component<{ name: string; size?: number; class?: string }> = p =>
-  <span class={`agent-icon ${p.class || ''}`} style={{ width: `${p.size ?? 40}px`, height: `${p.size ?? 40}px` }}><Img src={agentIcon(p.name)} alt={p.name} /></span>;
+  <span class={`inline-block flex-none overflow-hidden rounded-lg border border-line bg-surface-3 ${p.class || ''}`} style={{ width: `${p.size ?? 40}px`, height: `${p.size ?? 40}px` }}>
+    <Img class="size-full object-cover" src={agentIcon(p.name)} alt={p.name} />
+  </span>;
 
 export const RankBadge: Component<{ tier: number; size?: number; withName?: boolean }> = p => {
   const [failed, setFailed] = createSignal(false);
-  return <span class="rank-badge" style={{ '--rank': rankHue(p.tier), width: p.withName ? undefined : `${p.size ?? 36}px` }}>
-    <Show when={p.tier >= 3} fallback={<span class="rank-unrated" style={{ width: `${p.size ?? 36}px`, height: `${p.size ?? 36}px` }}>—</span>}>
-      <Show when={!failed()} fallback={<svg width={p.size ?? 36} height={p.size ?? 36} viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 37 20 20 38 3 20z" fill="none" stroke="var(--rank)" stroke-width="2.5" /><path d="m20 11 8 9-8 9-8-9z" fill="var(--rank)" /></svg>}>
-        <img src={rankIcon(p.tier)} alt="" width={p.size ?? 36} height={p.size ?? 36} loading="lazy" onError={() => setFailed(true)} />
+  const s = () => p.size ?? 36;
+  return <span class="inline-flex items-center gap-2" style={{ '--rank': rankHue(p.tier), width: p.withName ? undefined : `${s()}px` }}>
+    <Show when={p.tier >= 3} fallback={<span class="grid place-items-center rounded-full border border-dashed border-line-2 text-muted" style={{ width: `${s()}px`, height: `${s()}px` }}>—</span>}>
+      <Show when={!failed()} fallback={<svg width={s()} height={s()} viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 37 20 20 38 3 20z" fill="none" stroke="var(--rank)" stroke-width="2.5" /><path d="m20 11 8 9-8 9-8-9z" fill="var(--rank)" /></svg>}>
+        <img class="drop-shadow-[0_0_10px_color-mix(in_srgb,var(--rank)_45%,transparent)]" src={rankIcon(p.tier)} alt="" width={s()} height={s()} loading="lazy" onError={() => setFailed(true)} />
       </Show>
     </Show>
-    <Show when={p.withName}><b>{rankName(p.tier)}</b></Show>
+    <Show when={p.withName}><b class="font-display text-[13px] font-semibold">{rankName(p.tier)}</b></Show>
   </span>;
 };
 
 export const Result: Component<{ won: boolean; draw?: boolean; short?: boolean }> = p =>
-  <span class="result" classList={{ win: p.won, loss: !p.won && !p.draw, draw: p.draw }}>{p.draw ? (p.short ? 'D' : 'Draw') : p.won ? (p.short ? 'W' : 'Victory') : (p.short ? 'L' : 'Defeat')}</span>;
+  <span class="inline-block rounded px-2 py-[3px] font-display text-[10.5px] font-bold uppercase tracking-[.14em]"
+    classList={{ 'bg-win/12 text-win': p.won, 'bg-loss/12 text-loss': !p.won && !p.draw, 'bg-surface-3 text-ink-2': p.draw }}>
+    {p.draw ? (p.short ? 'D' : 'Draw') : p.won ? (p.short ? 'W' : 'Victory') : (p.short ? 'L' : 'Defeat')}
+  </span>;
 
 export const Empty: Component<{ title: string; text: string; children?: JSX.Element }> = p =>
-  <div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 2 22 12 12 22 2 12z" /><path d="M12 8v5M12 16h.01" /></svg><h3>{p.title}</h3><p>{p.text}</p>{p.children}</div>;
+  <div class="grid justify-items-center gap-2 px-4 py-8 text-center text-muted">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 2 22 12 12 22 2 12z" /><path d="M12 8v5M12 16h.01" /></svg>
+    <h3 class="font-display text-[15px] font-semibold text-ink">{p.title}</h3><p class="max-w-[420px] text-[13px]">{p.text}</p>{p.children}
+  </div>;
 
-export const Icon: Component<{ d: string; size?: number }> = p =>
-  <svg width={p.size ?? 18} height={p.size ?? 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={p.d} /></svg>;
+export const Icon: Component<{ d: string; size?: number; class?: string }> = p =>
+  <svg class={`flex-none ${p.class || ''}`} width={p.size ?? 18} height={p.size ?? 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={p.d} /></svg>;
+
+export const Swatch: Component<{ color: string; class?: string }> = p =>
+  <span class={`inline-block size-2.5 flex-none rounded-[3px] ${p.class || ''}`} style={{ background: p.color }} />;
 
 export const ICONS = {
   overview: 'M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z',

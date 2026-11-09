@@ -47,7 +47,7 @@ export const CountUp: Component<{ value: number | null | undefined; digits?: num
   }));
   onCleanup(() => cancelAnimationFrame(raf));
   const valid = () => p.value != null && Number.isFinite(p.value);
-  return <span ref={ref} class={`num ${p.class || ''}`}>
+  return <span ref={ref} class={`tabular-nums ${p.class || ''}`}>
     {valid() ? `${p.prefix ?? ''}${p.signed && (p.value as number) > 0 ? '+' : ''}${fmt(shown(), p.digits ?? 0)}${p.suffix ?? ''}` : '—'}
   </span>;
 };
