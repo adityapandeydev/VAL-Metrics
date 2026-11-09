@@ -1,39 +1,61 @@
 import { strict as assert } from 'node:assert';
-import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
-// Exercise production model code with no browser or new test dependencies.
+// Run the active tracker data modules without browser or test-runner dependencies.
 const temp = await mkdtemp(join(tmpdir(), 'val-metrics-model-'));
-try {
-  for (const file of ['model', 'demo']) {
-    const source = await readFile(new URL(`../src/features/tracker/${file}.ts`, import.meta.url), 'utf8');
-    const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText.replace("'./model'", "'./model.mjs'");
-    await writeFile(join(temp, `${file}.mjs`), compiled);
+async function compile(relative) {
+  const sourceDir = new URL(`../src/${relative}/`, import.meta.url);
+  for (const item of await readdir(sourceDir, { withFileTypes: true })) {
+    const name = `${relative}/${item.name}`;
+    if (item.isDirectory()) { await compile(name); continue; }
+    if (!item.name.endsWith('.ts')) continue;
+    const source = await readFile(new URL(`../src/${name}`, import.meta.url), 'utf8');
+    const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText
+      .replace(/from (['"])(\.[^'"]+)\1/g, (_, quote, specifier) => `from ${quote}${specifier.endsWith('/agents') || specifier.endsWith('/maps') || specifier.endsWith('/weapons') ? specifier + '/index' : specifier}.mjs${quote}`);
+    const target = join(temp, name.replace(/\.ts$/, '.mjs'));
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, compiled);
   }
-  const { impactScore, impactParts } = await import(pathToFileURL(join(temp, 'model.mjs')));
-  const { demoMatches, demoPlayer } = await import(pathToFileURL(join(temp, 'demo.mjs')));
-  assert.equal(impactParts(demoMatches[0]).total.toFixed(1), '82.3');
-  assert.equal(impactScore(demoMatches).toFixed(1), '72.4');
-  assert.equal(impactScore(demoMatches.slice(0,6)).toFixed(1), '74.9');
-  assert.equal(impactScore([]), null);
-  assert.equal(impactScore([{ ...demoMatches[0], adr: undefined }]), null);
-  assert.equal(impactParts({ ...demoMatches[0], openingAttempts: 0 }), null);
-  assert.equal(impactParts({ ...demoMatches[0], adr: NaN }), null);
-  assert.equal(impactScore([{ ...demoMatches[0], rounds: -1 }]), null);
-  assert.equal(impactParts({ ...demoMatches[0], adr: 900, kast: 120, openingWins: 9, openingAttempts: 1 }).total, 100);
-  const six = demoPlayer(6);
-  assert.equal(six.summary.wins, 4);
-  assert.equal(six.summary.total, 6);
-  assert.equal(six.agents.reduce((sum,a) => sum+a.matches,0),6);
-  assert.equal(six.maps.reduce((sum,m) => sum+m.matches,0),6);
-  const details = six.details;
-  assert.equal(details.weaponArmory.reduce((n,w)=>n+w.totalKills,0), details.kills);
-  assert.equal(details.headshots+details.bodyshots+details.legshots,details.totalHits);
-  assert.equal(details.agentLeaderboard.reduce((n,a)=>n+a.matchesPlayed,0),6);
-  assert.equal(Object.values(details.roleMastery).reduce((n,r)=>n+r.matches,0),6);
-  assert.ok(Math.abs(details.headshotPercent+details.bodyshotPercent+details.legshotPercent-100)<.001);
-  console.log('Tracker model: scoring, missing inputs, bounds, and sample aggregates passed.');
-} finally { await rm(temp, { recursive:true, force:true }); }
+}
+try {
+  await compile('data');
+  await compile('features/tracker/data');
+  const { sampleProfile, matchDetail } = await import(pathToFileURL(join(temp, 'features/tracker/data/demo.mjs')));
+  const { buildStats, impactParts, summarize } = await import(pathToFileURL(join(temp, 'features/tracker/data/stats.mjs')));
+  const profile = sampleProfile();
+  assert.equal(profile.source, 'sample');
+  assert.equal(profile.matches.length, 56);
+  assert.equal(new Set(profile.matches.map(m => m.id)).size, profile.matches.length);
+  assert.ok(profile.matches.every((m, i, all) => i === 0 || m.startedAt <= all[i - 1].startedAt));
+  for (const queue of ['Competitive', 'Unrated', 'Premier', 'All']) {
+    const matches = profile.matches.filter(m => queue === 'All' || m.queue === queue);
+    const stats = buildStats(matches);
+    assert.equal(stats.summary.matches, matches.length);
+    assert.equal(stats.summary.wins + stats.summary.losses + stats.summary.draws, matches.length);
+    assert.equal(stats.agents.reduce((n, a) => n + a.matches, 0), matches.length);
+    assert.equal(stats.maps.reduce((n, m) => n + m.matches, 0), matches.length);
+    assert.equal(stats.roles.reduce((n, r) => n + r.matches, 0), matches.length);
+    assert.ok(Number.isFinite(stats.summary.acs));
+  }
+  assert.equal(summarize([]).impact, null);
+  assert.equal(impactParts({ adr: NaN, kast: 70, fk: 1, fd: 1 }), null);
+  assert.equal(impactParts({ adr: 150, kast: 70, fk: 0, fd: 0 }), null);
+  assert.equal(impactParts({ adr: 200, kast: 100, fk: 1, fd: 0 }).total, 100);
+  for (const match of profile.matches) {
+    const detail = matchDetail(match, profile);
+    assert.equal(detail.scoreboard.length, 10);
+    assert.equal(detail.scoreboard.filter(p => p.self).length, 1);
+    assert.equal(detail.rounds.length, match.rounds);
+    assert.equal(detail.rounds.filter(r => r.won).length, match.teamScore);
+    assert.equal(detail.rounds.reduce((n, r) => n + r.kills, 0), match.k);
+    assert.equal(detail.duels.reduce((n, d) => n + d.kills, 0), match.k);
+    assert.equal(detail.duels.reduce((n, d) => n + d.deaths, 0), match.d);
+  }
+  console.log('Tracker: sample queues, aggregate totals, Impact inputs and match-detail consistency passed.');
+} finally {
+  await rm(temp, { recursive: true, force: true });
+}
