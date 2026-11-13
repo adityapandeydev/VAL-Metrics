@@ -25,7 +25,7 @@ export const Agents: Component = () => {
         <Card class="grid min-h-80 grid-cols-1 gap-6 md:grid-cols-[340px_1fr]" flush i={0}
           style={{ background: `radial-gradient(70% 120% at 10% 50%, color-mix(in srgb, ${ROLE_COLOR[a.role]} 30%, transparent), transparent 70%), linear-gradient(180deg, rgb(22 26 37 / .95), rgb(16 19 27 / .95))` }}>
           <div class="relative h-[220px] overflow-hidden md:h-auto">
-            <Img class="absolute -top-[20%] left-[5%] w-[90%] max-w-none animate-hero-in [mask-image:linear-gradient(180deg,#000_70%,transparent)] md:-top-[8%] md:-left-[10%] md:w-[125%]" src={agentPortrait(a.name)} loading="eager" />
+            <Img class="absolute -top-[20%] left-[5%] w-[90%] max-w-none animate-hero-in [mask-image:linear-gradient(180deg,#000_70%,transparent)] md:-top-[8%] md:-left-[10%] md:w-[125%]" src={agentPortrait(a.name)} scale={760} loading="eager" />
           </div>
           <div class="grid content-center gap-2.5 px-[18px] pb-[22px] md:py-[26px] md:pr-[26px] md:pl-0">
             <RoleTag role={a.role} />
@@ -83,7 +83,7 @@ export const Maps: Component = () => {
       <For each={maps()}>{(m, i) =>
         <Card as="article" class="group" i={i()} flush>
           <div class="relative h-[130px] overflow-hidden after:absolute after:inset-0 after:bg-linear-to-t after:from-surface after:to-transparent after:to-70%">
-            <Img class="size-full scale-[1.12] object-cover transition-transform duration-[1400ms] ease-out-expo group-[.in]:scale-100 group-hover:scale-[1.07]" src={mapSplash(m.name)} />
+            <Img class="size-full scale-[1.12] object-cover transition-transform duration-[1400ms] ease-out-expo group-[.in]:scale-100 group-hover:scale-[1.07]" src={mapSplash(m.name)} scale={720} />
           </div>
           <div class="relative -mt-[42px] grid gap-3 px-[18px] pb-4">
             <header class="flex items-end justify-between">

@@ -1,5 +1,5 @@
 import { Component, JSX, Show, createSignal, splitProps } from 'solid-js';
-import { reveal, CountUp } from './motion';
+import { useInView, CountUp, useScaled } from './motion';
 import { FALLBACK, agentIcon, rankHue, rankIcon, rankName } from './data/assets';
 
 /* ───────────── Shared Tailwind class recipes ───────────── */
@@ -33,18 +33,19 @@ export const tone = (v: number) => (v > 0 ? tw.up : v < 0 ? tw.down : '');
 
 /* ───────────── Card: reveals on scroll, cursor spotlight, corner notch ───────────── */
 const cardBase = 'card fx-reveal relative min-w-0 overflow-hidden rounded-[10px] border border-line bg-linear-to-b from-surface-2/92 to-surface/92 transition-[border-color,box-shadow] duration-300 hover:border-line-2 hover:shadow-[0_24px_50px_-30px_rgb(0_0_0/.9)] '
-  + 'before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(420px_circle_at_var(--mx,-500px)_var(--my,-500px),rgb(255_70_85/.09),transparent_45%)] before:opacity-0 before:transition-opacity hover:before:opacity-100 '
   + 'after:pointer-events-none after:absolute after:top-0 after:left-0 after:size-3.5 after:rounded-tl-[10px] after:border-t-2 after:border-l-2 after:border-accent after:opacity-0 after:transition-opacity after:delay-500 [&.in]:after:opacity-90';
 
 export const Card: Component<JSX.HTMLAttributes<HTMLElement> & { as?: 'section' | 'article' | 'div'; i?: number; flush?: boolean }> = props => {
   const [p, rest] = splitProps(props, ['as', 'i', 'class', 'children', 'flush', 'style']);
-  const cls = () => `${cardBase} ${p.flush ? '' : 'p-5'} ${p.class || ''}`;
+  // `in` is part of the rendered class string (driven by a signal), so Solid never overwrites it.
+  const [seen, ref] = useInView();
+  const cls = () => `${cardBase} ${p.flush ? '' : 'p-5'} ${p.class || ''}${seen() ? ' in' : ''}`;
   const style = () => ({ '--d': `${(p.i ?? 0) * 70}ms`, ...(typeof p.style === 'object' ? p.style : {}) });
   return p.as === 'article'
-    ? <article ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</article>
+    ? <article ref={ref} class={cls()} style={style()} {...(rest as any)}><span class="fx-spot" aria-hidden="true" />{p.children}</article>
     : p.as === 'div'
-      ? <div ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</div>
-      : <section ref={reveal} class={cls()} style={style()} {...(rest as any)}>{p.children}</section>;
+      ? <div ref={ref} class={cls()} style={style()} {...(rest as any)}><span class="fx-spot" aria-hidden="true" />{p.children}</div>
+      : <section ref={ref} class={cls()} style={style()} {...(rest as any)}><span class="fx-spot" aria-hidden="true" />{p.children}</section>;
 };
 
 export const Head: Component<{ title: string; kicker?: string; children?: JSX.Element }> = p =>
@@ -62,13 +63,17 @@ export const Stat: Component<{ label: string; value: number | null | undefined; 
     <Show when={p.note}><small class="mt-0.5 block text-[11.5px] text-muted">{p.note}</small></Show>
   </div>;
 
-export const Img: Component<{ src: string; alt?: string; class?: string; loading?: 'lazy' | 'eager' }> = p =>
-  <img class={p.class} src={p.src} alt={p.alt ?? ''} loading={p.loading ?? 'lazy'} decoding="async"
+/** Image with fallback. `scale` = max width to keep in memory (large art is downscaled once, see motion.tsx). */
+export const Img: Component<{ src: string; alt?: string; class?: string; loading?: 'lazy' | 'eager'; scale?: number }> = p => {
+  const scaled = p.scale ? useScaled(() => p.src, p.scale) : () => p.src;
+  return <img class={p.class} src={scaled() || undefined} alt={p.alt ?? ''} loading={p.loading ?? 'lazy'} decoding="async"
+    style={p.scale && !scaled() ? { visibility: 'hidden' } : undefined}
     onError={e => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />;
+};
 
 export const AgentIcon: Component<{ name: string; size?: number; class?: string }> = p =>
   <span class={`inline-block flex-none overflow-hidden rounded-lg border border-line bg-surface-3 ${p.class || ''}`} style={{ width: `${p.size ?? 40}px`, height: `${p.size ?? 40}px` }}>
-    <Img class="size-full object-cover" src={agentIcon(p.name)} alt={p.name} />
+    <Img class="size-full object-cover" src={agentIcon(p.name)} alt={p.name} scale={128} />
   </span>;
 
 export const RankBadge: Component<{ tier: number; size?: number; withName?: boolean }> = p => {

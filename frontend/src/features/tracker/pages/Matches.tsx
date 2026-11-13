@@ -1,17 +1,17 @@
 import { Component, For, Show, createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { store } from '../store';
 import { Card, AgentIcon, Img, Result, RankBadge, Icon, ICONS, Empty, Stat, tw, rrTone, tone } from '../ui';
-import { CountUp } from '../motion';
+import { CountUp, useScaled } from '../motion';
 import { Meter, Ring } from '../charts';
 import { byDay, dayLabel, fmt, impactParts, relTime } from '../data/stats';
-import { mapSplash, mapLocation, agentPortrait, rankName, weaponIcon } from '../data/assets';
+import { mapSplash, mapBanner, mapLocation, agentPortrait, rankName, weaponIcon } from '../data/assets';
 import { matchDetail } from '../data/demo';
 import type { Match } from '../data/types';
 
-const place = 'whitespace-nowrap rounded px-2 py-[3px] font-display text-xs font-bold';
+const place = 'inline-block whitespace-nowrap rounded px-2 py-[3px] font-display text-xs font-bold';
 const Badge: Component<{ badge: Match['badge'] }> = p =>
   <span class={place} classList={{
-    'animate-shimmer border-0 bg-linear-135 from-gold to-accent-2 bg-[length:200%_100%] text-[#1a1205]': p.badge === 'MVP',
+    'fx-sheen border-0 bg-linear-135 from-gold to-accent-2 text-[#1a1205]': p.badge === 'MVP',
     'border border-accent-2/30 bg-accent-2/10 text-accent-2': p.badge === 'Team MVP',
   }}>{p.badge}</span>;
 const Placement: Component<{ m: Match }> = p =>
@@ -58,7 +58,7 @@ export const Matches: Component = () => {
             <For each={g.list}>{(m, i) =>
               <button class="fx-slide group relative grid grid-cols-[1fr_auto] items-center gap-3 gap-y-2 overflow-hidden border-b border-line py-3 pr-[18px] pl-[22px] text-left transition-colors duration-200 last:border-b-0 hover:bg-surface-3/55 md:grid-cols-[1.6fr_1fr_1fr_1.1fr_.6fr_.6fr_.7fr] wide:grid-cols-[1.7fr_1fr_1fr_1.1fr_.6fr_.6fr_.6fr_.6fr_.7fr]"
                 style={{ '--i': i() }} onClick={() => store.setOpenMatch(m)} aria-label={`Review ${m.map}, ${m.won ? 'victory' : 'defeat'} ${m.teamScore} to ${m.enemyScore}`}>
-                <span class="absolute inset-y-0 left-0 w-[45%] bg-cover bg-center opacity-10 transition duration-500 ease-out-expo [mask-image:linear-gradient(90deg,#000,transparent)] group-hover:scale-[1.04] group-hover:opacity-20" style={{ 'background-image': `url("${mapSplash(m.map)}")` }} />
+                <span class="absolute inset-y-0 left-0 w-[45%] bg-cover bg-center opacity-10 transition duration-500 ease-out-expo [mask-image:linear-gradient(90deg,#000,transparent)] group-hover:scale-[1.04] group-hover:opacity-20" style={{ 'background-image': `url("${mapBanner(m.map)}")` }} />
                 <span class="absolute inset-y-0 left-0 w-1" classList={{ 'bg-win': m.won, 'bg-loss': !m.won }} />
                 <div class="relative flex items-center gap-3"><AgentIcon name={m.agent} size={44} /><div><strong class="block font-display text-base font-bold">{m.map}</strong><small class="text-[11.5px] text-muted">{m.queue} · {new Date(m.startedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</small></div></div>
                 <div class="relative grid justify-items-end gap-1 md:justify-items-start"><Result won={m.won} draw={m.draw} /><b class="font-display text-lg font-bold">{m.teamScore}<em class="mx-[3px] not-italic text-muted">:</em>{m.enemyScore}</b></div>
@@ -96,10 +96,11 @@ export const MatchDrawer: Component = () => {
     <Show when={m()}>{mm => {
       const x = mm();
       const parts = impactParts(x);
+      const heroArt = useScaled(() => mapSplash(x.map), 1280);
       return <div class="in">
-        <header class="relative flex min-h-[200px] flex-wrap items-end gap-5 overflow-hidden bg-cover bg-center px-[18px] py-[22px] md:min-h-[220px] md:flex-nowrap md:px-[30px] md:py-[26px]" style={{ 'background-image': `url("${mapSplash(x.map)}")` }}>
+        <header class="relative flex min-h-[200px] flex-wrap items-end gap-5 overflow-hidden bg-cover bg-center px-[18px] py-[22px] md:min-h-[220px] md:flex-nowrap md:px-[30px] md:py-[26px]" style={{ 'background-image': heroArt() ? `url("${heroArt()}")` : undefined }}>
           <div class="absolute inset-0 bg-[linear-gradient(90deg,rgb(11_13_20/.95)_0%,rgb(11_13_20/.6)_60%,rgb(11_13_20/.9)),linear-gradient(0deg,var(--color-chrome),transparent_60%)]" />
-          <Img class="absolute right-[-40px] bottom-[-40px] w-[220px] max-w-none animate-hero-in opacity-50 [mask-image:linear-gradient(180deg,#000_50%,transparent)] md:right-[120px] md:w-[300px]" src={agentPortrait(x.agent)} />
+          <Img class="absolute right-[-40px] bottom-[-40px] w-[220px] max-w-none animate-hero-in opacity-50 [mask-image:linear-gradient(180deg,#000_50%,transparent)] md:right-[120px] md:w-[300px]" src={agentPortrait(x.agent)} scale={760} />
           <button class={`${tw.iconBtn} absolute! top-[18px] right-[18px] z-2`} aria-label="Close match review" onClick={close}><Icon d={ICONS.close} /></button>
           <div class="relative z-1 flex-1 animate-rise [animation-delay:.1s]">
             <Result won={x.won} draw={x.draw} />
@@ -110,7 +111,7 @@ export const MatchDrawer: Component = () => {
             <b class="text-win [text-shadow:0_0_24px_rgb(47_211_166/.35)]"><CountUp value={x.teamScore} duration={700} /></b><span class="text-4xl text-muted">:</span><b class="text-loss [text-shadow:0_0_24px_rgb(255_92_122/.35)]"><CountUp value={x.enemyScore} duration={700} /></b>
           </div>
         </header>
-        <nav class="sticky top-0 z-3 flex gap-1 overflow-x-auto border-b border-line bg-chrome/92 px-6 py-2 backdrop-blur-md" aria-label="Match sections">
+        <nav class="sticky top-0 z-3 flex gap-1 overflow-x-auto border-b border-line bg-chrome/97 px-6 py-2" aria-label="Match sections">
           <For each={[['summary', 'Summary'], ['scoreboard', 'Scoreboard'], ['rounds', 'Rounds & economy'], ['duels', 'Duels']] as const}>{([id, l]) =>
             <button class="rounded-md px-3.5 py-[9px] font-display text-xs font-semibold uppercase tracking-[.08em] whitespace-nowrap transition-colors"
               classList={{ 'bg-accent/14 text-ink shadow-[inset_0_-2px_0_var(--color-accent)]': tab() === id, 'text-muted': tab() !== id }}
@@ -211,8 +212,8 @@ export const MatchDrawer: Component = () => {
               <div class="flex h-[170px] items-end gap-[3px] border-b border-line-2">
                 <For each={detail()!.rounds}>{(r, i) =>
                   <div class="grid h-full flex-1 grid-cols-2 grid-rows-[1fr_auto] items-end gap-x-px" style={{ '--i': i() }} title={`R${r.n}: you ${r.loadout} vs enemy avg ${r.enemyLoadout} · bank ${r.bank}`}>
-                    <i class="fx-height rounded-t-[2px] bg-info" style={{ '--h': `${(r.loadout / 5000) * 100}%`, '--i': i() / 2 }} />
-                    <i class="fx-height rounded-t-[2px] bg-ink/28" style={{ '--h': `${(r.enemyLoadout / 5000) * 100}%`, '--i': i() / 2 }} />
+                    <i class="fx-grow-y rounded-t-[2px] bg-info" style={{ height: `${(r.loadout / 5000) * 100}%`, '--i': i() / 2 }} />
+                    <i class="fx-grow-y rounded-t-[2px] bg-ink/28" style={{ height: `${(r.enemyLoadout / 5000) * 100}%`, '--i': i() / 2 }} />
                     <span class="col-span-full pt-1 text-center font-display text-[9px] font-medium" classList={{ 'text-win': r.won, 'text-muted': !r.won }}>{r.n}</span>
                   </div>}
                 </For>

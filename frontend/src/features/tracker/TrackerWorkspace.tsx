@@ -4,7 +4,7 @@ import { sampleProfile } from './data/demo';
 import { fromServer } from './data/server';
 import { rankName, rankHue, agentPortrait } from './data/assets';
 import { fmt } from './data/stats';
-import { CountUp, installSpotlight, reducedMotion } from './motion';
+import { CountUp, installSpotlight, reducedMotion, scaledSrc } from './motion';
 import { Ring } from './charts';
 import { Icon, ICONS, Img, RankBadge, tw } from './ui';
 import { PAGES, Page, QueueFilter, store } from './store';
@@ -64,6 +64,7 @@ export const TrackerWorkspace: Component = () => {
     // Shareable match deep link: #match=<id>
     const deep = location.hash.match(/^#match=([^&]+)/);
     if (deep) { const m = store.profile().matches.find(x => x.id === decodeURIComponent(deep[1])); if (m) { store.setPendingTab(location.hash.match(/[#&]tab=(\w+)/)?.[1] || ''); store.setPage('matches'); setTimeout(() => store.setOpenMatch(m), 1300); } }
+    for (const name of [store.profile().bannerAgent, ...store.stats().agents.slice(0, 3).map(a => a.name)]) void scaledSrc(agentPortrait(name), 760);
     const t = setTimeout(() => setBooting(false), 1250);
     const off = installSpotlight();
     const key = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (!searchDlg.open) openSearch(); } };
@@ -81,11 +82,11 @@ export const TrackerWorkspace: Component = () => {
   const shellX = 'mx-auto max-w-[1320px] px-4 md:px-6';
   const inset = 'mx-4 md:mx-auto md:max-w-[1272px]';
   return <div class="relative isolate min-h-screen overflow-x-clip font-body text-[13.5px] leading-[1.45] text-ink md:text-sm">
-    <div class="fixed inset-0 -z-1 overflow-hidden bg-[radial-gradient(120%_80%_at_70%_-10%,#1a1020_0%,transparent_55%),var(--color-bg)]" aria-hidden="true">
-      <i class="fx-orb absolute -top-40 -right-20 size-[520px] rounded-full bg-accent opacity-18 blur-[90px]" />
-      <i class="fx-orb absolute -bottom-50 -left-30 size-[460px] rounded-full bg-[#3a4cff] opacity-14 blur-[90px] [animation-duration:32s]" />
-      <i class="fx-orb absolute top-[40%] left-[55%] size-[300px] rounded-full bg-win opacity-7 blur-[90px] [animation-duration:38s]" />
-      <div class="fx-floor absolute inset-0 opacity-45 [mask-image:radial-gradient(80%_60%_at_50%_0%,#000_0%,transparent_75%)]" />
+    <div class="fx-ambient fixed inset-0 -z-1 overflow-hidden bg-[radial-gradient(120%_80%_at_70%_-10%,#1a1020_0%,transparent_55%),var(--color-bg)]" aria-hidden="true">
+      <i class="fx-orb absolute -top-[250px] -right-[170px] size-[700px] bg-[radial-gradient(closest-side,var(--color-accent),transparent)] opacity-18" />
+      <i class="fx-orb absolute -bottom-[290px] -left-[210px] size-[640px] bg-[radial-gradient(closest-side,#3a4cff,transparent)] opacity-14 [animation-duration:32s]" />
+      <i class="fx-orb absolute top-[calc(40%-90px)] left-[calc(55%-90px)] size-[480px] bg-[radial-gradient(closest-side,var(--color-win),transparent)] opacity-7 [animation-duration:38s]" />
+      <div class="absolute inset-0 overflow-hidden opacity-45 [mask-image:radial-gradient(80%_60%_at_50%_0%,#000_0%,transparent_75%)]"><div class="fx-floor" /></div>
       <div class="fx-scan absolute inset-x-0 h-40 bg-linear-to-b from-transparent via-accent/5 to-transparent" />
     </div>
     <Show when={booting()}><Boot /></Show>
@@ -95,13 +96,13 @@ export const TrackerWorkspace: Component = () => {
         <a class="group flex items-center gap-2.5 font-display text-[17px] font-bold tracking-[.18em] text-ink no-underline" href="#overview" onClick={e => { e.preventDefault(); go('overview'); }}>
           <Logo class="group-hover:animate-[pop_.5s_var(--ease-spring)]" /><span class="hidden md:inline">VAL<b class="font-bold text-accent">METRICS</b></span>
         </a>
-        <button class="ml-auto flex flex-1 items-center gap-2.5 rounded-md border border-line-2 bg-surface/70 px-3 py-[9px] text-muted backdrop-blur-md transition duration-200 ease-out-expo hover:-translate-y-px hover:border-accent hover:text-ink md:min-w-[280px] md:flex-none" onClick={openSearch}>
-          <Icon d={ICONS.search} /><span>Search a Riot ID</span><kbd class="ml-auto hidden rounded border border-line-2 px-1.5 py-0.5 font-display text-[11px] font-medium md:inline">Ctrl K</kbd>
+        <button class="ml-auto flex flex-1 items-center gap-2.5 rounded-md border border-line-2 bg-surface/85 px-3 py-[9px] text-muted transition duration-200 ease-out-expo hover:-translate-y-px hover:border-accent hover:text-ink md:min-w-[280px] md:flex-none" onClick={openSearch}>
+          <Icon d={ICONS.search} /><span class="truncate whitespace-nowrap">Search a Riot ID</span><kbd class="ml-auto hidden rounded border border-line-2 px-1.5 py-0.5 font-display text-[11px] font-medium md:inline">Ctrl K</kbd>
         </button>
         <div class="flex items-center gap-2.5">
-          <span class="inline-flex items-center gap-[7px] rounded-full border px-2.5 py-1.5 font-display text-[11px] font-semibold uppercase tracking-[.1em]"
+          <span class="inline-flex items-center gap-[7px] rounded-full border px-2.5 py-1.5 contain-paint font-display text-[11px] font-semibold uppercase tracking-[.1em]"
             classList={{ 'border-accent-2/30 bg-accent-2/8 text-accent-2': store.isSample(), 'border-win/30 bg-win/10 text-win': !store.isSample() }} title={p().sourceNote}>
-            <i class="size-[7px] animate-pulse-ring rounded-full bg-current" />{store.isSample() ? 'Sample data' : 'Server data'}
+            <i class="fx-pulse size-[7px] rounded-full bg-current" />{store.isSample() ? 'Sample data' : 'Server data'}
           </span>
           <a class="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[12.5px] text-ink-2 no-underline transition-colors hover:bg-surface-2 hover:text-ink" href="?mode=overlay" target="_blank" rel="noopener" title="Desktop HUD preview (simulated)"><Icon d={ICONS.monitor} /><span class="hidden md:inline">HUD preview</span></a>
         </div>
@@ -111,12 +112,12 @@ export const TrackerWorkspace: Component = () => {
       <section class={`${shellX} relative mt-[18px]`} aria-label="Player">
         <div class="absolute inset-y-0 inset-x-4 -z-1 animate-rise rounded-[10px] border border-line-2 bg-[linear-gradient(105deg,rgb(16_19_27/.96)_0%,rgb(16_19_27/.85)_45%,rgb(40_14_24/.55)_100%)] [animation-delay:.05s] md:inset-x-6" />
         <div class="pointer-events-none absolute inset-y-0 right-4 -z-1 w-full overflow-hidden rounded-r-[10px] opacity-60 [mask-image:linear-gradient(90deg,transparent_0%,#000_40%)] md:right-6 md:w-[56%] md:opacity-100" aria-hidden="true">
-          <Img class="absolute -top-[18%] -right-[4%] w-[78%] max-w-none min-w-[520px] animate-hero-in opacity-55 saturate-110 [animation-delay:.15s]" src={agentPortrait(p().bannerAgent)} loading="eager" />
+          <Img class="absolute -top-[18%] -right-[4%] w-[78%] max-w-none min-w-[520px] animate-hero-in opacity-55 saturate-110 [animation-delay:.15s]" src={agentPortrait(p().bannerAgent)} scale={760} loading="eager" />
         </div>
         <div class="flex flex-wrap items-center justify-between gap-6 px-[18px] pt-[22px] pb-3.5 md:px-[34px] md:pt-[34px] md:pb-[18px]">
           <div class="flex animate-rise items-center gap-3.5 [animation-delay:.15s] md:gap-[22px]">
             <div class="relative size-[76px] flex-none overflow-hidden rounded-[10px] border border-line-2 bg-linear-160 from-[#2a1420] to-surface md:size-[108px]">
-              <Img class="-mt-[6%] -ml-[40%] w-[180%] max-w-none" src={agentPortrait(p().bannerAgent)} loading="eager" />
+              <Img class="-mt-[6%] -ml-[40%] w-[180%] max-w-none" src={agentPortrait(p().bannerAgent)} scale={760} loading="eager" />
               <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full border border-line-2 bg-bg px-2 py-px font-display text-[11px] font-bold"><CountUp value={p().level} duration={900} /></span>
             </div>
             <div>
@@ -132,7 +133,7 @@ export const TrackerWorkspace: Component = () => {
             </div>
           </div>
           <div class="flex w-full animate-rise flex-col gap-3.5 [animation-delay:.3s] md:w-auto md:flex-row md:flex-wrap [&_strong]:mt-0.5 [&_strong]:block [&_strong]:font-display [&_strong]:text-xl [&_strong]:font-bold">
-            <div class="flex items-center gap-4 rounded-lg border border-line bg-bg/55 py-3.5 pr-[18px] pl-3.5 backdrop-blur-md" style={{ '--rank-c': rankHue(p().tier) }}>
+            <div class="flex items-center gap-4 rounded-lg border border-line bg-bg/72 py-3.5 pr-[18px] pl-3.5" style={{ '--rank-c': rankHue(p().tier) }}>
               <Ring value={p().rr} max={100} size={112} stroke={6} color="var(--rank-c)" glow label={`${rankName(p().tier)}, ${p().rr} RR`}>
                 <RankBadge tier={p().tier} size={62} />
               </Ring>
@@ -142,7 +143,7 @@ export const TrackerWorkspace: Component = () => {
                 <span class="font-display text-sm font-semibold text-ink-2"><CountUp value={p().rr} /> <small class="text-[11px] text-muted">/ 100 RR</small></span>
               </div>
             </div>
-            <div class="flex items-center gap-4 rounded-lg border border-line bg-bg/55 py-3.5 pr-[18px] pl-3.5 backdrop-blur-md">
+            <div class="flex items-center gap-4 rounded-lg border border-line bg-bg/72 py-3.5 pr-[18px] pl-3.5">
               <RankBadge tier={p().peakTier} size={40} />
               <div><span class={tw.kicker}>Peak rank</span><strong>{p().peakTier ? rankName(p().peakTier) : '—'}</strong><small class="text-xs text-muted">{p().peakAct}</small></div>
             </div>
@@ -161,7 +162,7 @@ export const TrackerWorkspace: Component = () => {
         </div>
       </section>
 
-      <nav data-tabs class={`${inset} sticky top-0 z-20 mt-3 flex animate-rise gap-0.5 overflow-x-auto rounded-[10px] border border-line bg-[#0a0c12]/78 p-1.5 backdrop-blur-lg backdrop-saturate-130 [scrollbar-width:none] [animation-delay:.45s] md:mt-4`} aria-label="Profile sections"
+      <nav data-tabs class={`${inset} sticky top-0 z-20 mt-3 flex animate-rise gap-0.5 overflow-x-auto rounded-[10px] border border-line bg-[#0a0c12]/94 p-1.5 [scrollbar-width:none] [animation-delay:.45s] md:mt-4`} aria-label="Profile sections"
         ref={el => { navEl = el; const ro = new ResizeObserver(moveIndicator); ro.observe(el); onCleanup(() => ro.disconnect()); requestAnimationFrame(moveIndicator); }}>
         <For each={PAGES}>{pg => <button data-page={pg.id} class="relative z-1 flex items-center gap-2 rounded-[7px] px-4 py-2.5 font-display text-[12.5px] font-semibold uppercase tracking-[.08em] whitespace-nowrap transition-colors duration-200 hover:text-ink"
           classList={{ 'text-ink [&>svg]:text-accent': store.page() === pg.id, 'text-muted': store.page() !== pg.id }} aria-current={store.page() === pg.id ? 'page' : undefined} onClick={() => go(pg.id)}>

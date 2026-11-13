@@ -4,7 +4,7 @@ import { Card, Head, Stat, AgentIcon, Img, Result, Icon, ICONS, Empty, Swatch, t
 import { CountUp } from '../motion';
 import { Gauge, Ring, LineChart, Meter, Donut, Heatmap, SplitBar } from '../charts';
 import { fmt, relTime, impactOf } from '../data/stats';
-import { agentPortrait, mapSplash, weaponIcon, rankName, ROLE_COLOR } from '../data/assets';
+import { agentPortrait, mapBanner, weaponIcon, rankName, ROLE_COLOR } from '../data/assets';
 
 export const HIT = { head: 'var(--color-gold)', body: 'var(--color-hit-body)', legs: 'var(--color-hit-legs)' };
 
@@ -149,7 +149,7 @@ export const Overview: Component<{ go: (p: Page) => void }> = props => {
           <For each={['2K', '3K', '4K', 'Ace']}>{(l, i) =>
             <div class="grid h-full grid-rows-[1fr_auto_auto] justify-items-center gap-1">
               <div class="flex h-full min-h-[90px] w-full max-w-[46px] items-end overflow-hidden rounded-md bg-ink/4">
-                <i class="fx-height w-full rounded-md bg-linear-to-b from-accent-2 to-accent" style={{ '--i': i() * 2, '--h': `${Math.min(100, (s().multi[i()] / Math.max(1, s().multi[0])) * 100)}%` }} />
+                <i class="fx-grow-y w-full rounded-md bg-linear-to-b from-accent-2 to-accent" style={{ '--i': i() * 2, height: `max(${Math.min(100, (s().multi[i()] / Math.max(1, s().multi[0])) * 100)}%, 4%)` }} />
               </div>
               <b class="font-display text-[22px] font-bold"><CountUp value={s().multi[i()]} delay={i() * 90} /></b>
               <span class="font-display text-[10.5px] font-semibold tracking-[.14em] text-muted">{l}</span>
@@ -165,7 +165,7 @@ export const Overview: Component<{ go: (p: Page) => void }> = props => {
           <For each={st().agents.slice(0, 3)}>{(a, i) =>
             <button class="fx-rise group relative block min-h-[190px] overflow-hidden rounded-[10px] border border-line text-left transition duration-300 ease-out-expo hover:-translate-y-[5px] hover:border-[color-mix(in_srgb,var(--role)_60%,transparent)] md:min-h-[230px]"
               style={{ '--i': i() * 2, '--role': ROLE_COLOR[a.role], background: `radial-gradient(120% 90% at 80% 10%, color-mix(in srgb, ${ROLE_COLOR[a.role]} 35%, transparent), transparent 60%), var(--color-surface-3)` }} onClick={() => props.go('agents')}>
-              <Img class="absolute -top-[6%] -right-[24%] w-[95%] max-w-none opacity-85 transition-transform duration-500 ease-out-expo [mask-image:linear-gradient(180deg,#000_55%,transparent_95%)] group-hover:-translate-x-[4%] group-hover:scale-[1.07]" src={agentPortrait(a.name)} />
+              <Img class="absolute -top-[6%] -right-[24%] w-[95%] max-w-none opacity-85 transition-transform duration-500 ease-out-expo [mask-image:linear-gradient(180deg,#000_55%,transparent_95%)] group-hover:-translate-x-[4%] group-hover:scale-[1.07]" src={agentPortrait(a.name)} scale={760} />
               <div class="absolute inset-x-0 bottom-0 bg-linear-to-b from-transparent to-bg/92 to-45% p-3.5">
                 <RoleTag role={a.role} />
                 <strong class="block font-display text-2xl font-extrabold uppercase tracking-[.04em]">{a.name}</strong>
@@ -202,7 +202,7 @@ export const Overview: Component<{ go: (p: Page) => void }> = props => {
         <div class="grid gap-2.5">
           <For each={st().maps.slice(0, 5)}>{(m, i) =>
             <div class="fx-slide grid grid-cols-[54px_1fr_1.2fr] items-center gap-3" style={{ '--i': i() }}>
-              <Img class="h-9 w-[54px] rounded-[5px] border border-line object-cover" src={mapSplash(m.name)} />
+              <Img class="h-9 w-[54px] rounded-[5px] border border-line object-cover" src={mapBanner(m.name)} />
               <div><strong class="block font-display text-sm font-semibold">{m.name}</strong><small class={rowSmall}>{m.wins}W · {m.losses}L</small></div>
               <div class="flex items-center gap-2"><Meter value={m.winRate} color={m.winRate >= 50 ? 'var(--color-win)' : 'var(--color-loss)'} i={i()} /><b class="w-9 text-right font-display text-[13px] font-bold">{fmt(m.winRate, 0)}%</b></div>
             </div>}
@@ -241,7 +241,7 @@ export const Overview: Component<{ go: (p: Page) => void }> = props => {
           <For each={ms().slice(0, 6)}>{(m, i) =>
             <button class="fx-slide group relative grid grid-cols-[34px_1fr_auto] items-center gap-x-3.5 gap-y-1.5 overflow-hidden rounded-lg border border-line bg-bg/35 py-2.5 pr-3.5 pl-[18px] text-left transition duration-200 ease-out-expo before:absolute before:inset-y-0 before:left-0 before:w-[3px] hover:translate-x-1 hover:border-line-2 hover:bg-surface-3/60 md:grid-cols-[38px_1.5fr_1fr_1fr_.7fr_.6fr] wide:grid-cols-[38px_1.6fr_1fr_1fr_.7fr_.7fr_.6fr]"
               classList={{ 'before:bg-win': m.won, 'before:bg-loss': !m.won }} style={{ '--i': i() }} onClick={() => store.setOpenMatch(m)}>
-              <span class="absolute inset-y-0 left-0 w-2/5 bg-cover bg-center opacity-10 transition-opacity [mask-image:linear-gradient(90deg,#000,transparent)] group-hover:opacity-20" style={{ 'background-image': `url("${mapSplash(m.map)}")` }} />
+              <span class="absolute inset-y-0 left-0 w-2/5 bg-cover bg-center opacity-10 transition-opacity [mask-image:linear-gradient(90deg,#000,transparent)] group-hover:opacity-20" style={{ 'background-image': `url("${mapBanner(m.map)}")` }} />
               <AgentIcon name={m.agent} size={38} class="relative" />
               <div class="relative"><strong class={rowB}>{m.map}</strong><small class={rowSmall}>{m.queue} · {relTime(m.startedAt)}</small></div>
               <div class="relative col-span-2 flex items-center gap-2.5 md:col-span-1"><Result won={m.won} draw={m.draw} /><b class={rowB}>{m.teamScore}<em class="mx-[3px] not-italic text-muted">:</em>{m.enemyScore}</b></div>

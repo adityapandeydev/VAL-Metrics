@@ -102,8 +102,15 @@ export function byDay(ms: Match[]) {
   return [...days].map(([day, list]) => ({ day, date: new Date(list[0].startedAt), list, s: summarize(list) }));
 }
 
-export const fmt = (v: number | null | undefined, digits = 0) =>
-  v == null || !Number.isFinite(v) ? '—' : v.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+// Intl.NumberFormat is expensive to construct; toLocaleString(…, options) builds one per call.
+// Count-ups format ~50 numbers every frame, so formatters are cached per precision.
+const formatters = new Map<number, Intl.NumberFormat>();
+export const fmt = (v: number | null | undefined, digits = 0) => {
+  if (v == null || !Number.isFinite(v)) return '—';
+  let f = formatters.get(digits);
+  if (!f) formatters.set(digits, (f = new Intl.NumberFormat('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })));
+  return f.format(v);
+};
 
 export function relTime(iso: string) {
   const diff = (Date.now() - new Date(iso).getTime()) / 36e5;

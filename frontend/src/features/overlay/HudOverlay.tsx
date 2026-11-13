@@ -14,6 +14,7 @@ import { sampleProfile } from '../tracker/data/demo';
 import { summarize, fmt, relTime } from '../tracker/data/stats';
 import { agentIcon, agentPortrait, agentRole, mapSplash, mapLocation, rankIcon, rankName, rankHue, FALLBACK, ROLE_COLOR } from '../tracker/data/assets';
 import type { Match } from '../tracker/data/types';
+import { useScaled } from '../tracker/motion';
 
 type Stage = 'lobby' | 'select' | 'match' | 'ffa';
 const STAGES: { id: Stage; label: string }[] = [
@@ -45,8 +46,11 @@ const toneCls = (v: number) => (v > 0 ? 'text-win' : v < 0 ? 'text-loss' : '');
 const Img: Component<{ src: string; class?: string; alt?: string }> = p =>
   <img class={p.class} src={p.src} alt={p.alt ?? ''} draggable={false} onError={e => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />;
 
-const AgentImg: Component<{ name: string; size?: 'md' | 'lg' | 'xl' }> = p =>
-  <Img class={`flex-none border border-line bg-surface-3 object-cover ${p.size === 'xl' ? 'size-[58px] rounded-[10px]' : p.size === 'lg' ? 'size-[42px] rounded-[7px]' : 'size-[34px] rounded-[7px]'}`} src={agentIcon(p.name)} />;
+const AgentImg: Component<{ name: string; size?: 'md' | 'lg' | 'xl' }> = p => {
+  const src = useScaled(() => agentIcon(p.name), 128); // 1024px source → 128px copy in memory
+  return <img class={`flex-none border border-line bg-surface-3 object-cover ${p.size === 'xl' ? 'size-[58px] rounded-[10px]' : p.size === 'lg' ? 'size-[42px] rounded-[7px]' : 'size-[34px] rounded-[7px]'}`}
+    src={src() || undefined} style={src() ? undefined : { visibility: 'hidden' }} alt="" draggable={false} onError={e => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />;
+};
 
 const Rank: Component<{ tier: number; size?: number }> = p => {
   const [bad, setBad] = createSignal(false);
@@ -201,6 +205,9 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
     return { list, s: summarize(list), rr: list.reduce((n, m) => n + (m.rrChange || 0), 0) };
   });
   const liveKd = () => now().k / Math.max(1, now().d);
+  // Large art is downscaled once and only the small copy is kept in memory.
+  const lobbyArt = useScaled(() => agentPortrait(profile.bannerAgent), 760);
+  const mapArt = useScaled(() => mapSplash(now().map), 960);
   const delta = (a: number, b: number, digits = 0) => (Number.isFinite(a) && Number.isFinite(b) ? `${a - b >= 0 ? '+' : ''}${fmt(a - b, digits)}` : '—');
 
   const chip = 'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] font-display text-[10.5px] font-semibold uppercase tracking-[.08em] [&>i]:size-1.5 [&>i]:rounded-full [&>i]:bg-current';
@@ -250,7 +257,7 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
         <div class="grid h-full min-h-0 grid-cols-[1.45fr_1fr] gap-3.5">
           <Panel class="flex-row overflow-hidden p-0">
             <div class="relative w-[34%] max-w-[300px] overflow-hidden bg-[radial-gradient(90%_70%_at_50%_30%,rgb(255_70_85/.18),transparent_70%),var(--color-surface-2)] max-[1120px]:hidden">
-              <img class="absolute -top-[4%] -left-[10%] w-[120%] max-w-none [mask-image:linear-gradient(180deg,#000_70%,transparent)]" src={agentPortrait(profile.bannerAgent)} alt="" draggable={false} onError={e => { e.currentTarget.style.display = 'none'; }} />
+              <img class="absolute -top-[4%] -left-[10%] w-[120%] max-w-none [mask-image:linear-gradient(180deg,#000_70%,transparent)]" src={lobbyArt() || undefined} alt="" draggable={false} onError={e => { e.currentTarget.style.display = 'none'; }} />
             </div>
             <div class="flex min-w-0 flex-1 flex-col gap-3.5 p-5">
               <span class={kicker}>Ready for matchmaking</span>
@@ -272,7 +279,7 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
                 <div>
                   <span class={kicker}>Most played</span>
                   <div class="mt-2 grid grid-cols-3 gap-2"><For each={topAgents()}>{a =>
-                    <div class={`${well} flex min-w-0 items-center gap-2.5 px-2.5 py-2`}><AgentImg name={a.agent} /><div class="min-w-0"><strong class="block font-display text-sm font-semibold">{a.agent}</strong><small class="block truncate text-[11px] text-muted">{a.s.matches} {a.s.matches === 1 ? 'match' : 'matches'} · {fmt(a.s.winRate, 0)}% WR</small></div></div>}
+                    <div class={`${well} flex min-w-0 items-center gap-2.5 px-2.5 py-2`}><AgentImg name={a.agent} /><div class="min-w-0"><strong class="block font-display text-sm font-semibold">{a.agent}</strong><small class="block text-[11px] leading-tight text-muted">{a.s.matches} {a.s.matches === 1 ? 'match' : 'matches'}<br />{fmt(a.s.winRate, 0)}% win rate</small></div></div>}
                   </For></div>
                 </div>
               </Show>
@@ -301,8 +308,8 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
       <Show when={stage() === 'select'}>
         <div class="grid h-full min-h-0 grid-cols-[1fr_1.3fr] gap-3.5">
           <Panel class="overflow-hidden p-0">
-            <div class="relative h-[150px] flex-none overflow-hidden after:absolute after:inset-0 after:bg-linear-to-t after:from-surface after:from-[2%] after:to-surface/20 after:to-70% max-h-[700px]:h-[110px]">
-              <Img class="size-full object-cover" src={mapSplash(now().map)} />
+            <div class="relative h-[150px] flex-none overflow-hidden after:absolute after:inset-0 after:bg-linear-to-t after:from-surface after:from-[2%] after:to-surface/20 after:to-70% [@media(max-height:700px)]:h-[110px]">
+              <img class="size-full object-cover" src={mapArt() || undefined} alt="" draggable={false} onError={e => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />
               <div class="absolute bottom-2.5 left-[18px] z-1"><span class={kicker}>{mapLocation(now().map) || 'Map'}</span><h2 class="font-display text-[32px] leading-none font-extrabold uppercase tracking-[.04em]">{now().map}</h2></div>
             </div>
             <div class="flex flex-1 flex-col gap-4 px-[18px] pt-3.5 pb-[18px]">
@@ -342,7 +349,7 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
       {/* ═════════ LIVE MATCH ═════════ */}
       <Show when={stage() === 'match'}>
         <div class="flex min-h-full flex-col gap-3.5">
-          <div class="grid flex-none grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-[10px] border border-line bg-surface px-[22px] py-3 [&_b]:font-display [&_b]:text-5xl [&_b]:leading-none [&_b]:font-extrabold [&_b]:tracking-normal max-h-[700px]:[&_b]:text-[38px]">
+          <div class="grid flex-none grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-[10px] border border-line bg-surface px-[22px] py-3 [&_b]:font-display [&_b]:text-5xl [&_b]:leading-none [&_b]:font-extrabold [&_b]:tracking-normal [@media(max-height:700px)]:[&_b]:text-[38px]">
             <div class="flex items-center justify-end gap-4 font-display text-xs font-semibold uppercase tracking-[.14em] text-ink-2"><span>Your team</span><b class="text-win">{now().ally}</b></div>
             <div class="grid justify-items-center border-x border-line px-[22px]"><strong class="font-display text-[17px] font-bold uppercase tracking-[.06em]">Round {now().round}</strong><span class="text-xs text-muted">{now().phase} · {side()}</span></div>
             <div class="flex items-center gap-4 font-display text-xs font-semibold uppercase tracking-[.14em] text-ink-2"><b class="text-loss">{now().enemy}</b><span>Enemy team</span></div>
@@ -354,7 +361,7 @@ export const HudOverlay: Component<{ initialData?: OverlayTelemetryPayload }> = 
                 <div><span class={kicker}>You · {agentRole(now().agent)}</span><strong class={big}>{now().agent}</strong></div>
                 <div class="ml-auto flex items-center gap-2 text-right"><Rank tier={now().tier} size={34} /><div><b class="block font-display text-[13px] font-semibold">{now().tier ? rankName(now().tier) : 'Unranked'}</b><small class="text-[11.5px] text-muted">{fmt(now().rr)} RR</small></div></div>
               </div>
-              <div class={`${well} flex items-baseline justify-center gap-3 rounded-[10px] p-3.5 font-display text-[56px] leading-none font-extrabold max-h-[700px]:p-2.5 max-h-[700px]:text-[42px]`}>
+              <div class={`${well} flex items-baseline justify-center gap-3 rounded-[10px] p-3.5 font-display text-[56px] leading-none font-extrabold [@media(max-height:700px)]:p-2.5 [@media(max-height:700px)]:text-[42px]`}>
                 <b>{now().k}</b><i class="text-3xl text-muted not-italic">/</i><b class="text-loss">{now().d}</b><i class="text-3xl text-muted not-italic">/</i><b>{now().a}</b>
               </div>
               <div class="grid grid-cols-3 gap-2">

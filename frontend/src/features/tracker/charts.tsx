@@ -65,7 +65,7 @@ export const Meter: Component<{ value: number; max?: number; color?: string; i?:
 export const SplitBar: Component<{ parts: { value: number; color: string; label: string }[] }> = p => {
   const total = () => p.parts.reduce((n, x) => n + (Number.isFinite(x.value) ? x.value : 0), 0) || 1;
   return <div class="mt-1 flex h-2.5 gap-0.5 overflow-hidden rounded-full" role="img" aria-label={p.parts.map(x => `${x.label} ${fmt(x.value, 1)}%`).join(', ')}>
-    <For each={p.parts}>{(x, i) => <i class="fx-basis first:rounded-l-full last:rounded-r-full" title={`${x.label} ${fmt(x.value, 1)}%`} style={{ '--w': `${(x.value / total()) * 100}%`, background: x.color, '--i': i() }} />}</For>
+    <For each={p.parts}>{(x, i) => <i class="fx-grow-x first:rounded-l-full last:rounded-r-full" title={`${x.label} ${fmt(x.value, 1)}%`} style={{ flex: `0 0 ${(x.value / total()) * 100}%`, background: x.color, '--i': i() }} />}</For>
   </div>;
 };
 
@@ -74,8 +74,8 @@ function useWidth(fallback = 600) {
   const [w, setW] = createSignal(fallback);
   const ref = (el: HTMLElement) => {
     onMount(() => {
-      setW(el.clientWidth || fallback);
-      const ro = new ResizeObserver(() => setW(el.clientWidth || fallback));
+      // The observer reports the size itself (first callback fires on observe), so no forced layout.
+      const ro = new ResizeObserver(([e]) => { const cw = Math.round(e.contentRect.width); if (cw) setW(cw); });
       ro.observe(el);
       onCleanup(() => ro.disconnect());
     });
@@ -93,23 +93,25 @@ export const LineChart: Component<{
   const [width, wref] = useWidth();
   const [seen, ref] = useInView(0.2);
   const [hover, setHover] = createSignal<number | null>(null);
+  // Props are getters in Solid; memoise so the points array isn't rebuilt on every read.
+  const pts = createMemo(() => p.points);
   const H = () => p.height ?? 220;
   const pad = { l: p.hideAxis ? 8 : 44, r: 14, t: 16, b: 26 };
-  const ys = () => p.points.map(x => x.y).filter(Number.isFinite);
+  const ys = () => pts().map(x => x.y).filter(Number.isFinite);
   const lo = () => p.min ?? Math.floor(Math.min(...ys(), p.baseline ?? Infinity) * 0.92);
   const hi = () => p.max ?? Math.ceil(Math.max(...ys(), p.baseline ?? -Infinity) * 1.06);
-  const x = (i: number) => pad.l + (i * (width() - pad.l - pad.r)) / Math.max(1, p.points.length - 1);
+  const x = (i: number) => pad.l + (i * (width() - pad.l - pad.r)) / Math.max(1, pts().length - 1);
   const y = (v: number) => pad.t + (1 - (v - lo()) / Math.max(1e-6, hi() - lo())) * (H() - pad.t - pad.b);
-  const path = createMemo(() => p.points.map((pt, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(pt.y).toFixed(1)}`).join(' '));
-  const area = () => `${path()} L${x(p.points.length - 1)},${H() - pad.b} L${x(0)},${H() - pad.b} Z`;
+  const path = createMemo(() => pts().map((pt, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(pt.y).toFixed(1)}`).join(' '));
+  const area = () => `${path()} L${x(pts().length - 1)},${H() - pad.b} L${x(0)},${H() - pad.b} Z`;
   const ticks = () => [0, 1, 2, 3].map(i => lo() + ((hi() - lo()) * i) / 3);
   const f = (v: number) => (p.format ? p.format(v) : fmt(v));
   const onMove = (e: PointerEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const i = Math.round(((e.clientX - rect.left - pad.l) / (width() - pad.l - pad.r)) * (p.points.length - 1));
-    setHover(Math.max(0, Math.min(p.points.length - 1, i)));
+    const i = Math.round(((e.clientX - rect.left - pad.l) / (width() - pad.l - pad.r)) * (pts().length - 1));
+    setHover(Math.max(0, Math.min(pts().length - 1, i)));
   };
-  const key = createMemo(() => path().length + ':' + p.points.length + ':' + p.points.map(q => q.y).join(','));
+  const key = createMemo(() => path().length + ':' + pts().length + ':' + pts().map(q => q.y).join(','));
   const gid = `lg-${Math.random().toString(36).slice(2, 8)}`;
   const stroke = () => p.color || 'var(--color-accent)';
   return <div ref={el => { wref(el); ref(el); }} class="relative select-none" classList={{ in: seen(), 'cursor-pointer': !!p.onPick }} style={{ height: `${H()}px` }}
@@ -125,7 +127,7 @@ export const LineChart: Component<{
       </g>}</For>
       <For each={p.bands || []}>{b => <Show when={b.at > lo() && b.at < hi()}><g>
         <line class="stroke-accent-2/18 [stroke-dasharray:2_4]" x1={pad.l} x2={width() - pad.r} y1={y(b.at)} y2={y(b.at)} />
-        <text class="fill-accent-2/60 font-display text-[9.5px] font-semibold uppercase tracking-[.1em]" x={pad.l + 4} y={y(b.at) - 5} text-anchor="start">{b.label}</text>
+        <text class="fill-accent-2/70 stroke-bg font-display text-[9.5px] font-semibold uppercase tracking-[.1em] [paint-order:stroke] [stroke-width:4px] [stroke-linejoin:round]" x={pad.l + 4} y={y(b.at) - 5} text-anchor="start">{b.label}</text>
       </g></Show>}</For>
       <Show when={p.baseline != null && Number.isFinite(p.baseline)}>
         <line class="stroke-ink-2 opacity-45 [stroke-dasharray:5_5]" x1={pad.l} x2={width() - pad.r} y1={y(p.baseline!)} y2={y(p.baseline!)} />
@@ -133,20 +135,20 @@ export const LineChart: Component<{
       <Show when={key()} keyed>{_k => <>
         <path class="fx-fade-late opacity-0" d={area()} fill={`url(#${gid})`} />
         <path class="fx-draw fill-none drop-shadow-[0_4px_10px_rgb(255_70_85/.35)]" d={path()} pathLength="1" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round" style={{ stroke: stroke() }} />
-        <For each={p.points}>{(pt, i) => <circle class="fx-pop fill-surface stroke-2"
+        <For each={pts()}>{(pt, i) => <circle class="fx-pop fill-surface stroke-2"
           classList={{ 'stroke-win': pt.tone === 'win', 'stroke-loss': pt.tone === 'loss', 'stroke-ink-2': !pt.tone || pt.tone === 'neutral' }}
-          cx={x(i())} cy={y(pt.y)} r="4" style={{ '--i': i(), '--step': `${1600 / Math.max(1, p.points.length)}ms`, '--base': '300ms' }} />}</For>
+          cx={x(i())} cy={y(pt.y)} r="4" style={{ '--i': i(), '--step': `${1600 / Math.max(1, pts().length)}ms`, '--base': '300ms' }} />}</For>
       </>}</Show>
       <Show when={hover() != null}>
         <line class="stroke-line-2 [stroke-dasharray:3_3]" x1={x(hover()!)} x2={x(hover()!)} y1={pad.t} y2={H() - pad.b} />
-        <circle class="fill-none stroke-ink stroke-2" cx={x(hover()!)} cy={y(p.points[hover()!].y)} r="7" />
+        <circle class="fill-none stroke-ink stroke-2" cx={x(hover()!)} cy={y(pts()[hover()!].y)} r="7" />
       </Show>
     </svg>
     <Show when={hover() != null}>
       <div class="pointer-events-none absolute z-3 grid min-w-[140px] animate-rise gap-px rounded-lg border border-line-2 bg-bg/95 px-2.5 py-2 shadow-[0_12px_30px_-10px_#000] [animation-duration:.18s]"
-        style={{ left: `${Math.min(width() - 150, Math.max(0, x(hover()!) - 70))}px`, top: `${Math.max(0, y(p.points[hover()!].y) - 74)}px` }}>
-        <strong class="font-display text-[17px] font-bold">{p.tipValue ? p.tipValue(hover()!) : f(p.points[hover()!].y)}</strong>
-        <span class="text-xs">{p.points[hover()!].label}</span><small class="text-[11px] text-muted">{p.points[hover()!].sub}</small>
+        style={{ left: `${Math.min(width() - 150, Math.max(0, x(hover()!) - 70))}px`, top: `${Math.max(0, y(pts()[hover()!].y) - 74)}px` }}>
+        <strong class="font-display text-[17px] font-bold">{p.tipValue ? p.tipValue(hover()!) : f(pts()[hover()!].y)}</strong>
+        <span class="text-xs">{pts()[hover()!].label}</span><small class="text-[11px] text-muted">{pts()[hover()!].sub}</small>
       </div>
     </Show>
   </div>;
@@ -164,7 +166,7 @@ export const Columns: Component<{ items: { value: number; label: string; sub?: s
       </div>
     </Show>
     <For each={p.items}>{(it, i) => <button type="button" class="group relative flex h-full flex-1 items-end" style={{ '--h': `${(Math.max(0, it.value) / max()) * 100}%`, '--i': i() }} onClick={() => p.onPick?.(i())} tabindex={p.onPick ? 0 : -1}>
-      <i class="fx-height w-full rounded-t bg-linear-to-b group-hover:brightness-135 group-focus-visible:brightness-135"
+      <i class="fx-grow-y h-(--h) w-full rounded-t bg-linear-to-b group-hover:brightness-135 group-focus-visible:brightness-135"
         classList={{ 'from-win to-win/25': it.tone === 'win', 'from-loss to-loss/25': it.tone === 'loss', 'from-ink-2 to-ink-2/35': it.tone !== 'win' && it.tone !== 'loss' }} />
       <span class="pointer-events-none absolute left-1/2 z-2 grid -translate-x-1/2 translate-y-1.5 rounded-md border border-line-2 bg-bg/95 px-2 py-1.5 text-[11.5px] whitespace-nowrap opacity-0 transition duration-150 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100"
         style={{ bottom: 'calc(var(--h) + 8px)' }}>
